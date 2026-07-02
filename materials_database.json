@@ -1,0 +1,626 @@
+[
+  {
+    "item": "1 inch galvanized rigid conduitx 10 ft",
+    "category": "Conduit",
+    "cost": 45.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pvc conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 12.0,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 galvanized rigid xonduit x 10 ft",
+    "category": "Conduit",
+    "cost": 158.41,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch pvc conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 35.44,
+    "qty": 0
+  },
+  {
+    "item": "2 inch galvanized rigid conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 99.0,
+    "qty": 0
+  },
+  {
+    "item": "2 inch pvc conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 25.93,
+    "qty": 0
+  },
+  {
+    "item": "3 inch glavanized rigid conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 157.5,
+    "qty": 0
+  },
+  {
+    "item": "3 inch pvc conduit x 10 ft",
+    "category": "Conduit",
+    "cost": 44.99,
+    "qty": 0
+  },
+  {
+    "item": "1 inch galvanized rigid connector",
+    "category": "Conduit Fittings",
+    "cost": 8.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch galvanized rigid weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 14.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch MIGB x2",
+    "category": "Conduit Fittings",
+    "cost": 18.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pv coupling",
+    "category": "Conduit Fittings",
+    "cost": 3.18,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pvc conduit support box (100)",
+    "category": "Conduit Fittings",
+    "cost": 65.09,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pvc connector",
+    "category": "Conduit Fittings",
+    "cost": 4.06,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pvc LB",
+    "category": "Conduit Fittings",
+    "cost": 8.78,
+    "qty": 0
+  },
+  {
+    "item": "1 inch pvc weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 14.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch rigid conduit support box (50)",
+    "category": "Conduit Fittings",
+    "cost": 39.8,
+    "qty": 0
+  },
+  {
+    "item": "1 inch rigid coupling",
+    "category": "Conduit Fittings",
+    "cost": 6.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch rigid LB",
+    "category": "Conduit Fittings",
+    "cost": 18.98,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch galvanized rigid connector",
+    "category": "Conduit Fittings",
+    "cost": 61.88,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch pvc connector",
+    "category": "Conduit Fittings",
+    "cost": 22.4,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch pvc coupling",
+    "category": "Conduit Fittings",
+    "cost": 18.69,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 Inch PVC LB",
+    "category": "Conduit Fittings",
+    "cost": 36.69,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch pvc supports box (25)",
+    "category": "Conduit Fittings",
+    "cost": 67.38,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch rigid conduit clamp box (50)",
+    "category": "Conduit Fittings",
+    "cost": 166.5,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch rigid coupling",
+    "category": "Conduit Fittings",
+    "cost": 16.8,
+    "qty": 0
+  },
+  {
+    "item": "2 1/2 inch rigid LB",
+    "category": "Conduit Fittings",
+    "cost": 132.6,
+    "qty": 0
+  },
+  {
+    "item": "2 inch galvanized rigid connector",
+    "category": "Conduit Fittings",
+    "cost": 50.6,
+    "qty": 0
+  },
+  {
+    "item": "2 inch galvanized rigid weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 30.8,
+    "qty": 0
+  },
+  {
+    "item": "2 inch pvc conduit clamp box (25)",
+    "category": "Conduit Fittings",
+    "cost": 29.54,
+    "qty": 0
+  },
+  {
+    "item": "2 inch pvc connector",
+    "category": "Conduit Fittings",
+    "cost": 14.1,
+    "qty": 0
+  },
+  {
+    "item": "2 inch pvc coupling",
+    "category": "Conduit Fittings",
+    "cost": 7.88,
+    "qty": 0
+  },
+  {
+    "item": "2 Inch PVC LB",
+    "category": "Conduit Fittings",
+    "cost": 12.33,
+    "qty": 0
+  },
+  {
+    "item": "2 inch pvc weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 16.78,
+    "qty": 0
+  },
+  {
+    "item": "2 inch rigid conduit clamp box (50)",
+    "category": "Conduit Fittings",
+    "cost": 116.5,
+    "qty": 0
+  },
+  {
+    "item": "2 inch rigid coupling",
+    "category": "Conduit Fittings",
+    "cost": 13.2,
+    "qty": 0
+  },
+  {
+    "item": "2 inch rigid LB",
+    "category": "Conduit Fittings",
+    "cost": 55.52,
+    "qty": 0
+  },
+  {
+    "item": "3 inch galvanized rigid connector",
+    "category": "Conduit Fittings",
+    "cost": 61.14,
+    "qty": 0
+  },
+  {
+    "item": "3 inch galvanized rigid weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 68.55,
+    "qty": 0
+  },
+  {
+    "item": "3 inch pvc conduit clamp box (20)",
+    "category": "Conduit Fittings",
+    "cost": 94.23,
+    "qty": 0
+  },
+  {
+    "item": "3 inch pvc connector",
+    "category": "Conduit Fittings",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "3 inch pvc coupling",
+    "category": "Conduit Fittings",
+    "cost": 21.0,
+    "qty": 0
+  },
+  {
+    "item": "3 inch PVC LB",
+    "category": "Conduit Fittings",
+    "cost": 39.32,
+    "qty": 0
+  },
+  {
+    "item": "3 inch pvc weatherhead",
+    "category": "Conduit Fittings",
+    "cost": 123.4,
+    "qty": 0
+  },
+  {
+    "item": "3 inch rigid conduit clamp box (50)",
+    "category": "Conduit Fittings",
+    "cost": 258.96,
+    "qty": 0
+  },
+  {
+    "item": "3 inch rigid coupling",
+    "category": "Conduit Fittings",
+    "cost": 42.82,
+    "qty": 0
+  },
+  {
+    "item": "3 inch rigid lb",
+    "category": "Conduit Fittings",
+    "cost": 168.92,
+    "qty": 0
+  },
+  {
+    "item": "100 A Disco",
+    "category": "Enclosure",
+    "cost": 119.27,
+    "qty": 0
+  },
+  {
+    "item": "100 A Meter Main",
+    "category": "Enclosure",
+    "cost": 358.9,
+    "qty": 0
+  },
+  {
+    "item": "100 amp 2 gang meter main",
+    "category": "Enclosure",
+    "cost": 600.0,
+    "qty": 0
+  },
+  {
+    "item": "100 amp 3 gang meter main",
+    "category": "Enclosure",
+    "cost": 1134.93,
+    "qty": 0
+  },
+  {
+    "item": "100 amp Panel",
+    "category": "Enclosure",
+    "cost": 168.34,
+    "qty": 0
+  },
+  {
+    "item": "100A Sub Panel",
+    "category": "Enclosure",
+    "cost": 128.03,
+    "qty": 0
+  },
+  {
+    "item": "12 x 12 x 8 PVC Box",
+    "category": "Enclosure",
+    "cost": 162.67,
+    "qty": 0
+  },
+  {
+    "item": "200 A Disco",
+    "category": "Enclosure",
+    "cost": 247.79,
+    "qty": 0
+  },
+  {
+    "item": "200 A Meter Main",
+    "category": "Enclosure",
+    "cost": 351.21,
+    "qty": 0
+  },
+  {
+    "item": "200 amp 2 gang meter main",
+    "category": "Enclosure",
+    "cost": 674.3,
+    "qty": 0
+  },
+  {
+    "item": "200 amp 3 gang meter main",
+    "category": "Enclosure",
+    "cost": 1256.8,
+    "qty": 0
+  },
+  {
+    "item": "200 amp Panel",
+    "category": "Enclosure",
+    "cost": 264.49,
+    "qty": 0
+  },
+  {
+    "item": "400 A Meter Main",
+    "category": "Enclosure",
+    "cost": 1626.38,
+    "qty": 0
+  },
+  {
+    "item": "400 amp 3 gang meter main",
+    "category": "Enclosure",
+    "cost": 1650.0,
+    "qty": 0
+  },
+  {
+    "item": "1 inch SEU Weatherhead",
+    "category": "Equipment",
+    "cost": 15.76,
+    "qty": 0
+  },
+  {
+    "item": "2 Inch SEU Weatherhead",
+    "category": "Equipment",
+    "cost": 19.83,
+    "qty": 0
+  },
+  {
+    "item": "Surge Protector",
+    "category": "Equipment",
+    "cost": 140.0,
+    "qty": 0
+  },
+  {
+    "item": "Tesla Ev Charger",
+    "category": "Equipment",
+    "cost": 450.0,
+    "qty": 0
+  },
+  {
+    "item": "Tesla Rapid Shut Down (RSD)",
+    "category": "Equipment",
+    "cost": 208.91,
+    "qty": 0
+  },
+  {
+    "item": "1 5/8\" Unistrut x 10 ft",
+    "category": "Fasteners",
+    "cost": 52.49,
+    "qty": 0
+  },
+  {
+    "item": "3/4 bolt (25 pack)",
+    "category": "Fasteners",
+    "cost": 18.39,
+    "qty": 0
+  },
+  {
+    "item": "3/8 Washers (25 pack)",
+    "category": "Fasteners",
+    "cost": 15.43,
+    "qty": 0
+  },
+  {
+    "item": "Spring Bolt (5 pack)",
+    "category": "Fasteners",
+    "cost": 11.23,
+    "qty": 0
+  },
+  {
+    "item": "Tec Screws (100)",
+    "category": "Fasteners",
+    "cost": 16.82,
+    "qty": 0
+  },
+  {
+    "item": "Disco/Reco Fee",
+    "category": "Fees",
+    "cost": 2000.0,
+    "qty": 0
+  },
+  {
+    "item": "Permit Fee",
+    "category": "Fees",
+    "cost": 600.0,
+    "qty": 0
+  },
+  {
+    "item": "2\" Hub",
+    "category": "Fittings",
+    "cost": 16.98,
+    "qty": 0
+  },
+  {
+    "item": "Romex / MC Connectors (100)",
+    "category": "Fittings",
+    "cost": 38.12,
+    "qty": 0
+  },
+  {
+    "item": "SEU Strap box (25)",
+    "category": "Fittings",
+    "cost": 57.11,
+    "qty": 0
+  },
+  {
+    "item": "SEU Wall Plate",
+    "category": "Fittings",
+    "cost": 15.0,
+    "qty": 0
+  },
+  {
+    "item": "Labor Apprentice",
+    "category": "Labor",
+    "cost": 30.0,
+    "qty": 0
+  },
+  {
+    "item": "Labor Apprentice MA",
+    "category": "Labor",
+    "cost": 40.0,
+    "qty": 0
+  },
+  {
+    "item": "Labor Electrician",
+    "category": "Labor",
+    "cost": 50.0,
+    "qty": 0
+  },
+  {
+    "item": "Labor Electrician MA",
+    "category": "Labor",
+    "cost": 60.0,
+    "qty": 0
+  },
+  {
+    "item": "Wirenuts Red (100)",
+    "category": "Other Material",
+    "cost": 36.31,
+    "qty": 0
+  },
+  {
+    "item": "15 A 2-Pole Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "15A Breakers",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "20 A 2-Pole Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "200 A CSR Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 198.17,
+    "qty": 0
+  },
+  {
+    "item": "20A Breaker sleeve (12)",
+    "category": "Overcurrent Protection",
+    "cost": 84.98,
+    "qty": 0
+  },
+  {
+    "item": "30 A 2- Pole Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "40A 2-pole Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "60A 2-pole Breaker",
+    "category": "Overcurrent Protection",
+    "cost": 28.0,
+    "qty": 0
+  },
+  {
+    "item": "60A Disconnect",
+    "category": "Overcurrent Protection",
+    "cost": 82.37,
+    "qty": 0
+  },
+  {
+    "item": "60A Fuses",
+    "category": "Overcurrent Protection",
+    "cost": 19.37,
+    "qty": 0
+  },
+  {
+    "item": "# 6 copper by  the the foot",
+    "category": "Wire",
+    "cost": 0.92,
+    "qty": 0
+  },
+  {
+    "item": "#10 copper by the ft",
+    "category": "Wire",
+    "cost": 0.33,
+    "qty": 0
+  },
+  {
+    "item": "#2 aluminum SER by the ft",
+    "category": "Wire",
+    "cost": 1.98,
+    "qty": 0
+  },
+  {
+    "item": "#2 Aluminum SEU by the ft",
+    "category": "Wire",
+    "cost": 1.93,
+    "qty": 0
+  },
+  {
+    "item": "#4 copper by the ft",
+    "category": "Wire",
+    "cost": 1.41,
+    "qty": 0
+  },
+  {
+    "item": "#4 Copper SER by the ft",
+    "category": "Wire",
+    "cost": 8.47,
+    "qty": 0
+  },
+  {
+    "item": "#4 Copper SEU by the ft",
+    "category": "Wire",
+    "cost": 5.38,
+    "qty": 0
+  },
+  {
+    "item": "2/0 Copper by the ft",
+    "category": "Wire",
+    "cost": 3.79,
+    "qty": 0
+  },
+  {
+    "item": "2/0 Copper SER by the ft",
+    "category": "Wire",
+    "cost": 13.25,
+    "qty": 0
+  },
+  {
+    "item": "2/0 Copper SEU by the ft",
+    "category": "Wire",
+    "cost": 7.47,
+    "qty": 0
+  },
+  {
+    "item": "4/0 Aluminum SER by the ft",
+    "category": "Wire",
+    "cost": 5.03,
+    "qty": 0
+  },
+  {
+    "item": "4/0 Aluminum SEU by the ft",
+    "category": "Wire",
+    "cost": 3.51,
+    "qty": 0
+  }
+]

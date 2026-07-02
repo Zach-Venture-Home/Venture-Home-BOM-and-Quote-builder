@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venture Home BOM & Quote Tool</title>
+<style>
+:root {
+  --blue:#163b5c;
+  --blue2:#205f8f;
+  --light:#eef6fb;
+  --border:#d8e3ec;
+  --text:#182533;
+  --muted:#607283;
+  --danger:#b42318;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f4f7fa;
+  color:var(--text);
+}
+header {
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:white;
+  padding:18px 26px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+}
+.brand {
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:.5px;
+}
+.subbrand {
+  font-size:14px;
+  margin-top:3px;
+  opacity:.9;
+}
+.header-actions button {
+  margin-left:8px;
+  border:1px solid rgba(255,255,255,.6);
+  color:white;
+  background:rgba(255,255,255,.12);
+  border-radius:8px;
+  padding:9px 12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.header-actions button:hover { background:rgba(255,255,255,.22); }
+.app {
+  max-width:1650px;
+  margin:0 auto;
+  padding:18px;
+  display:grid;
+  grid-template-columns:minmax(560px,1.2fr) minmax(450px,.8fr);
+  gap:18px;
+}
+.panel {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(13,38,61,.08);
+}
+.panel-title {
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  color:var(--blue);
+  font-weight:900;
+  font-size:18px;
+  background:#fbfdff;
+}
+.controls {
+  display:grid;
+  grid-template-columns:1fr 250px;
+  gap:12px;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+}
+input, select {
+  width:100%;
+  padding:11px 12px;
+  border:1px solid #c6d3df;
+  border-radius:9px;
+  font-size:14px;
+  background:white;
+}
+.note {
+  color:var(--muted);
+  font-size:12px;
+  padding:0 18px 12px;
+}
+.material-list {
+  height:630px;
+  overflow:auto;
+}
+.material-row {
+  display:grid;
+  grid-template-columns:1fr 130px 95px 105px;
+  gap:10px;
+  align-items:center;
+  padding:10px 18px;
+  border-bottom:1px solid #edf1f5;
+}
+.material-row:hover { background:var(--light); }
+.material-name { font-weight:800; }
+.material-cat { color:var(--muted); font-size:12px; margin-top:3px; }
+.money { text-align:right; font-weight:800; }
+.qty-input { text-align:center; font-weight:800; }
+.add-btn {
+  border:none;
+  background:var(--blue);
+  color:white;
+  padding:9px 10px;
+  border-radius:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.add-btn:hover { background:var(--blue2); }
+.right {
+  display:grid;
+  grid-template-rows:auto auto 1fr;
+  gap:18px;
+}
+.summary {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:14px 18px;
+}
+.stat {
+  background:var(--light);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+}
+.stat-label { color:var(--muted); font-size:12px; }
+.stat-value { font-weight:900; font-size:20px; margin-top:4px; }
+.output {
+  padding:14px 18px 18px;
+  overflow:auto;
+}
+.selected-output { height:245px; }
+.main-output { height:505px; }
+.tabs {
+  display:flex;
+  gap:8px;
+  padding:12px 18px 0;
+}
+.tab {
+  border:1px solid var(--border);
+  background:#f8fbfd;
+  color:var(--blue);
+  padding:10px 14px;
+  border-radius:9px 9px 0 0;
+  font-weight:900;
+  cursor:pointer;
+}
+.tab.active {
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th {
+  position:sticky;
+  top:0;
+  background:var(--blue);
+  color:white;
+  text-align:left;
+  padding:10px;
+  z-index:1;
+}
+td {
+  border-bottom:1px solid #e8eef4;
+  padding:9px 10px;
+  vertical-align:top;
+}
+tr:nth-child(even) td { background:#fbfdff; }
+.total-row td {
+  background:#eef6fb !important;
+  font-weight:900;
+}
+.remove-btn {
+  background:white;
+  border:1px solid #e5b6b0;
+  color:var(--danger);
+  border-radius:7px;
+  padding:6px 8px;
+  cursor:pointer;
+  font-weight:900;
+}
+.empty {
+  border:1px dashed #cbd7e3;
+  background:#fbfdff;
+  border-radius:12px;
+  color:var(--muted);
+  padding:22px;
+  text-align:center;
+}
+@media print {
+  header,.left-panel,.selected-panel,.tabs,.note,.header-actions { display:none !important; }
+  body { background:white; }
+  .app { display:block; padding:0; }
+  .panel { box-shadow:none; border:none; }
+  .main-output { height:auto; overflow:visible; }
+  th { position:static; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">VENTURE HOME</div>
+    <div class="subbrand">BOM & Quote Tool</div>
+  </div>
+  <div class="header-actions">
+    <button onclick="exportBOM()">Export BOM CSV</button>
+    <button onclick="exportQuote()">Export Quote CSV</button>
+    <button onclick="window.print()">Print / Save PDF</button>
+    <button onclick="clearAll()">Clear All</button>
+  </div>
+</header>
+
+<div class="app">
+  <section class="panel left-panel">
+    <div class="panel-title">All Items</div>
+    <div class="controls">
+      <input id="searchBox" placeholder="Search materials..." oninput="renderMaterials()">
+      <select id="categoryFilter" onchange="renderMaterials()">
+        <option value="All Items">All Items</option>
+      </select>
+    </div>
+    <div class="note" id="materialCount"></div>
+    <div id="materialList" class="material-list"></div>
+  </section>
+
+  <section class="right">
+    <section class="panel">
+      <div class="panel-title">Job Summary</div>
+      <div class="summary">
+        <div class="stat"><div class="stat-label">Selected Items</div><div class="stat-value" id="selectedCount">0</div></div>
+        <div class="stat"><div class="stat-label">BOM Items</div><div class="stat-value" id="bomCount">0</div></div>
+        <div class="stat"><div class="stat-label">Quote Total</div><div class="stat-value" id="quoteTotal">$0.00</div></div>
+      </div>
+      <div class="note">Quantities default to 0. Only items with quantity above 0 are included.</div>
+    </section>
+
+    <section class="panel selected-panel">
+      <div class="panel-title">Selected Items</div>
+      <div class="output selected-output" id="selectedOutput"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">Outputs</div>
+      <div class="tabs">
+        <button class="tab active" onclick="setTab('bom')">BOM</button>
+        <button class="tab" onclick="setTab('quote')">Quote</button>
+      </div>
+      <div class="output main-output" id="mainOutput"></div>
+    </section>
+  </section>
+</div>
+
+<script>
+const MATERIALS = [{"item": "1 inch galvanized rigid conduitx 10 ft", "category": "Conduit", "cost": 45.0, "qty": 0}, {"item": "1 inch pvc conduit x 10 ft", "category": "Conduit", "cost": 12.0, "qty": 0}, {"item": "2 1/2 galvanized rigid xonduit x 10 ft", "category": "Conduit", "cost": 158.41, "qty": 0}, {"item": "2 1/2 inch pvc conduit x 10 ft", "category": "Conduit", "cost": 35.44, "qty": 0}, {"item": "2 inch galvanized rigid conduit x 10 ft", "category": "Conduit", "cost": 99.0, "qty": 0}, {"item": "2 inch pvc conduit x 10 ft", "category": "Conduit", "cost": 25.93, "qty": 0}, {"item": "3 inch glavanized rigid conduit x 10 ft", "category": "Conduit", "cost": 157.5, "qty": 0}, {"item": "3 inch pvc conduit x 10 ft", "category": "Conduit", "cost": 44.99, "qty": 0}, {"item": "1 inch galvanized rigid connector", "category": "Conduit Fittings", "cost": 8.0, "qty": 0}, {"item": "1 inch galvanized rigid weatherhead", "category": "Conduit Fittings", "cost": 14.0, "qty": 0}, {"item": "1 inch MIGB x2", "category": "Conduit Fittings", "cost": 18.0, "qty": 0}, {"item": "1 inch pv coupling", "category": "Conduit Fittings", "cost": 3.18, "qty": 0}, {"item": "1 inch pvc conduit support box (100)", "category": "Conduit Fittings", "cost": 65.09, "qty": 0}, {"item": "1 inch pvc connector", "category": "Conduit Fittings", "cost": 4.06, "qty": 0}, {"item": "1 inch pvc LB", "category": "Conduit Fittings", "cost": 8.78, "qty": 0}, {"item": "1 inch pvc weatherhead", "category": "Conduit Fittings", "cost": 14.0, "qty": 0}, {"item": "1 inch rigid conduit support box (50)", "category": "Conduit Fittings", "cost": 39.8, "qty": 0}, {"item": "1 inch rigid coupling", "category": "Conduit Fittings", "cost": 6.0, "qty": 0}, {"item": "1 inch rigid LB", "category": "Conduit Fittings", "cost": 18.98, "qty": 0}, {"item": "2 1/2 inch galvanized rigid connector", "category": "Conduit Fittings", "cost": 61.88, "qty": 0}, {"item": "2 1/2 inch pvc connector", "category": "Conduit Fittings", "cost": 22.4, "qty": 0}, {"item": "2 1/2 inch pvc coupling", "category": "Conduit Fittings", "cost": 18.69, "qty": 0}, {"item": "2 1/2 Inch PVC LB", "category": "Conduit Fittings", "cost": 36.69, "qty": 0}, {"item": "2 1/2 inch pvc supports box (25)", "category": "Conduit Fittings", "cost": 67.38, "qty": 0}, {"item": "2 1/2 inch rigid conduit clamp box (50)", "category": "Conduit Fittings", "cost": 166.5, "qty": 0}, {"item": "2 1/2 inch rigid coupling", "category": "Conduit Fittings", "cost": 16.8, "qty": 0}, {"item": "2 1/2 inch rigid LB", "category": "Conduit Fittings", "cost": 132.6, "qty": 0}, {"item": "2 inch galvanized rigid connector", "category": "Conduit Fittings", "cost": 50.6, "qty": 0}, {"item": "2 inch galvanized rigid weatherhead", "category": "Conduit Fittings", "cost": 30.8, "qty": 0}, {"item": "2 inch pvc conduit clamp box (25)", "category": "Conduit Fittings", "cost": 29.54, "qty": 0}, {"item": "2 inch pvc connector", "category": "Conduit Fittings", "cost": 14.1, "qty": 0}, {"item": "2 inch pvc coupling", "category": "Conduit Fittings", "cost": 7.88, "qty": 0}, {"item": "2 Inch PVC LB", "category": "Conduit Fittings", "cost": 12.33, "qty": 0}, {"item": "2 inch pvc weatherhead", "category": "Conduit Fittings", "cost": 16.78, "qty": 0}, {"item": "2 inch rigid conduit clamp box (50)", "category": "Conduit Fittings", "cost": 116.5, "qty": 0}, {"item": "2 inch rigid coupling", "category": "Conduit Fittings", "cost": 13.2, "qty": 0}, {"item": "2 inch rigid LB", "category": "Conduit Fittings", "cost": 55.52, "qty": 0}, {"item": "3 inch galvanized rigid connector", "category": "Conduit Fittings", "cost": 61.14, "qty": 0}, {"item": "3 inch galvanized rigid weatherhead", "category": "Conduit Fittings", "cost": 68.55, "qty": 0}, {"item": "3 inch pvc conduit clamp box (20)", "category": "Conduit Fittings", "cost": 94.23, "qty": 0}, {"item": "3 inch pvc connector", "category": "Conduit Fittings", "cost": 28.0, "qty": 0}, {"item": "3 inch pvc coupling", "category": "Conduit Fittings", "cost": 21.0, "qty": 0}, {"item": "3 inch PVC LB", "category": "Conduit Fittings", "cost": 39.32, "qty": 0}, {"item": "3 inch pvc weatherhead", "category": "Conduit Fittings", "cost": 123.4, "qty": 0}, {"item": "3 inch rigid conduit clamp box (50)", "category": "Conduit Fittings", "cost": 258.96, "qty": 0}, {"item": "3 inch rigid coupling", "category": "Conduit Fittings", "cost": 42.82, "qty": 0}, {"item": "3 inch rigid lb", "category": "Conduit Fittings", "cost": 168.92, "qty": 0}, {"item": "100 A Disco", "category": "Enclosure", "cost": 119.27, "qty": 0}, {"item": "100 A Meter Main", "category": "Enclosure", "cost": 358.9, "qty": 0}, {"item": "100 amp 2 gang meter main", "category": "Enclosure", "cost": 600.0, "qty": 0}, {"item": "100 amp 3 gang meter main", "category": "Enclosure", "cost": 1134.93, "qty": 0}, {"item": "100 amp Panel", "category": "Enclosure", "cost": 168.34, "qty": 0}, {"item": "100A Sub Panel", "category": "Enclosure", "cost": 128.03, "qty": 0}, {"item": "12 x 12 x 8 PVC Box", "category": "Enclosure", "cost": 162.67, "qty": 0}, {"item": "200 A Disco", "category": "Enclosure", "cost": 247.79, "qty": 0}, {"item": "200 A Meter Main", "category": "Enclosure", "cost": 351.21, "qty": 0}, {"item": "200 amp 2 gang meter main", "category": "Enclosure", "cost": 674.3, "qty": 0}, {"item": "200 amp 3 gang meter main", "category": "Enclosure", "cost": 1256.8, "qty": 0}, {"item": "200 amp Panel", "category": "Enclosure", "cost": 264.49, "qty": 0}, {"item": "400 A Meter Main", "category": "Enclosure", "cost": 1626.38, "qty": 0}, {"item": "400 amp 3 gang meter main", "category": "Enclosure", "cost": 1650.0, "qty": 0}, {"item": "1 inch SEU Weatherhead", "category": "Equipment", "cost": 15.76, "qty": 0}, {"item": "2 Inch SEU Weatherhead", "category": "Equipment", "cost": 19.83, "qty": 0}, {"item": "Surge Protector", "category": "Equipment", "cost": 140.0, "qty": 0}, {"item": "Tesla Ev Charger", "category": "Equipment", "cost": 450.0, "qty": 0}, {"item": "Tesla Rapid Shut Down (RSD)", "category": "Equipment", "cost": 208.91, "qty": 0}, {"item": "1 5/8\" Unistrut x 10 ft", "category": "Fasteners", "cost": 52.49, "qty": 0}, {"item": "3/4 bolt (25 pack)", "category": "Fasteners", "cost": 18.39, "qty": 0}, {"item": "3/8 Washers (25 pack)", "category": "Fasteners", "cost": 15.43, "qty": 0}, {"item": "Spring Bolt (5 pack)", "category": "Fasteners", "cost": 11.23, "qty": 0}, {"item": "Tec Screws (100)", "category": "Fasteners", "cost": 16.82, "qty": 0}, {"item": "Disco/Reco Fee", "category": "Fees", "cost": 2000.0, "qty": 0}, {"item": "Permit Fee", "category": "Fees", "cost": 600.0, "qty": 0}, {"item": "2\" Hub", "category": "Fittings", "cost": 16.98, "qty": 0}, {"item": "Romex / MC Connectors (100)", "category": "Fittings", "cost": 38.12, "qty": 0}, {"item": "SEU Strap box (25)", "category": "Fittings", "cost": 57.11, "qty": 0}, {"item": "SEU Wall Plate", "category": "Fittings", "cost": 15.0, "qty": 0}, {"item": "Labor Apprentice", "category": "Labor", "cost": 30.0, "qty": 0}, {"item": "Labor Apprentice MA", "category": "Labor", "cost": 40.0, "qty": 0}, {"item": "Labor Electrician", "category": "Labor", "cost": 50.0, "qty": 0}, {"item": "Labor Electrician MA", "category": "Labor", "cost": 60.0, "qty": 0}, {"item": "Wirenuts Red (100)", "category": "Other Material", "cost": 36.31, "qty": 0}, {"item": "15 A 2-Pole Breaker", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "15A Breakers", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "20 A 2-Pole Breaker", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "200 A CSR Breaker", "category": "Overcurrent Protection", "cost": 198.17, "qty": 0}, {"item": "20A Breaker sleeve (12)", "category": "Overcurrent Protection", "cost": 84.98, "qty": 0}, {"item": "30 A 2- Pole Breaker", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "40A 2-pole Breaker", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "60A 2-pole Breaker", "category": "Overcurrent Protection", "cost": 28.0, "qty": 0}, {"item": "60A Disconnect", "category": "Overcurrent Protection", "cost": 82.37, "qty": 0}, {"item": "60A Fuses", "category": "Overcurrent Protection", "cost": 19.37, "qty": 0}, {"item": "# 6 copper by  the the foot", "category": "Wire", "cost": 0.92, "qty": 0}, {"item": "#10 copper by the ft", "category": "Wire", "cost": 0.33, "qty": 0}, {"item": "#2 aluminum SER by the ft", "category": "Wire", "cost": 1.98, "qty": 0}, {"item": "#2 Aluminum SEU by the ft", "category": "Wire", "cost": 1.93, "qty": 0}, {"item": "#4 copper by the ft", "category": "Wire", "cost": 1.41, "qty": 0}, {"item": "#4 Copper SER by the ft", "category": "Wire", "cost": 8.47, "qty": 0}, {"item": "#4 Copper SEU by the ft", "category": "Wire", "cost": 5.38, "qty": 0}, {"item": "2/0 Copper by the ft", "category": "Wire", "cost": 3.79, "qty": 0}, {"item": "2/0 Copper SER by the ft", "category": "Wire", "cost": 13.25, "qty": 0}, {"item": "2/0 Copper SEU by the ft", "category": "Wire", "cost": 7.47, "qty": 0}, {"item": "4/0 Aluminum SER by the ft", "category": "Wire", "cost": 5.03, "qty": 0}, {"item": "4/0 Aluminum SEU by the ft", "category": "Wire", "cost": 3.51, "qty": 0}];
+let selected = {};
+let activeTab = "bom";
+
+function money(n) {
+  return "$" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function norm(v) { return String(v || "").trim().toLowerCase(); }
+function isExcludedFromBOM(category) {
+  const c = norm(category);
+  return c === "labor" || c === "fees" || c === "fee";
+}
+function init() {
+  const select = document.getElementById("categoryFilter");
+  [...new Set(MATERIALS.map(m => m.category || "Uncategorized"))]
+    .sort((a,b) => a.localeCompare(b))
+    .forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      select.appendChild(opt);
+    });
+  renderMaterials();
+  renderAllOutputs();
+}
+function filteredMaterials() {
+  const search = norm(document.getElementById("searchBox").value);
+  const cat = document.getElementById("categoryFilter").value;
+  return MATERIALS.filter(m => {
+    const catMatch = cat === "All Items" || m.category === cat;
+    const searchMatch = !search || norm(m.item).includes(search) || norm(m.category).includes(search);
+    return catMatch && searchMatch;
+  }).sort((a,b) => a.item.localeCompare(b.item));
+}
+function renderMaterials() {
+  const rows = filteredMaterials();
+  document.getElementById("materialCount").textContent = rows.length + " item(s) showing";
+  const list = document.getElementById("materialList");
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">No materials found.</div>';
+    return;
+  }
+  list.innerHTML = rows.map(m => {
+    const key = encodeURIComponent(m.item);
+    const qty = selected[m.item]?.qty ?? 0;
+    return `
+      <div class="material-row">
+        <div>
+          <div class="material-name">${escapeHtml(m.item)}</div>
+          <div class="material-cat">${escapeHtml(m.category)}</div>
+        </div>
+        <div class="money">${money(m.cost)}</div>
+        <input class="qty-input" type="number" min="0" step="1" value="${qty}" onchange="setQty('${key}', this.value)">
+        <button class="add-btn" onclick="addOne('${key}')">Add</button>
+      </div>
+    `;
+  }).join("");
+}
+function findMaterial(encodedItem) {
+  const name = decodeURIComponent(encodedItem);
+  return MATERIALS.find(m => m.item === name);
+}
+function setQty(encodedItem, value) {
+  const m = findMaterial(encodedItem);
+  if (!m) return;
+  const qty = Math.max(0, parseFloat(value) || 0);
+  if (qty > 0) selected[m.item] = { ...m, qty };
+  else delete selected[m.item];
+  renderMaterials();
+  renderAllOutputs();
+}
+function addOne(encodedItem) {
+  const m = findMaterial(encodedItem);
+  if (!m) return;
+  const current = selected[m.item]?.qty || 0;
+  selected[m.item] = { ...m, qty: current + 1 };
+  renderMaterials();
+  renderAllOutputs();
+}
+function removeItem(encodedItem) {
+  delete selected[decodeURIComponent(encodedItem)];
+  renderMaterials();
+  renderAllOutputs();
+}
+function selectedRows() {
+  return Object.values(selected).filter(x => Number(x.qty) > 0)
+    .sort((a,b) => a.category.localeCompare(b.category) || a.item.localeCompare(b.item));
+}
+function renderSelected() {
+  const rows = selectedRows();
+  const out = document.getElementById("selectedOutput");
+  if (!rows.length) {
+    out.innerHTML = '<div class="empty">No selected items yet. Set a quantity above 0 or click Add.</div>';
+    return;
+  }
+  out.innerHTML = `
+    <table>
+      <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th></th></tr></thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td>${escapeHtml(r.item)}</td>
+            <td>${escapeHtml(r.category)}</td>
+            <td><input class="qty-input" type="number" min="0" step="1" value="${r.qty}" onchange="setQty('${encodeURIComponent(r.item)}', this.value)"></td>
+            <td><button class="remove-btn" onclick="removeItem('${encodeURIComponent(r.item)}')">Remove</button></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>`;
+}
+function renderBOM() {
+  const rows = selectedRows().filter(r => !isExcludedFromBOM(r.category));
+  if (!rows.length) return '<div class="empty">No BOM items yet. Labor and Fees are excluded automatically.</div>';
+  return `
+    <table>
+      <thead><tr><th>Item</th><th>Category</th><th>Qty</th></tr></thead>
+      <tbody>${rows.map(r => `<tr><td>${escapeHtml(r.item)}</td><td>${escapeHtml(r.category)}</td><td>${r.qty}</td></tr>`).join("")}</tbody>
+    </table>`;
+}
+function renderQuote() {
+  const rows = selectedRows();
+  if (!rows.length) return '<div class="empty">No quote items yet.</div>';
+  const total = rows.reduce((s,r) => s + (Number(r.cost || 0) * 1.125 * Number(r.qty || 0)), 0);
+  return `
+    <table>
+      <thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Cost</th><th>Sell +12.5%</th><th>Extended</th></tr></thead>
+      <tbody>
+        ${rows.map(r => {
+          const sell = Number(r.cost || 0) * 1.125;
+          return `<tr>
+            <td>${escapeHtml(r.item)}</td>
+            <td>${escapeHtml(r.category)}</td>
+            <td>${r.qty}</td>
+            <td>${money(r.cost)}</td>
+            <td>${money(sell)}</td>
+            <td>${money(sell * Number(r.qty || 0))}</td>
+          </tr>`;
+        }).join("")}
+        <tr class="total-row"><td colspan="5">Grand Total</td><td>${money(total)}</td></tr>
+      </tbody>
+    </table>`;
+}
+function renderMain() {
+  document.getElementById("mainOutput").innerHTML = activeTab === "bom" ? renderBOM() : renderQuote();
+}
+function renderSummary() {
+  const rows = selectedRows();
+  document.getElementById("selectedCount").textContent = rows.length;
+  document.getElementById("bomCount").textContent = rows.filter(r => !isExcludedFromBOM(r.category)).length;
+  document.getElementById("quoteTotal").textContent = money(rows.reduce((s,r) => s + (Number(r.cost || 0) * 1.125 * Number(r.qty || 0)), 0));
+}
+function renderAllOutputs() {
+  renderSelected();
+  renderMain();
+  renderSummary();
+}
+function setTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab")[tab === "bom" ? 0 : 1].classList.add("active");
+  renderMain();
+}
+function clearAll() {
+  if (confirm("Clear all selected item quantities?")) {
+    selected = {};
+    renderMaterials();
+    renderAllOutputs();
+  }
+}
+function exportCSV(filename, rows) {
+  const csv = rows.map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+function exportBOM() {
+  const rows = [["Item","Category","Qty"]];
+  selectedRows().filter(r => !isExcludedFromBOM(r.category)).forEach(r => rows.push([r.item, r.category, r.qty]));
+  exportCSV("Venture_Home_BOM.csv", rows);
+}
+function exportQuote() {
+  const rows = [["Item","Category","Qty","Unit Cost","Sell Price +12.5%","Extended Price"]];
+  selectedRows().forEach(r => rows.push([r.item, r.category, r.qty, r.cost, (Number(r.cost || 0)*1.125).toFixed(2), (Number(r.cost || 0)*1.125*Number(r.qty || 0)).toFixed(2)]));
+  exportCSV("Venture_Home_Quote.csv", rows);
+}
+window.onload = init;
+</script>
+</body>
+</html>
