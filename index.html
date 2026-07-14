@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Venture Home Estimator Pro v1.1.4</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand"><div class="logo"><img class="brandLogoImg" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1OTYuNzMgNzQuMjEiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICM3M2ZmYzY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnIGlkPSJMYXllcl8xLTIiIGRhdGEtbmFtZT0iTGF5ZXIgMSI+CiAgICA8Zz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMzU4Ljk5LDQuNDd2MjAuNDhjMy42MS0xLjc2LDcuNDEtMi42MywxMS41MS0yLjcyLDEzLjk2LS4yLDI0Ljg3LDcuOCwyNC44NywyMi43MnYyOC4wOWgtNy42MXYtMjguMDljLS4xLTEwLjA2LTcuNy0xNS44LTE3LjI3LTE1LjgtMy43LDAtNy44Ljc4LTExLjUxLDIuMTR2NDEuNzVoLTcuNjFWNC40N2g3LjYxWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik00MjYuMTksNzQuMjFjLTE0LjgyLDAtMjUuMDctMTEuNDEtMjUuMDctMjUuODZzMTAuMjMtMjUuNzYsMjUuMDctMjUuNzYsMjUuMTcsMTEuMzEsMjUuMTcsMjUuNzYtMTAuMjMsMjUuODYtMjUuMTcsMjUuODZaTTQyNi4xOSw2Ny40OWM4Ljk4LDAsMTcuNTYtNi4yMywxNy41Ni0xOS4xMXMtOC41OS0xOC45Mi0xNy41Ni0xOC45Mi0xNy40Nyw2LjA0LTE3LjQ3LDE4LjkyLDguNTksMTkuMTEsMTcuNDcsMTkuMTFaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQ5OS4wNyw0My40OGwtLjEsMjkuNTZoLTcuMzFsLS4yLTI5LjU2YzAtMTEuMzEtNi4wNC0xNC4zMy0xMy45Ni0xNC40My00LjEsMC04LjE5LjI5LTEyLDEuNzZ2NDIuMjRoLTcuN1YyNS45M2M2LjMzLTIuMjMsMTMuMjctMy42MSwxOS44LTMuNjEsNy4yMS4xLDE0LjIzLDEuOTYsMTcuNjYsOC41OSwzLjUxLTYuNDMsOS45Ni04LjQ5LDE2Ljg4LTguNDksMTEuMzEsMCwyMC41OCw1Ljc2LDIwLjU4LDIyLjA1djI4LjU4aC03LjYxdi0yOC41OGMwLTEwLjgyLTUuNjctMTUuMzEtMTIuOTgtMTUuMzFzLTEyLjk4LDMuNDEtMTMuMDcsMTQuMzN2LS4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNTgxLjU5LDUzLjU3bDcuMTIsMWMtMS45Miw4LjEzLTcuMzUsMTMuODYtMTQuODgsMTcuMDctMTUuNDMsNi41OS0yOC4zMy0yLTMzLjI2LTEzLjgtNS4wMi0xMS43NC0yLjE0LTI3LjA5LDEyLjktMzMuNjIsMTQuNDEtNi4yNSwyOS4zMSwxLjgsMzMuMzYsMTcuMjVsLTM4LjIsMTYuMzNjMy44Miw3LjQ5LDEyLjUzLDExLjk0LDIyLjU2LDcuNjQsNS4wMi0yLjE0LDkuMTMtNi40NSwxMC40MS0xMS44OFpNNTc3LjkzLDM4LjI4Yy00LjI3LTguMDQtMTIuOTYtMTEuNDUtMjEuNzItNy45LTkuODIsNC4zMS0xMi4wNCwxMy41My0xMC4wNCwyMS40NmwzMS43Ni0xMy41NloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTgyLjc1LDBoLTEzLjQ5djIwLjExaC01LjY3djExLjUxaDUuNjd2MjQuNDZjLS40NywxNC4wNSwxMS4wNiwxOC44NiwyMi43LDE3di0xMi4xNWMtNS44OC43MS05LjIxLTEuOC05LjIxLTUuMjN2LTI0LjA5aDkuMjF2LTExLjUxaC05LjIxVjBaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI3MC44LDI1LjE3bC0xLjEyLTUuNTF2LS4wNmgtMTEuMjF2NTMuNGgxMy42NnYtMzIuOTdjMC04LjY2LDkuOTYtMTAuMTksMTYuNDEtNS44Mmw1Ljg4LTEwLjc0Yy02Ljc4LTYuMDYtMTcuNTItNi4yMS0yMy42LDEuNjlsLS4wMi4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjQ3LjA0LDIwLjExaC0xMy45OHY0MC4zOGMtOC42OCwzLjEtMjAuMjcuMTItMTkuODQtMTAuODR2LTI5LjU0aC0xMy43NnYyOS40OGMwLDE1Ljk2LDExLjg2LDI0LjUyLDI2LjM0LDI0LjUyLDYuNTcsMCwxMy4xNy0xLjA0LDIxLjI3LTMuOThsLS4wNi0uMDZWMjAuMTFoLjAyWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMTMuMDgsMjIuOWguMDZ2LS4wNGwtLjA2LjA2di0uMDJaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI4LjUyLDQ5Ljc1bC0yLDE0LjE3aC0uNjlsLTIuMjMtMTQuMzktOC44NC0yOS43SDBsMTcuNDEsNTMuNGgxNy4yNWwxNy41Mi01My40aC0xNC43NmwtOC45LDI5LjkxWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMTEuMTgsMjIuODh2NTAuMTRoMTMuOTh2LTQwLjQ4YzguMzEtMy41NSwxOS45NS0xLjQxLDE5Ljg0LDEwLjI1djMwLjMxaDEzLjc2di0zMC4zNGMtLjMxLTI2Ljc4LTI4LjgzLTI2LjgyLTQ3LjU3LTE5Ljg2di0uMDJaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTcxLjQ1LDU3LjA0bDMzLjQ0LTE2LjQ1Yy0uNjktMi42Ny0xLjc0LTUuMTItMi40My02LjY1LTYuMTktMTMuMzUtMjAuNDMtMTkuMTctMzMuOTMtMTIuNDMtMTUuMjksNy42My0xNy43OCwyNC4wMy0xMi4wNywzNi4zNCw1LjYxLDEyLjM3LDE5LjQzLDIxLjA5LDM1LjI0LDEzLjI5LDYuNzItMy4zMywxMS42NC05LDE0LjI5LTE4LjAzbC0xMC0yLjk0Yy00LjM5LDEwLjY4LTE4LjA5LDE1LjI1LTI0LjU2LDYuODZoLjAyWk03My44MiwzMi41OGM0LjctMi4zNSwxMC43NC0yLjE4LDE0LjgyLDMuOTJsLTIxLjc2LDEwLjY4Yy0xLjk2LTYuODYsMi4yMi0xMi4yNSw2Ljk0LTE0LjZaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTMzNC41Nyw1MC4yNGMtNC4yOSwxMC43NC0xNy45OSwxNS4zNy0yNC41LDcuMDRsMzMuMzQtMTYuNjhjLS42OS0yLjY3LTEuNzQtNS4xMi0yLjQzLTYuNjUtNi4yOS0xMy4zNS0yMC41OC0xOS4wNy0zNC4wMy0xMi4yNS0xNS4yOSw3Ljc0LTE3LjY4LDI0LjA5LTExLjksMzYuNCw1LjY3LDEyLjMxLDE5LjUyLDIwLjkyLDM1LjMsMTMuMDcsNi43Ni0zLjM3LDExLjYyLTkuMDIsMTQuMjEtMTguMDNsLTkuOTgtMi44OC0uMDItLjAyWk0zMTIuMjQsMzIuN2M0Ljc2LTIuMzksMTAuOC0yLjIzLDE0Ljg4LDMuODJsLTIxLjcsMTAuODRjLTIuMDItNi44NiwyLjAyLTEyLjI1LDYuODItMTQuNjZaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTU5Mi43NSw3NC4wNmMtMi4zNSwwLTQuMDEtMS41Ny00LjAxLTMuNzhzMS42Ni0zLjc2LDQuMDEtMy43NiwzLjk4LDEuNTUsMy45OCwzLjc2LTEuNjUsMy43OC0zLjk4LDMuNzhaTTU5Mi43NSw3My4zNmMxLjg3LDAsMy4xOC0xLjI3LDMuMTgtMy4wN3MtMS4zMi0zLjA2LTMuMTgtMy4wNi0zLjE4LDEuMjctMy4xOCwzLjA2LDEuMzIsMy4wNywzLjE4LDMuMDdaTTU5MS4zNyw3Mi4yNHYtMy45MmgxLjU3Yy44OCwwLDEuNDcuMzgsMS40NywxLjAyLDAsLjU4LS40Ny44OS0uOTcuOTcuNTIuMDguOC4zMy44My44My4wMi40Ny4wMy45OS4xNiwxLjFoLS44Yy0uMDktLjE5LS4xMS0uNTUtLjEzLS45Ni0uMDItLjUtLjI1LS42Ny0uNzUtLjY3aC0uNjF2MS42M2gtLjc3Wk01OTIuMTQsNzAuMDJoLjc1Yy40NSwwLC43MS0uMjcuNzEtLjZzLS4yOC0uNTItLjcxLS41MmgtLjc1djEuMTFaIi8+CiAgICA8L2c+CiAgPC9nPgo8L3N2Zz4=" alt="Venture Home"></div><div><h1>Venture Home BOM & Custom Quote Tool</h1><p>Estimator Pro v1.1.4 • branded proposals • BOM and quote PDF exports</p></div></div>
+    <div class="stats"><div class="stat"><b id="materialCount">0</b><span>Items Loaded</span></div><div class="stat"><b id="markupStat">12.5%</b><span>End Markup</span></div><div class="stat versionStat" onclick="showWhatsNew()"><b>v1.1.4</b><span>What's New</span></div></div>
+  </div>
+
+  <div id="selectorPage" class="grid">
+    <div class="card">
+      <div class="sectionTitle"><h2>All Items</h2><span class="small">Select a category to filter the list, or search any item.</span></div>
+      <div class="controls">
+        <input id="search" class="input" placeholder="Search materials..." />
+        <select id="category" class="select"><option value="All">All Categories</option></select>
+        <button class="btn secondary" onclick="resetFilters()">Reset</button>
+      </div>
+      <div class="materials" id="materials"></div>
+      <div class="mainGenerate"><button class="btn green" style="width:100%;font-size:16px;padding:14px" onclick="generateProject()">Generate Project</button></div>
+      <div class="bomPreview" id="bomPreview"></div>
+    </div>
+
+    <div class="card">
+      <div class="projectSetupFront">
+        <div class="sectionTitle"><h2>Project Setup</h2><span class="small">Name the project and set scope before saving or review.</span></div>
+        <label class="small" for="projectName"><b>Project Name / Customer</b></label>
+        <input id="projectName" class="input" placeholder="Enter project name..." />
+        <div style="height:10px"></div>
+        <label class="small" for="projectAddress"><b>Project Address</b></label>
+        <input id="projectAddress" class="input" placeholder="Enter project address..." />
+        <div style="height:10px"></div>
+        <label class="small" for="workType"><b>Work Type</b></label>
+        <select id="workType" class="select"><option value="">Select work type...</option></select>
+        <div id="customWorkTypeWrap" style="display:none;margin-top:10px">
+          <label class="small" for="customWorkType"><b>Custom Work Type</b></label>
+          <input id="customWorkType" class="input" placeholder="Enter custom work type..." />
+        </div>
+        <div style="height:10px"></div>
+        <label class="small" for="scopeOfWork"><b>Scope of Work</b></label>
+        <textarea id="scopeOfWork" class="textarea" placeholder="Choose a work type to auto-generate the scope of work. You can still edit this before exporting documents."></textarea>
+        <div class="note"><b>Scope tool:</b> choosing a work type fills this scope from the Engineering & Design Reference Sheet. Choose <b>Other (Custom)</b> to type your own work type and scope. Edits made here save with the project and export to the customer proposal.</div>
+      </div>
+      <div style="height:18px"></div>
+      <div class="sectionTitle"><h2>Current Selection</h2><span class="small">Quick view before generating the project.</span></div>
+      <div id="selectedWrap"></div>
+      <div class="quoteMarkupBox">
+        <div class="small"><b>Quote Markup</b></div>
+        <div class="markupControls compactMarkup">
+          <label class="markupOption" onclick="setMaterialMarkup(0.125)"><input type="radio" name="materialMarkupMain" value="0.125" checked> 12.5% End Markup</label>
+          <label class="markupOption" onclick="setMaterialMarkup(0.20)"><input type="radio" name="materialMarkupMain" value="0.20"> 20% End Markup</label>
+        </div>
+      </div>
+      <div class="totals">
+        <div class="totalBox"><div class="label">Materials & Services</div><div class="value" id="materialSellTotal">$0.00</div></div>
+        <div class="totalBox"><div class="label">Labor</div><div class="value" id="laborSellTotal">$0.00</div></div>
+        <div class="totalBox"><div class="label">Administrative Fees</div><div class="value" id="feeTotal">$0.00</div></div>
+        <div class="totalBox"><div class="label">Customer Total</div><div class="value" id="grandTotal">$0.00</div></div>
+      </div>
+      <div class="actions"><button class="btn green" onclick="generateProject()">Generate Project</button><button class="btn secondary" onclick="clearSelected()">Clear BOM Only</button>
+              <button class="btn danger" onclick="startNewProject()">Start New Project</button></div>
+      <div class="presetBuilderBox">
+        <div class="savedHead"><b>Preset Builder</b><span class="small">Build a BOM, then save it to a work type.</span></div>
+        <div class="presetActions">
+          <select id="presetPicker" class="input presetPicker" onchange="if(this.value){applyPresetFromPicker();}">
+            <option value="">Select saved preset...</option>
+          </select>
+          <button class="btn secondary" onclick="applySavedPreset()">Apply Saved Preset</button>
+          <button class="btn green" onclick="saveSelectionAsPreset()">Save Current Selection as Preset</button>
+          <button class="btn secondary" onclick="exportSavedPresets()">Export Presets</button>
+          <button class="btn danger" onclick="deleteSavedPreset()">Delete Preset</button>
+        </div>
+        <label class="presetToggle"><input id="autoApplyPreset" type="checkbox" checked> Auto-fill saved preset when work type is selected</label>
+        <div id="presetStatus" class="note smallPresetNote">No preset selected yet.</div>
+      </div>
+      <div class="savedProjects">
+        <div class="savedHead"><b>Saved Projects</b><span class="small">Stored in this browser</span></div>
+        <div class="savedControls">
+          <input id="savedSearch" class="input" placeholder="Search saved projects..." />
+          <button class="btn green" onclick="saveCurrentProject()">Save Current</button>
+          <button class="btn secondary" onclick="startNewProject()">Start New Project</button>
+        </div>
+        <div class="savedList" id="savedProjectsList"></div>
+      </div>
+      <div class="note"><b>Workflow:</b> select materials here, then click Generate Project to review the full quote, add project details, mark up photos, and download PDFs.</div>
+    </div>
+  </div>
+
+  <div id="projectPage" class="projectPage">
+    <div class="reviewTop">
+      <div><h2>Venture Home Estimator Pro</h2><div class="small">A cleaner project workspace: overview, materials, pricing, photos, diagrams, and documents.</div></div>
+      <button class="btn secondary" onclick="backToSelector()">Back to Material Selector</button>
+    </div>
+
+    <div id="workspaceShell" class="workspaceShell">
+      <div class="workspaceNav">
+        <button class="navBtn active" data-tab="overview" onclick="showWorkspaceTab('overview')">Overview</button>
+        <button class="navBtn" data-tab="materialsTab" onclick="showWorkspaceTab('materialsTab')">Materials</button>
+        <button class="navBtn" data-tab="pricing" onclick="showWorkspaceTab('pricing')">Pricing</button>
+        <button class="navBtn" data-tab="photos" onclick="showWorkspaceTab('photos')">Photos</button>
+        <button class="navBtn" data-tab="diagrams" onclick="showWorkspaceTab('diagrams')">Diagrams</button>
+        <button class="navBtn" data-tab="documents" onclick="showWorkspaceTab('documents')">Documents</button>
+      </div>
+
+      <div class="workspaceMain">
+        <div id="tab_overview" class="tabPanel active">
+          <div class="card">
+            <div class="sectionTitle"><h2>Project Overview</h2><span class="small">Review customer-facing details.</span></div>
+            <div class="totals">
+              <div class="totalBox"><div class="label">Project / Customer</div><div class="value" id="overviewProjectName" style="font-size:18px">Not specified</div></div>
+              <div class="totalBox"><div class="label">Work Type</div><div class="value" id="overviewWorkType" style="font-size:18px">Not selected</div></div>
+            </div>
+            <div style="height:12px"></div>
+            <div class="note"><b>Project setup now lives on the front page.</b> Use the material selector page to name the project, choose the work type, and set the scope before saving or generating documents.</div>
+            <div style="height:12px"></div>
+            <label class="small"><b>Address</b></label>
+            <div id="overviewAddress" class="note" style="background:#fbfdff;border-color:var(--line);color:var(--text)">Not specified</div>
+            <label class="small"><b>Scope of Work</b></label>
+            <div id="overviewScope" class="note" style="background:#fbfdff;border-color:var(--line);color:var(--text);white-space:pre-wrap">Not specified</div>
+            <button class="btn secondary" onclick="backToSelector()">Edit Project Setup</button>
+          </div>
+        </div>
+
+        <div id="tab_materialsTab" class="tabPanel">
+          <div class="card">
+            <div class="sectionTitle"><h2>Selected Materials Review</h2><span class="small">Quantities remain editable.</span></div>
+            <div id="projectSelectedWrap" class="selectedSummary"></div>
+          </div>
+        </div>
+
+        <div id="tab_pricing" class="tabPanel">
+          <div class="card">
+            <div class="sectionTitle"><h2>Pricing Review</h2><span class="small">Internal pricing controls. Customer document hides markup details.</span></div>
+            <div class="markupControls">
+              <label class="markupOption" onclick="setMaterialMarkup(0.125)"><input type="radio" name="materialMarkupPricing" value="0.125" checked> 12.5% End Markup</label>
+              <label class="markupOption" onclick="setMaterialMarkup(0.20)"><input type="radio" name="materialMarkupPricing" value="0.20"> 20% End Markup</label>
+            </div>
+            <div class="totals">
+              <div class="totalBox"><div class="label">Materials & Services</div><div class="value" id="projectMaterialSellTotal">$0.00</div></div>
+              <div class="totalBox"><div class="label">Labor</div><div class="value" id="projectLaborSellTotal">$0.00</div></div>
+              <div class="totalBox"><div class="label">Administrative Fees</div><div class="value" id="projectFeeTotal">$0.00</div></div>
+              <div class="totalBox"><div class="label">Customer Total</div><div class="value" id="projectGrandTotal">$0.00</div></div>
+            </div>
+            <div class="note"><b>Internal only:</b> this tab shows the pricing mechanics. The customer-facing proposal only shows the final project investment.</div>
+          </div>
+        </div>
+
+        <div id="tab_photos" class="tabPanel">
+          <div class="card">
+            <div class="photoMarkup" style="margin-top:0">
+              <div class="photoMarkupHead"><b>Site Photo Markups</b><span class="small">Upload photos and mark proposed equipment locations.</span></div>
+              <div class="photoControls">
+                <input id="sitePhotoUpload" class="input" type="file" accept="image/*" />
+                <button class="btn secondary" onclick="clearPhotoDrawing()">Clear Canvas</button>
+                <button class="btn green" onclick="saveMarkedPhoto()">Save Marked Photo</button>
+              </div>
+              <div class="photoEditor">
+                <div class="photoToolbar">
+                  <div class="toolGroupTitle">Markup Tools</div>
+                  <div class="photoToolGrid">
+                    <button class="photoToolBtn active" data-photo-tool="select" onclick="setDrawTool('select')"><span class="ico">↖</span><span class="lbl">Select</span></button>
+                    <button class="photoToolBtn" data-photo-tool="pen" onclick="setDrawTool('pen')"><span class="ico">✎</span><span class="lbl">Pen</span></button>
+                    <button class="photoToolBtn" data-photo-tool="arrow" onclick="setDrawTool('arrow')"><span class="ico">➜</span><span class="lbl">Arrow</span></button>
+                    <button class="photoToolBtn" data-photo-tool="line" onclick="setDrawTool('line')"><span class="ico">━</span><span class="lbl">Line</span></button>
+                    <button class="photoToolBtn" data-photo-tool="rect" onclick="setDrawTool('rect')"><span class="ico">▭</span><span class="lbl">Box</span></button>
+                    <button class="photoToolBtn" data-photo-tool="circle" onclick="setDrawTool('circle')"><span class="ico">◯</span><span class="lbl">Circle</span></button>
+                    <button class="photoToolBtn" data-photo-tool="text" onclick="setDrawTool('text')"><span class="ico">T</span><span class="lbl">Text</span></button>
+                    <button class="photoToolBtn" onclick="deleteSelectedMarkup()"><span class="ico">🗑</span><span class="lbl">Delete</span></button>
+                  </div>
+                  <div class="toolGroupTitle" style="margin-top:14px">Actions</div>
+                  <button class="btn secondary" style="width:100%;margin-bottom:8px" onclick="undoPhotoDrawing()">Undo Last Markup</button>
+                  <button class="btn danger" style="width:100%" onclick="deleteSelectedMarkup()">Delete Selected</button>
+                  <div class="equipmentLibrary">
+                    <div class="toolGroupTitle">Equipment Library</div>
+                    <div id="equipmentGrid" class="equipmentGrid"></div>
+                    <div id="selectedEquipmentName" class="selectedEquipmentName" style="display:none"></div>
+                    <div class="equipmentHint">Click equipment, then click the site photo to place it. Use Select to move, resize, or adjust opacity.</div>
+                  </div>
+                </div>
+                <div class="canvasPanel">
+                  <div class="canvasWrap"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty">Upload a site photo to start drawing proposed equipment locations.</div></div>
+                  <div class="zoomBar"><span class="small"><b>Tip:</b> Use Select to move and resize boxes, arrows, circles, and text.</span><div class="zoomButtons"><button class="btn secondary mini" onclick="setPhotoZoom(.75)">75%</button><button class="btn secondary mini" onclick="setPhotoZoom(1)">100%</button><button class="btn secondary mini" onclick="setPhotoZoom(1.25)">125%</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div>
+                </div>
+                <div class="photoProperties">
+                  <div class="toolGroupTitle">Properties</div>
+                  <div class="propRow"><label class="small"><b>Color</b><input id="drawColor" class="colorDot" type="color" value="#e03131" /></label></div>
+                  <div class="propRow"><label class="small"><b>Line / Font Size</b><input id="drawSize" class="input" type="number" min="2" max="48" value="5" /></label></div>
+                  <div class="propRow"><label class="small"><b>Equipment Opacity</b><input id="equipmentOpacity" class="input" type="number" min="10" max="100" value="100" /></label></div>
+                  <div class="propRow"><label class="small"><b>Text Box Content</b><input id="drawText" class="input" placeholder="Example: Backup Gateway location" /></label></div>
+                  <div class="propRow"><label class="small"><b>Saved Photo Caption</b><input id="photoSaveCaption" class="input" placeholder="Example: Proposed gateway location" /></label></div>
+                  <div class="note" style="margin-top:8px"><b>Quality:</b> saved photos now retain their shape and export to the customer proposal without being stretched.</div>
+                </div>
+              </div>
+              <div class="photoList" id="photoList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab_diagrams" class="tabPanel">
+          <div class="card">
+            <div class="sectionTitle"><h2>Electrical Diagram Editor</h2><span class="small">Offline diagram builder for one-lines, layouts, and proposed equipment locations.</span></div>
+            <div class="diagramBox">
+              <p><span class="pill">Built-in offline editor</span> <span class="pill">Saved with project</span></p>
+              <div class="diagramToolbar">
+                <label class="small"><b>Color</b><input id="diagramColor" class="colorDot" type="color" value="#1f5f8b"></label>
+                <label class="small"><b>Line / Border Size</b><input id="diagramSize" class="input" type="number" min="2" max="48" value="4"></label>
+                <label class="small"><b>Text / Label</b><input id="diagramText" class="input" placeholder="Example: MSP, Meter, Gateway"></label>
+              </div>
+              <div class="diagramToolbox" id="diagramToolbox">
+                <button class="diagramToolBtn active" data-tool="select" onclick="setDiagramTool('select')"><span class="ico">↖</span><span class="lbl">Select</span></button>
+                <button class="diagramToolBtn" data-tool="text" onclick="setDiagramTool('text')"><span class="ico">T</span><span class="lbl">Text</span></button>
+                <button class="diagramToolBtn" data-tool="line" onclick="setDiagramTool('line')"><span class="ico">━</span><span class="lbl">Line</span></button>
+                <button class="diagramToolBtn" data-tool="arrow" onclick="setDiagramTool('arrow')"><span class="ico">➜</span><span class="lbl">Arrow</span></button>
+                <button class="diagramToolBtn" data-tool="rect" onclick="setDiagramTool('rect')"><span class="ico">▭</span><span class="lbl">Box</span></button>
+                <button class="diagramToolBtn" data-tool="circle" onclick="setDiagramTool('circle')"><span class="ico">◯</span><span class="lbl">Circle</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="MSP" onclick="setDiagramTool('symbol','MSP')"><span class="ico">▣</span><span class="lbl">MSP</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Meter" onclick="setDiagramTool('symbol','Meter')"><span class="ico">Ⓜ</span><span class="lbl">Meter</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Disconnect" onclick="setDiagramTool('symbol','Disconnect')"><span class="ico">⏻</span><span class="lbl">Disco</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Gateway" onclick="setDiagramTool('symbol','Gateway')"><span class="ico">▤</span><span class="lbl">Gateway</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="EV Charger" onclick="setDiagramTool('symbol','EV Charger')"><span class="ico">⚡</span><span class="lbl">EV</span></button>
+                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Ground Rod" onclick="setDiagramTool('symbol','Ground Rod')"><span class="ico">⏚</span><span class="lbl">Ground</span></button>
+              </div>
+              <div class="fullActions">
+                <button class="btn secondary" onclick="newDiagramCanvas()">New Blank Diagram</button>
+                <button class="btn secondary" onclick="undoDiagramObject()">Undo</button>
+                <button class="btn danger" onclick="deleteSelectedDiagramObject()">Delete Selected</button>
+                <button class="btn green" onclick="saveDiagramImage()">Save Diagram</button>
+              </div>
+              <div class="diagramCanvasWrap" style="margin-top:12px"><canvas id="diagramCanvas" class="diagramCanvas" width="1000" height="650"></canvas></div>
+              <div class="diagramSaved" id="diagramList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab_documents" class="tabPanel">
+          <div class="card">
+            <div class="sectionTitle"><h2>Documents</h2><span class="small">Generate the right document for the right audience.</span></div>
+            <div class="docButtons">
+              <button class="btn green" onclick="downloadBOMPDF()">Download BOM PDF</button>
+              <button class="btn" onclick="downloadQuotePDF()">Internal Quote PDF</button>
+              <button class="btn" onclick="downloadCustomerPDF()">Customer Proposal PDF</button>
+              <button class="btn secondary" onclick="downloadSelectedCSV()">Selected CSV</button>
+              <button class="btn secondary" onclick="saveCurrentProject()">Save Current Project</button>
+              <button class="btn danger" onclick="clearSelected()">Clear Selected</button>
+            </div>
+            <div class="note"><b>Customer Proposal:</b> only shows project description, scope, saved marked-up photos, and final price. It does not show line items, markup percentage, or labor multiplier.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summaryDock">
+        <div class="dockTitle">Project Summary</div>
+        <div class="dockRow"><span>Project</span><b id="dockProjectName">Not specified</b></div>
+        <div class="dockRow"><span>Work Type</span><b id="dockWorkType">Not selected</b></div>
+        <div class="dockRow"><span>Line Items</span><b id="dockLineItems">0</b></div>
+        <div class="dockRow"><span>Saved Photos</span><b id="dockPhotos">0</b></div>
+        <div class="dockRow"><span>Saved Diagrams</span><b id="dockDiagrams">0</b></div>
+        <div class="dockRow"><span>End Markup</span><b id="dockMarkup">12.5%</b></div>
+        <div class="dockRow"><span>Customer Total</span><b id="dockGrandTotal">$0.00</b></div>
+        <div style="height:12px"></div>
+        <button class="btn green" style="width:100%" onclick="showWorkspaceTab('documents')">Generate Documents</button>
+      </div>
+    </div>
+  </div></div>
+<div id="whatsNewModal" class="modalOverlay" onclick="if(event.target===this)hideWhatsNew()">
+  <div class="modalCard">
+    <div class="modalHead"><h2>Venture Home Estimator Pro v1.1</h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
+    <div class="modalBody">
+      <h3>Production Release</h3>
+      <p>This version adds preset selection and optional auto-fill when a work type with a saved preset is selected, while preserving the polished estimating workflow.</p>
+      <h3>Added</h3>
+      <ul><li>Project split into separate HTML, CSS, and JavaScript files for easier GitHub updates.</li><li>Preserved the working equipment photo editor and quote/BOM export flow.</li><li>Kept the repairs cleanup with a single 4' × 4' Drywall Repair item under Repairs.</li></ul>
+      <h3>Improved</h3>
+      <ul><li>Repairs now calculate under Materials & Services.</li><li>Administrative fees are separated from materials.</li><li>Customer proposal photos keep their aspect ratio.</li><li>Pricing labels are clearer for estimators.</li></ul>
+      <h3>Fixed</h3>
+      <ul><li>Removed duplicate drywall repair entry.</li><li>Kept one standardized 4' x 4' Drywall Repair item at $700.</li><li>Cleaned equipment thumbnail framing.</li></ul>
+    </div>
+  </div>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
