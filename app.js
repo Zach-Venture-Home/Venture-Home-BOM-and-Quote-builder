@@ -145,7 +145,8 @@ const materials = [
   {item:"400 amp 3 gang meter main",category:"Enclosures",cost:1650.00},
   {item:"Surge Protector",category:"Equipment",cost:140.00},
   {item:"Tesla Rapid Shut Down (RSD)",category:"Equipment",cost:208.91},
-  {item:"Tesla Ev Charger",category:"Equipment",cost:450.00},
+  {item:"Tesla Ev Charger",category:"Equipment",cost:601.86},
+  {item:"EV Load Management Device",category:"Equipment",cost:986.47},
   {item:"2 1/2 Inch PVC LB",category:"Conduit Fittings",cost:36.69},
   {item:"1 5/8\" Unistrut x 10 ft",category:"Fasteners",cost:52.49},
   {item:"3/4 bolt (25 pack)",category:"Fasteners",cost:18.39},
@@ -303,7 +304,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v1.3.0';
+const APP_VERSION='v1.3.4';
 const MAX_ITEM_QUANTITY=100000;
 const DB_NAME='venture_home_estimator';
 const DB_VERSION=1;
