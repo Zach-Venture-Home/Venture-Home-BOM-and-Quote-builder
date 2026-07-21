@@ -307,7 +307,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v1.3.4';
+const APP_VERSION='v1.3.5';
 const MAX_ITEM_QUANTITY=100000;
 const DB_NAME='venture_home_estimator';
 const DB_VERSION=1;
