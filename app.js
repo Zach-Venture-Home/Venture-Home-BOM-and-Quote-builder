@@ -184,6 +184,7 @@ const materials = [
   {item:"2/0 Copper by the ft",category:"Wire",cost:3.79},
   {item:"4/0 Aluminum SER by the ft",category:"Wire",cost:5.03},
   {item:"2/0 Copper SER by the ft",category:"Wire",cost:13.25},
+  {item:"#1 aluminum SER by the ft",category:"Wire",cost:2.75},
   {item:"#2 aluminum SER by the ft",category:"Wire",cost:1.98},
   {item:"4/0 Aluminum SEU by the ft",category:"Wire",cost:3.51},
   {item:"#2 Aluminum SEU by the ft",category:"Wire",cost:1.93},
