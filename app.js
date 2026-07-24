@@ -609,6 +609,24 @@ function startNewProject(){
 function isRepair(row){return String(row.category).trim().toLowerCase()==='repairs' || String(row.category).trim().toLowerCase()==='drywall repair';}
 function roundMoney(value){return Math.round((Number.isFinite(Number(value))?Number(value):0)*100)/100;}
 function totals(){let materialBase=0, repairBase=0, adminFeeBase=0, materialServicesBase=0, laborBase=0; selected.forEach(r=>{const base=roundMoney((Number(r.cost)||0)*normalizeQuantity(r.qty)); if(isLabor(r)){laborBase=roundMoney(laborBase+base);} else if(isFee(r)){adminFeeBase=roundMoney(adminFeeBase+base);} else {materialServicesBase=roundMoney(materialServicesBase+base); if(isRepair(r)) repairBase=roundMoney(repairBase+base); else materialBase=roundMoney(materialBase+base);}}); const laborMultiplierAmount=roundMoney(laborBase*(LABOR_MULTIPLIER-1)); const laborAdjusted=roundMoney(laborBase*LABOR_MULTIPLIER); const nonLaborBase=roundMoney(materialServicesBase+adminFeeBase); const beforeMarkup=roundMoney(nonLaborBase+laborAdjusted); const markupAmount=roundMoney(beforeMarkup*currentMaterialMarkup()); const grand=roundMoney(beforeMarkup+markupAmount); return {materialBase,repairBase,feeBase:adminFeeBase,adminFeeBase,adminFeeSell:adminFeeBase,materialMarkup:0,feeMarkup:0,nonLaborBase,markupAmount,nonLaborSell:nonLaborBase,materialServicesBase,materialServicesSell:materialServicesBase,laborBase,laborMultiplierAmount,laborMarkup:laborMultiplierAmount,laborAdjusted,laborSell:laborAdjusted,beforeMarkup,materialSell:materialServicesBase,fees:adminFeeBase,grand};}
+function customerPricingBreakdown(t){
+  const multiplier=1+currentMaterialMarkup();
+  const groups=[
+    {key:'materials',base:Number(t.materialServicesBase)||0},
+    {key:'labor',base:Number(t.laborAdjusted)||0},
+    {key:'fees',base:Number(t.adminFeeBase)||0}
+  ].map(group=>{
+    const rawCents=Math.max(0,group.base*multiplier*100);
+    return {...group,cents:Math.floor(rawCents),fraction:rawCents-Math.floor(rawCents)};
+  });
+  let remaining=Math.round((Number(t.grand)||0)*100)-groups.reduce((sum,group)=>sum+group.cents,0);
+  groups.slice().sort((a,b)=>b.fraction-a.fraction).forEach(group=>{if(remaining>0){group.cents++; remaining--;}});
+  if(remaining!==0){
+    const target=groups.slice().sort((a,b)=>b.base-a.base)[0];
+    if(target) target.cents+=remaining;
+  }
+  return Object.fromEntries(groups.map(group=>[group.key,roundMoney(group.cents/100)]));
+}
 function renderBomPreview(){const box=document.getElementById('bomPreview'); if(!box) return; const bomItems=selected.filter(r=>!isLabor(r)&&!isFee(r)); const totalQty=bomItems.reduce((sum,r)=>sum+(Number(r.qty)||0),0); if(!bomItems.length){box.innerHTML=`<div class="bomPreviewHead"><b>BOM Preview</b><span class="small">Material-only list will appear here</span></div><div class="empty">Add materials to preview the BOM here.</div>`; return;} box.innerHTML=`<div class="bomPreviewHead"><b>BOM Preview</b><span class="small">${bomItems.length} line item${bomItems.length===1?'':'s'} • ${totalQty} total qty • no costs shown</span></div><div class="bomPreviewBody"><table class="bomPreviewTable"><thead><tr><th>Qty</th><th>Material Item</th><th>Category</th></tr></thead><tbody>${bomItems.map(r=>`<tr><td class="qty">${escapeHtml(r.qty)}</td><td><b>${escapeHtml(itemWithConduitLength(r))}</b></td><td>${escapeHtml(r.category)}</td></tr>`).join('')}</tbody></table></div>`;}
 function updateCostDashboard(){
   const t=totals();
@@ -1642,11 +1660,23 @@ function buildCustomerFacingPdf(doc){
   const pricingNote='Final pricing may change if site conditions or customer-approved scope changes occur.';
   const noteLines=wrapToWidth(investmentNote, pageW-margin*2-32, 9, 'F1');
   const pricingLines=wrapToWidth(pricingNote, pageW-margin*2-32, 9, 'F1');
-  const boxH=Math.max(130, 92 + noteLines.length*12 + pricingLines.length*12);
+  const boxH=Math.max(210, 174 + noteLines.length*12 + pricingLines.length*12);
   if(y-boxH<130) newPage('CUSTOMER PROPOSAL');
   rect(margin,y-boxH,pageW-margin*2,boxH,light); border(margin,y-boxH,pageW-margin*2,boxH,line); textAt('Project Investment', margin+16, y-24, 13, 'F2', navy);
-  textAt('Total Customer Quote', margin+16, y-62, 15, 'F2', text); rightText(money(doc.totals.grand), pageW-margin-18, y-62, 20, 'F2', green);
-  let noteY=y-88;
+  const customerPricing=customerPricingBreakdown(doc.totals);
+  const pricingRows=[
+    ['Materials & Services',customerPricing.materials],
+    ['Labor',customerPricing.labor],
+    ['Fees',customerPricing.fees]
+  ];
+  pricingRows.forEach((entry,index)=>{
+    const rowY=y-52-(index*22);
+    textAt(entry[0],margin+16,rowY,10,'F1',text);
+    rightText(money(entry[1]),pageW-margin-18,rowY,10,'F2',text);
+  });
+  stroke(line); lw(.8); ops.push(`${margin+16} ${y-107} m ${pageW-margin-16} ${y-107} l S`);
+  textAt('Total Customer Quote', margin+16, y-132, 15, 'F2', text); rightText(money(doc.totals.grand), pageW-margin-18, y-132, 20, 'F2', green);
+  let noteY=y-158;
   noteLines.forEach(ln=>{textAt(ln, margin+16, noteY, 9, 'F1', muted); noteY-=12;});
   noteY-=4;
   pricingLines.forEach(ln=>{textAt(ln, margin+16, noteY, 9, 'F1', muted); noteY-=12;});
