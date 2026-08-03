@@ -1,6 +1,13 @@
-# Venture Home Estimator Pro v2.1.0
+# Venture Home Estimator Pro v2.2.0
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.0 changes
+- Moves project tabs above the photo and diagram workspaces for more editing room.
+- Keeps media canvases fitted inside the visible browser window.
+- Allows consecutive and overlapping drawing lines without forced reselection.
+- Wraps and scales photo and diagram text to fit resized text boxes.
+- Adds versioned asset URLs so browsers load each published release immediately.
 
 ## v2.1.0 changes
 - Rebuilt the photo and diagram workspaces around cleaner, focused toolbars and inspectors.

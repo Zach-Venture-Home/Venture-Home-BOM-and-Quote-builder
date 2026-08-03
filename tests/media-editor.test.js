@@ -27,6 +27,9 @@ assert.match(app, /classList\.toggle\('mediaEditorActive',mediaActive\)/,'media 
 assert.match(app, /function fittedCanvasTextLayout\(/,'responsive text layout helper is required');
 assert.match(app, /Math\.abs\(w\),Math\.abs\(h\),Math\.max\(14,o\.size\|\|16\)/,'diagram text must render inside its resized box');
 assert.match(app, /drawFittedCanvasText\(ctx,st\.text\|\|''/,'photo text must render inside its resized box');
+assert.match(app, /const APP_VERSION='v2\.2\.0'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.2\.0["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.2\.0["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');
