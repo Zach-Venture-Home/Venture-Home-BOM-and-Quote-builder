@@ -205,6 +205,7 @@ const materials = [
   {item:"3 inch rigid lb",category:"Conduit Fittings",cost:168.92},
   {item:"Trench thru dirt by the ft",category:"Trench",cost:40.00},
   {item:"Trench thru concrete by the ft",category:"Trench",cost:60.00},
+  {item:"Minimum trench pricing",category:"Trench",cost:1200.00},
   {item:"15 amp AFCI breaker",category:"Overcurrent Protection",cost:34.99},
   {item:"20 amp AFCI Breaker",category:"Overcurrent Protection",cost:37.49},
   {item:"30 amp AFCI 2 pole Breaker",category:"Overcurrent Protection",cost:125.32},
@@ -1470,7 +1471,7 @@ function redrawDiagramCanvas(preview=null){const canvas=document.getElementById(
 function newDiagramCanvas(){ if(diagramObjects.length && !confirm('Clear current diagram canvas?')) return; diagramObjects=[]; diagramSelected=-1; diagramActive=null; redrawDiagramCanvas();}
 function undoDiagramObject(){diagramObjects.pop(); diagramSelected=Math.min(diagramSelected,diagramObjects.length-1); redrawDiagramCanvas();}
 function deleteSelectedDiagramObject(){if(diagramSelected>=0){diagramObjects.splice(diagramSelected,1); diagramSelected=-1; redrawDiagramCanvas();}}
-function saveDiagramImage(){const canvas=document.getElementById('diagramCanvas'); if(!canvas)return; const title=prompt('Diagram name:', document.getElementById('diagramText')?.value || 'Proposed electrical layout') || 'Proposed electrical layout'; const dataUrl=canvas.toDataURL('image/jpeg',0.88); savedDiagrams.push({id:'diagram_'+Date.now(), title, dataUrl, objects:JSON.parse(JSON.stringify(diagramObjects))}); persistDiagrams(); renderDiagramList(); updateSummaryDock();}
+function saveDiagramImage(){const canvas=document.getElementById('diagramCanvas'); if(!canvas)return; const title=prompt('Diagram name:', document.getElementById('diagramText')?.value || 'Proposed electrical layout') || 'Proposed electrical layout'; const dataUrl=canvas.toDataURL('image/jpeg',0.88); savedDiagrams.push({id:'diagram_'+Date.now(), title, dataUrl, width:canvas.width, height:canvas.height, objects:JSON.parse(JSON.stringify(diagramObjects))}); persistDiagrams(); renderDiagramList(); updateSummaryDock();}
 function loadDiagram(id){const d=savedDiagrams.find(x=>x.id===id); if(!d)return; diagramObjects=(d.objects||[]).map(o=>({...o})); diagramSelected=-1; redrawDiagramCanvas();}
 function deleteDiagram(id){savedDiagrams=savedDiagrams.filter(d=>d.id!==id); persistDiagrams(); renderDiagramList(); updateSummaryDock();}
 function renderDiagramList(){const box=document.getElementById('diagramList'); if(!box)return; if(!savedDiagrams.length){box.innerHTML='<div class="empty">No saved diagrams yet.</div>'; updateSummaryDock(); return;} box.innerHTML=savedDiagrams.map(d=>`<div class="diagramCard"><img src="${d.dataUrl}" alt="Saved diagram"><input class="photoCaption" value="${escapeHtml(d.title||'')}" oninput="updateDiagramTitle('${escapeHtml(d.id)}',this.value)"><div class="diagramCardActions"><button class="btn secondary mini" onclick="loadDiagram('${escapeHtml(d.id)}')">Load</button><button class="btn danger mini" onclick="deleteDiagram('${escapeHtml(d.id)}')">Delete</button></div></div>`).join(''); updateSummaryDock();}
@@ -1524,7 +1525,9 @@ function downloadQuotePDF(){
     projectDescription:selectedWorkType(),
     scopeOfWork:document.getElementById('scopeOfWork')?.value || '',
     projectName:project.projectName,
-    projectAddress:project.projectAddress
+    projectAddress:project.projectAddress,
+    sitePhotos:sitePhotos,
+    savedDiagrams:savedDiagrams
   });
 }
 function downloadCustomerPDF(){
@@ -1694,7 +1697,7 @@ function buildCustomerFacingPdf(doc){
     const captionDepth=captionLines.length*15;
     const boxW=pageW-margin*2, boxH=520-captionDepth, x=margin, boxY=104;
     rect(x,boxY,boxW,boxH,white); border(x,boxY,boxW,boxH,line);
-    const srcW=Number(ph.width)||1200, srcH=Number(ph.height)||900;
+    const srcW=Number(ph.width)||(ph.kind==='Diagram'?1000:1200), srcH=Number(ph.height)||(ph.kind==='Diagram'?650:900);
     const sc=Math.min((boxW-12)/srcW, (boxH-12)/srcH);
     const imgW=srcW*sc, imgH=srcH*sc, imgX=x+(boxW-imgW)/2, imgY=boxY+(boxH-imgH)/2;
     ops.push(`q ${imgW} 0 0 ${imgH} ${imgX} ${imgY} cm /Im${i+1} Do Q`);
@@ -1713,7 +1716,7 @@ endstream`; });
 stream
 ${logoHex}
 endstream`;
-  photos.forEach((ph,j)=>{ const hex=dataUrlToHex(ph.dataUrl); const iw=Math.max(1,Math.round(Number(ph.width)||1200)), ih=Math.max(1,Math.round(Number(ph.height)||900)); objs[imageObjStart+j]=`<< /Type /XObject /Subtype /Image /Width ${iw} /Height ${ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter [/ASCIIHexDecode /DCTDecode] /Length ${hex.length} >>
+  photos.forEach((ph,j)=>{ const hex=dataUrlToHex(ph.dataUrl); const iw=Math.max(1,Math.round(Number(ph.width)||(ph.kind==='Diagram'?1000:1200))), ih=Math.max(1,Math.round(Number(ph.height)||(ph.kind==='Diagram'?650:900))); objs[imageObjStart+j]=`<< /Type /XObject /Subtype /Image /Width ${iw} /Height ${ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter [/ASCIIHexDecode /DCTDecode] /Length ${hex.length} >>
 stream
 ${hex}
 endstream`; });
@@ -1743,6 +1746,10 @@ function buildProfessionalPdf(doc){
     const lines=[]; String(str??'').split(/\n/).forEach((para,pi,all)=>{ const words=para.split(/\s+/).filter(Boolean); let cur=''; words.forEach(word=>{ let candidate=(cur+' '+word).trim(); if(textWidth(candidate,size,font)<=maxWidth){cur=candidate;} else { if(cur)lines.push(cur); if(textWidth(word,size,font)<=maxWidth) cur=word; else {let chunk=''; for(const ch of word){const test=chunk+ch; if(textWidth(test,size,font)>maxWidth&&chunk){lines.push(chunk);chunk=ch;} else chunk=test;} cur=chunk;} } }); if(cur)lines.push(cur); if(pi<all.length-1&&!words.length)lines.push(''); }); return lines.length?lines:[''];
   }
   function footer(){ textAt('Venture Home BOM & Custom Quote Tool', margin, 24, 8, 'F1', muted); rightText(`Page ${pageNo}`, pageW-margin, 24, 8, 'F1', muted); }
+  const media=doc.type==='quote' ? [
+    ...(doc.sitePhotos || []).filter(p=>p && p.dataUrl).map(p=>({...p,kind:'Photo',label:p.caption || 'Proposed equipment location'})),
+    ...(doc.savedDiagrams || []).filter(d=>d && d.dataUrl).map(d=>({...d,kind:'Diagram',label:d.title || 'Electrical diagram'}))
+  ] : [];
   function docHeader(){
     rect(0,pageH-92,pageW,92,navy);
     ops.push(`q 200 0 0 25 ${margin} ${pageH-54} cm /BrandLogo Do Q`);
@@ -1841,14 +1848,34 @@ function buildProfessionalPdf(doc){
   }
   summaryBox();
   footer(); pages.push(ops.join('\n'));
+  media.forEach((asset,index)=>{
+    ops=[]; pageNo++;
+    rect(0,pageH-92,pageW,92,navy);
+    ops.push(`q 200 0 0 25 ${margin} ${pageH-54} cm /BrandLogo Do Q`);
+    textAt(asset.kind==='Diagram'?'INTERNAL QUOTE - ELECTRICAL DIAGRAM':'INTERNAL QUOTE - SITE PHOTO',margin,pageH-72,11,'F1',yellow);
+    rightText(`Page ${pageNo}`,pageW-margin,pageH-56,9,'F1',white);
+    const captionLines=wrapToWidth(`${asset.kind} ${index+1}: ${asset.label}`,pageW-margin*2,12,'F2').slice(0,2);
+    captionLines.forEach((lineText,lineIndex)=>textAt(lineText,margin,pageH-126-(lineIndex*15),12,'F2',navy));
+    const captionDepth=captionLines.length*15;
+    const boxW=pageW-margin*2, boxH=560-captionDepth, boxY=82;
+    rect(margin,boxY,boxW,boxH,white); border(margin,boxY,boxW,boxH,line);
+    const srcW=Math.max(1,Number(asset.width)||(asset.kind==='Diagram'?1000:1200)), srcH=Math.max(1,Number(asset.height)||(asset.kind==='Diagram'?650:900));
+    const scale=Math.min((boxW-12)/srcW,(boxH-12)/srcH);
+    const imgW=srcW*scale, imgH=srcH*scale;
+    const imgX=margin+(boxW-imgW)/2, imgY=boxY+(boxH-imgH)/2;
+    ops.push(`q ${imgW} 0 0 ${imgH} ${imgX} ${imgY} cm /Im${index+1} Do Q`);
+    textAt(asset.kind==='Diagram'?'Saved electrical diagram for proposed work.':'Marked-up site photo for proposed equipment location.',margin,boxY-22,9,'F1',muted);
+    footer(); pages.push(ops.join('\n'));
+  });
   const objs=[]; const catalogObj=1, pagesObj=2, fontObj=3, boldObj=4, firstPageObj=5;
   const logoObj=firstPageObj+pages.length*2;
+  const imageObjStart=logoObj+1;
   const kids=[]; pages.forEach((_,i)=>kids.push(`${firstPageObj+i*2} 0 R`));
   objs[catalogObj]='<< /Type /Catalog /Pages 2 0 R >>';
   objs[pagesObj]=`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${pages.length} >>`;
   objs[fontObj]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
   objs[boldObj]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
-  pages.forEach((content,i)=>{ const pObj=firstPageObj+i*2, cObj=pObj+1; objs[pObj]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << /BrandLogo ${logoObj} 0 R >> >> /Contents ${cObj} 0 R >>`; objs[cObj]=`<< /Length ${content.length} >>
+  pages.forEach((content,i)=>{ const pObj=firstPageObj+i*2, cObj=pObj+1; const imageRefs=media.map((_,j)=>`/Im${j+1} ${imageObjStart+j} 0 R`).join(' '); objs[pObj]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << /BrandLogo ${logoObj} 0 R ${imageRefs} >> >> /Contents ${cObj} 0 R >>`; objs[cObj]=`<< /Length ${content.length} >>
 stream
 ${content}
 endstream`; });
@@ -1856,6 +1883,10 @@ endstream`; });
 stream
 ${logoHex}
 endstream`;
+  media.forEach((asset,index)=>{ const hex=dataUrlToHex(asset.dataUrl); const iw=Math.max(1,Math.round(Number(asset.width)||(asset.kind==='Diagram'?1000:1200))), ih=Math.max(1,Math.round(Number(asset.height)||(asset.kind==='Diagram'?650:900))); objs[imageObjStart+index]=`<< /Type /XObject /Subtype /Image /Width ${iw} /Height ${ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter [/ASCIIHexDecode /DCTDecode] /Length ${hex.length} >>
+stream
+${hex}
+endstream`; });
   let pdf='%PDF-1.4\n', offsets=[0];
   for(let i=1;i<objs.length;i++){ offsets[i]=pdf.length; pdf+=`${i} 0 obj\n${objs[i]}\nendobj\n`; }
   const xref=pdf.length; pdf+=`xref\n0 ${objs.length}\n0000000000 65535 f \n`;
