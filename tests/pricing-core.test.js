@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const pricing=require('../pricing-core.js');
+
+const total=(rows,markup=.125)=>pricing.calculateTotals(rows,markup,1.3);
+assert.equal(total([{item:'Trench thru dirt by the ft',category:'Trench',cost:40,qty:10}]).materialServicesBase,1200);
+assert.equal(total([{item:'Trench thru concrete by the ft',category:'Trench',cost:60,qty:25}]).materialServicesBase,1500);
+assert.equal(total([{item:'Minimum trench pricing',category:'Trench',cost:1200,qty:1}]).materialServicesBase,1200);
+assert.equal(total([{item:'Trench thru dirt by the ft',category:'Trench',cost:40,qty:10},{item:'Minimum trench pricing',category:'Trench',cost:1200,qty:1}]).materialServicesBase,1200);
+const laborQuote=total([{item:'Labor',category:'Labor',cost:100,qty:2}]);
+assert.equal(laborQuote.laborBase,200);
+assert.equal(laborQuote.laborAdjusted,260);
+assert.equal(laborQuote.beforeMarkup,260);
+assert.equal(laborQuote.markupAmount,32.5);
+assert.equal(laborQuote.grand,292.5);
+assert.equal(pricing.validateProject({rows:[]}).length,5);
+assert.equal(pricing.validateProject({projectName:'Smith',projectAddress:'1 Main St',workType:'EV Charger',scopeOfWork:'Install charger',rows:[{item:'Charger',category:'Equipment',cost:1,qty:1}]}).length,0);
+console.log('pricing-core tests passed');

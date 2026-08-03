@@ -1,0 +1,9 @@
+{
+  "name": "venture-home-estimator-pro",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "test": "node tests/pricing-core.test.js",
+    "check": "node --check pricing-core.js && node --check app.js && node tests/pricing-core.test.js"
+  }
+}

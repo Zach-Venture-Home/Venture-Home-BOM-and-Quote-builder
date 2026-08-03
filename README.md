@@ -1,6 +1,14 @@
-# Venture Home Estimator Pro v1.3.5
+# Venture Home Estimator Pro v2.0.0
 
 Standalone offline BOM and custom quote builder.
+
+## v2.0.0 changes
+- Enforces a $1,200 minimum trench price without double charging measured trench work.
+- Adds pre-export project validation and PDF media/signature inclusion controls.
+- Adds favorite and recently used material shortcuts plus Enter-to-add quantities.
+- Moves pricing and validation rules into a testable core module.
+- Includes photos and drawings in internal quote PDFs.
+- Adds Snap N Rack pricing materials.
 
 ## Run
 Open `index.html` in a modern browser.
