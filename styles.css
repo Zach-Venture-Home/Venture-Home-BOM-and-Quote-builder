@@ -122,3 +122,16 @@
 .photoCard,.diagramCard{position:relative}.photoCardActions,.diagramCardActions{flex-wrap:wrap}.mediaBadge{position:absolute;top:14px;left:14px;background:rgba(16,34,53,.88);color:white;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800}
 @media(max-width:900px){.cleanEditorLayout{grid-template-columns:1fr}.editorSidePanel{grid-template-columns:repeat(2,minmax(0,1fr))}.assetDrawer{grid-row:span 2}.cleanCanvas{min-height:420px!important}.editorCommandBar{position:sticky;top:0;z-index:10}.editorTool span{display:none}.workspaceShell.editorFocusMode .workspaceNav{display:none}}
 @media(max-width:620px){.editorHeader{display:block}.editorStatus{display:inline-block;margin-top:9px}.editorSidePanel{grid-template-columns:1fr}.assetDrawer{grid-row:auto}.cleanCanvas{min-height:320px!important}.editorCommandBar{margin-left:-8px;margin-right:-8px}.photoList,.diagramSaved{grid-template-columns:1fr 1fr}.photoCardActions .btn,.diagramCardActions .btn{flex:1}}
+
+/* Full-width media workspace with project tabs above the canvas */
+.workspaceShell.editorFocusMode{grid-template-columns:minmax(0,1fr)}
+.workspaceShell.editorFocusMode .workspaceNav{position:static;top:auto;display:flex!important;align-items:center;gap:7px;overflow-x:auto;padding:8px;grid-column:1;min-width:0}
+.workspaceShell.editorFocusMode .navBtn{width:auto;flex:1 0 auto;min-width:108px;margin:0;text-align:center;padding:10px 14px}
+.workspaceShell.editorFocusMode .workspaceMain{grid-column:1;min-width:0}
+@media(max-width:620px){.workspaceShell.editorFocusMode .workspaceNav{margin:0 -2px}.workspaceShell.editorFocusMode .navBtn{min-width:96px;padding:9px 11px}}
+
+/* Keep media canvases inside the visible editing viewport. */
+.mediaEditorActive .costDashboard{display:none}
+.mediaEditorActive .cleanCanvas{height:clamp(360px,calc(100vh - 340px),700px);min-height:0!important}
+.mediaEditorActive .photoCanvas,.mediaEditorActive .diagramCanvas{max-height:100%}
+@media(max-height:720px){.mediaEditorActive .cleanCanvas{height:360px}.mediaEditorActive .editorHeader{padding-bottom:9px}.mediaEditorActive .editorCommandBar{margin-top:9px;margin-bottom:9px}}
