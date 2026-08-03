@@ -1,6 +1,12 @@
-# Venture Home Estimator Pro v2.0.0
+# Venture Home Estimator Pro v2.1.0
 
 Standalone offline BOM and custom quote builder.
+
+## v2.1.0 changes
+- Rebuilt the photo and diagram workspaces around cleaner, focused toolbars and inspectors.
+- Adds undo/redo, duplicate, layer ordering, selected-item styling, zoom controls, and keyboard shortcuts.
+- Saved photos retain their original source and editable markup; saved diagrams retain editable objects.
+- Adds reopen/update workflows, autosave for existing media, searchable equipment, and clean exports without selection handles.
 
 ## v2.0.0 changes
 - Enforces a $1,200 minimum trench price without double charging measured trench work.

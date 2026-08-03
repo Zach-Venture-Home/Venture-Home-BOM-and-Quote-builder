@@ -98,3 +98,27 @@
 .btn:hover{transform:translateY(-1px);filter:brightness(1.01)}
 .btn:active{transform:translateY(0)}
 .projectSetupFront .textarea{min-height:150px}
+
+/* v2.1 media editors */
+.editorHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:14px;border-bottom:1px solid rgba(35,31,32,.09)}
+.editorHeader h2{margin:0 0 4px;color:var(--navy)}
+.editorStatus{flex:none;border:1px solid #b8d6ca;background:#effbf6;color:#166534;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+.editorStatus.unsaved{border-color:#f6d78d;background:#fff9e8;color:#7a4d00}
+.editorCommandBar{display:flex;align-items:center;gap:10px;margin:14px 0;padding:9px;background:#f7faf9;border:1px solid rgba(35,31,32,.10);border-radius:14px;overflow-x:auto}
+.fileButton{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}.fileButton input{display:none}
+.editorToolGroup,.editorActionGroup{display:flex;align-items:center;gap:5px}.editorToolGroup{padding:0 8px;border-left:1px solid var(--line);border-right:1px solid var(--line)}.editorActionGroup{margin-left:auto}
+.editorNameInput{width:190px;min-width:160px;padding:9px 10px}
+.editorTool,.iconAction{border:1px solid transparent;background:transparent;color:var(--navy);border-radius:9px;min-width:38px;height:38px;padding:5px 8px;font-weight:850;cursor:pointer;white-space:nowrap;transition:.14s ease}
+.editorTool{display:flex;align-items:center;justify-content:center;gap:5px}.editorTool span{font-size:11px}.editorTool:hover,.iconAction:hover{background:#fff;border-color:var(--line)}.editorTool.active,.diagramToolBtn.active{background:#e8fff5!important;border-color:#54d7a8!important;color:#0b6145;box-shadow:none!important}
+.iconAction{font-size:18px}.dangerIcon{color:var(--red)}
+.cleanEditorLayout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:14px;align-items:start}.editorSidePanel{display:grid;gap:12px;min-width:0}
+.inspectorCard,.captionField,.assetDrawer{display:block;background:#fbfdfc;border:1px solid rgba(35,31,32,.10);border-radius:12px;padding:12px}.assetDrawer summary{cursor:pointer;font-weight:900;color:var(--navy);padding:2px 0 9px}.assetDrawer[open] summary{margin-bottom:2px}
+.compactInput{padding:8px 9px!important}.compactProperties{display:grid;grid-template-columns:1fr 74px;gap:8px;margin-bottom:9px}.compactProperties label,.captionField{font-size:11px;color:var(--muted);font-weight:800}.compactProperties input,.captionField input{margin-top:5px}.inspectorApply{width:100%;margin-top:9px}
+.cleanCanvas{min-height:540px!important;display:flex;align-items:center;justify-content:center;padding:12px!important;background:#e9efec!important}.cleanCanvas .empty{display:flex;flex-direction:column;gap:6px}.cleanCanvas canvas{flex:none}
+.zoomBar{margin-top:8px}.zoomButtons{align-items:center}.zoomButtons>span{min-width:46px;text-align:center;font-size:12px;font-weight:800;color:var(--navy)}
+.savedMediaSection{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.savedMediaSection .photoList,.savedMediaSection .diagramSaved{margin:0;padding:12px;border-top:0;background:#fbfdfc}
+.equipmentGrid{gap:7px;max-height:430px;margin-top:8px}.equipmentCategory{padding:8px;border-radius:10px}.equipmentCategoryGrid{gap:6px}.equipmentBtn{grid-template-columns:50px 1fr;padding:6px;border-radius:9px}.equipmentThumb{width:50px;height:50px;border-radius:7px}.equipmentBtn img{max-width:46px;max-height:46px}.equipmentName{font-size:11px}.selectedEquipmentName{font-size:11px;padding:7px}
+.symbolPalette{display:grid;grid-template-columns:1fr 1fr;gap:6px}.symbolChip{min-height:42px;border:1px solid var(--line);background:white;border-radius:9px;color:var(--navy);font-size:11px;font-weight:850;cursor:pointer;padding:7px}.symbolChip:hover{border-color:#54d7a8;background:#f2fff9}
+.photoCard,.diagramCard{position:relative}.photoCardActions,.diagramCardActions{flex-wrap:wrap}.mediaBadge{position:absolute;top:14px;left:14px;background:rgba(16,34,53,.88);color:white;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800}
+@media(max-width:900px){.cleanEditorLayout{grid-template-columns:1fr}.editorSidePanel{grid-template-columns:repeat(2,minmax(0,1fr))}.assetDrawer{grid-row:span 2}.cleanCanvas{min-height:420px!important}.editorCommandBar{position:sticky;top:0;z-index:10}.editorTool span{display:none}.workspaceShell.editorFocusMode .workspaceNav{display:none}}
+@media(max-width:620px){.editorHeader{display:block}.editorStatus{display:inline-block;margin-top:9px}.editorSidePanel{grid-template-columns:1fr}.assetDrawer{grid-row:auto}.cleanCanvas{min-height:320px!important}.editorCommandBar{margin-left:-8px;margin-right:-8px}.photoList,.diagramSaved{grid-template-columns:1fr 1fr}.photoCardActions .btn,.diagramCardActions .btn{flex:1}}

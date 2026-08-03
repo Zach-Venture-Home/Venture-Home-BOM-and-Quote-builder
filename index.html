@@ -177,88 +177,49 @@
 
         <div id="tab_photos" class="tabPanel">
           <div class="card">
-            <div class="photoMarkup" style="margin-top:0">
-              <div class="photoMarkupHead"><b>Site Photo Markups</b><span class="small">Upload photos and mark proposed equipment locations.</span></div>
-              <div class="photoControls">
-                <input id="sitePhotoUpload" class="input" type="file" accept="image/*" />
-                <button class="btn secondary" onclick="clearPhotoDrawing()">Clear Canvas</button>
-                <button class="btn green" onclick="saveMarkedPhoto()">Save Marked Photo</button>
+            <div class="editorHeader"><div><h2>Site Photo Editor</h2><span class="small">Mark equipment locations without covering the photo.</span></div><span id="photoEditStatus" class="editorStatus">New photo</span></div>
+            <div class="editorCommandBar">
+              <label class="btn secondary fileButton">Open Photo<input id="sitePhotoUpload" type="file" accept="image/*"></label>
+              <div class="editorToolGroup" aria-label="Photo tools">
+                <button class="editorTool active" data-photo-tool="select" onclick="setDrawTool('select')" title="Select (V)">↖ <span>Select</span></button>
+                <button class="editorTool" data-photo-tool="pen" onclick="setDrawTool('pen')" title="Draw (P)">✎ <span>Draw</span></button>
+                <button class="editorTool" data-photo-tool="arrow" onclick="setDrawTool('arrow')" title="Arrow (A)">➜ <span>Arrow</span></button>
+                <button class="editorTool" data-photo-tool="line" onclick="setDrawTool('line')" title="Line (L)">━ <span>Line</span></button>
+                <button class="editorTool" data-photo-tool="rect" onclick="setDrawTool('rect')" title="Box (R)">▭ <span>Box</span></button>
+                <button class="editorTool" data-photo-tool="circle" onclick="setDrawTool('circle')" title="Circle (C)">◯ <span>Circle</span></button>
+                <button class="editorTool" data-photo-tool="text" onclick="setDrawTool('text')" title="Text (T)">T <span>Text</span></button>
               </div>
-              <div class="photoEditor">
-                <div class="photoToolbar">
-                  <div class="toolGroupTitle">Markup Tools</div>
-                  <div class="photoToolGrid">
-                    <button class="photoToolBtn active" data-photo-tool="select" onclick="setDrawTool('select')"><span class="ico">↖</span><span class="lbl">Select</span></button>
-                    <button class="photoToolBtn" data-photo-tool="pen" onclick="setDrawTool('pen')"><span class="ico">✎</span><span class="lbl">Pen</span></button>
-                    <button class="photoToolBtn" data-photo-tool="arrow" onclick="setDrawTool('arrow')"><span class="ico">➜</span><span class="lbl">Arrow</span></button>
-                    <button class="photoToolBtn" data-photo-tool="line" onclick="setDrawTool('line')"><span class="ico">━</span><span class="lbl">Line</span></button>
-                    <button class="photoToolBtn" data-photo-tool="rect" onclick="setDrawTool('rect')"><span class="ico">▭</span><span class="lbl">Box</span></button>
-                    <button class="photoToolBtn" data-photo-tool="circle" onclick="setDrawTool('circle')"><span class="ico">◯</span><span class="lbl">Circle</span></button>
-                    <button class="photoToolBtn" data-photo-tool="text" onclick="setDrawTool('text')"><span class="ico">T</span><span class="lbl">Text</span></button>
-                    <button class="photoToolBtn" onclick="deleteSelectedMarkup()"><span class="ico">🗑</span><span class="lbl">Delete</span></button>
-                  </div>
-                  <div class="toolGroupTitle" style="margin-top:14px">Actions</div>
-                  <button class="btn secondary" style="width:100%;margin-bottom:8px" onclick="undoPhotoDrawing()">Undo Last Markup</button>
-                  <button class="btn danger" style="width:100%" onclick="deleteSelectedMarkup()">Delete Selected</button>
-                  <div class="equipmentLibrary">
-                    <div class="toolGroupTitle">Equipment Library</div>
-                    <div id="equipmentGrid" class="equipmentGrid"></div>
-                    <div id="selectedEquipmentName" class="selectedEquipmentName" style="display:none"></div>
-                    <div class="equipmentHint">Click equipment, then click the site photo to place it. Use Select to move, resize, or adjust opacity.</div>
-                  </div>
-                </div>
-                <div class="canvasPanel">
-                  <div class="canvasWrap"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty">Upload a site photo to start drawing proposed equipment locations.</div></div>
-                  <div class="zoomBar"><span class="small"><b>Tip:</b> Use Select to move and resize boxes, arrows, circles, and text.</span><div class="zoomButtons"><button class="btn secondary mini" onclick="setPhotoZoom(.75)">75%</button><button class="btn secondary mini" onclick="setPhotoZoom(1)">100%</button><button class="btn secondary mini" onclick="setPhotoZoom(1.25)">125%</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div>
-                </div>
-                <div class="photoProperties">
-                  <div class="toolGroupTitle">Properties</div>
-                  <div class="propRow"><label class="small"><b>Color</b><input id="drawColor" class="colorDot" type="color" value="#e03131" /></label></div>
-                  <div class="propRow"><label class="small"><b>Line / Font Size</b><input id="drawSize" class="input" type="number" min="2" max="48" value="5" /></label></div>
-                  <div class="propRow"><label class="small"><b>Equipment Opacity</b><input id="equipmentOpacity" class="input" type="number" min="10" max="100" value="100" /></label></div>
-                  <div class="propRow"><label class="small"><b>Text Box Content</b><input id="drawText" class="input" placeholder="Example: Backup Gateway location" /></label></div>
-                  <div class="propRow"><label class="small"><b>Saved Photo Caption</b><input id="photoSaveCaption" class="input" placeholder="Example: Proposed gateway location" /></label></div>
-                  <div class="note" style="margin-top:8px"><b>Quality:</b> saved photos now retain their shape and export to the customer proposal without being stretched.</div>
-                </div>
+              <div class="editorActionGroup">
+                <button class="iconAction" onclick="undoPhotoDrawing()" title="Undo">↶</button><button class="iconAction" onclick="redoPhotoDrawing()" title="Redo">↷</button>
+                <button class="iconAction" onclick="duplicateSelectedMarkup()" title="Duplicate selected">⧉</button><button class="iconAction" onclick="moveSelectedPhotoLayer(-1)" title="Send backward">↓</button><button class="iconAction" onclick="moveSelectedPhotoLayer(1)" title="Bring forward">↑</button>
+                <button class="iconAction dangerIcon" onclick="deleteSelectedMarkup()" title="Delete selected">⌫</button>
               </div>
-              <div class="photoList" id="photoList"></div>
+              <button id="savePhotoButton" class="btn green" onclick="saveMarkedPhoto()">Save Photo</button>
             </div>
+            <div class="cleanEditorLayout">
+              <aside class="editorSidePanel">
+                <details class="assetDrawer"><summary>Equipment Library</summary><input id="equipmentSearch" class="input compactInput" placeholder="Find equipment…"><div id="equipmentGrid" class="equipmentGrid"></div><div id="selectedEquipmentName" class="selectedEquipmentName" style="display:none"></div></details>
+                <div class="inspectorCard"><div class="toolGroupTitle">Style</div><div class="compactProperties"><label>Color<input id="drawColor" class="colorDot" type="color" value="#e03131"></label><label>Size<input id="drawSize" class="input compactInput" type="number" min="2" max="48" value="5"></label><label>Opacity %<input id="equipmentOpacity" class="input compactInput" type="number" min="10" max="100" value="100"></label></div><label class="small">Text<input id="drawText" class="input compactInput" placeholder="Type a label"></label><button class="btn secondary mini inspectorApply" onclick="applyPhotoSelectionStyle()">Apply to Selection</button></div>
+                <label class="small captionField"><b>Photo Caption</b><input id="photoSaveCaption" class="input" placeholder="Proposed equipment location"></label>
+              </aside>
+              <div class="canvasPanel"><div class="canvasWrap cleanCanvas"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty"><b>Open a site photo</b><span>Then choose a markup tool or equipment item.</span></div></div><div class="zoomBar"><span class="small">Drag to move • handles resize • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setPhotoZoom(photoZoom-.15)">−</button><span id="photoZoomLabel">100%</span><button class="iconAction" onclick="setPhotoZoom(photoZoom+.15)">+</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div></div>
+            </div>
+            <div class="savedMediaSection"><div class="savedHead"><b>Saved Photos</b><span class="small">Reopen any recent photo to continue editing.</span></div><div class="photoList" id="photoList"></div></div>
           </div>
         </div>
 
         <div id="tab_diagrams" class="tabPanel">
           <div class="card">
-            <div class="sectionTitle"><h2>Electrical Diagram Editor</h2><span class="small">Offline diagram builder for one-lines, layouts, and proposed equipment locations.</span></div>
-            <div class="diagramBox">
-              <p><span class="pill">Built-in offline editor</span> <span class="pill">Saved with project</span></p>
-              <div class="diagramToolbar">
-                <label class="small"><b>Color</b><input id="diagramColor" class="colorDot" type="color" value="#1f5f8b"></label>
-                <label class="small"><b>Line / Border Size</b><input id="diagramSize" class="input" type="number" min="2" max="48" value="4"></label>
-                <label class="small"><b>Text / Label</b><input id="diagramText" class="input" placeholder="Example: MSP, Meter, Gateway"></label>
-              </div>
-              <div class="diagramToolbox" id="diagramToolbox">
-                <button class="diagramToolBtn active" data-tool="select" onclick="setDiagramTool('select')"><span class="ico">↖</span><span class="lbl">Select</span></button>
-                <button class="diagramToolBtn" data-tool="text" onclick="setDiagramTool('text')"><span class="ico">T</span><span class="lbl">Text</span></button>
-                <button class="diagramToolBtn" data-tool="line" onclick="setDiagramTool('line')"><span class="ico">━</span><span class="lbl">Line</span></button>
-                <button class="diagramToolBtn" data-tool="arrow" onclick="setDiagramTool('arrow')"><span class="ico">➜</span><span class="lbl">Arrow</span></button>
-                <button class="diagramToolBtn" data-tool="rect" onclick="setDiagramTool('rect')"><span class="ico">▭</span><span class="lbl">Box</span></button>
-                <button class="diagramToolBtn" data-tool="circle" onclick="setDiagramTool('circle')"><span class="ico">◯</span><span class="lbl">Circle</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="MSP" onclick="setDiagramTool('symbol','MSP')"><span class="ico">▣</span><span class="lbl">MSP</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Meter" onclick="setDiagramTool('symbol','Meter')"><span class="ico">Ⓜ</span><span class="lbl">Meter</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Disconnect" onclick="setDiagramTool('symbol','Disconnect')"><span class="ico">⏻</span><span class="lbl">Disco</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Gateway" onclick="setDiagramTool('symbol','Gateway')"><span class="ico">▤</span><span class="lbl">Gateway</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="EV Charger" onclick="setDiagramTool('symbol','EV Charger')"><span class="ico">⚡</span><span class="lbl">EV</span></button>
-                <button class="diagramToolBtn" data-tool="symbol" data-symbol="Ground Rod" onclick="setDiagramTool('symbol','Ground Rod')"><span class="ico">⏚</span><span class="lbl">Ground</span></button>
-              </div>
-              <div class="fullActions">
-                <button class="btn secondary" onclick="newDiagramCanvas()">New Blank Diagram</button>
-                <button class="btn secondary" onclick="undoDiagramObject()">Undo</button>
-                <button class="btn danger" onclick="deleteSelectedDiagramObject()">Delete Selected</button>
-                <button class="btn green" onclick="saveDiagramImage()">Save Diagram</button>
-              </div>
-              <div class="diagramCanvasWrap" style="margin-top:12px"><canvas id="diagramCanvas" class="diagramCanvas" width="1000" height="650"></canvas></div>
-              <div class="diagramSaved" id="diagramList"></div>
+            <div class="editorHeader"><div><h2>Electrical Diagram Editor</h2><span class="small">Build clean one-lines and equipment layouts.</span></div><span id="diagramEditStatus" class="editorStatus">New diagram</span></div>
+            <div class="editorCommandBar">
+              <button class="btn secondary" onclick="newDiagramCanvas()">New</button>
+              <div class="editorToolGroup" id="diagramToolbox"><button class="editorTool active diagramToolBtn" data-tool="select" onclick="setDiagramTool('select')">↖ <span>Select</span></button><button class="editorTool diagramToolBtn" data-tool="text" onclick="setDiagramTool('text')">T <span>Text</span></button><button class="editorTool diagramToolBtn" data-tool="line" onclick="setDiagramTool('line')">━ <span>Line</span></button><button class="editorTool diagramToolBtn" data-tool="arrow" onclick="setDiagramTool('arrow')">➜ <span>Arrow</span></button><button class="editorTool diagramToolBtn" data-tool="rect" onclick="setDiagramTool('rect')">▭ <span>Box</span></button><button class="editorTool diagramToolBtn" data-tool="circle" onclick="setDiagramTool('circle')">◯ <span>Circle</span></button></div>
+              <div class="editorActionGroup"><button class="iconAction" onclick="undoDiagramObject()" title="Undo">↶</button><button class="iconAction" onclick="redoDiagramObject()" title="Redo">↷</button><button class="iconAction" onclick="duplicateSelectedDiagramObject()" title="Duplicate">⧉</button><button class="iconAction" onclick="moveSelectedDiagramLayer(-1)" title="Send backward">↓</button><button class="iconAction" onclick="moveSelectedDiagramLayer(1)" title="Bring forward">↑</button><button class="iconAction dangerIcon" onclick="deleteSelectedDiagramObject()" title="Delete">⌫</button></div>
+              <input id="diagramSaveTitle" class="input editorNameInput" placeholder="Diagram name" value="Proposed electrical layout" aria-label="Diagram name">
+              <button id="saveDiagramButton" class="btn green" onclick="saveDiagramImage()">Save Diagram</button>
             </div>
+            <div class="cleanEditorLayout diagramLayout"><aside class="editorSidePanel"><div class="inspectorCard"><div class="toolGroupTitle">Symbols</div><div class="symbolPalette"><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="MSP" onclick="setDiagramTool('symbol','MSP')">▣ MSP</button><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="Meter" onclick="setDiagramTool('symbol','Meter')">Ⓜ Meter</button><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="Disconnect" onclick="setDiagramTool('symbol','Disconnect')">⏻ Disconnect</button><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="Gateway" onclick="setDiagramTool('symbol','Gateway')">▤ Gateway</button><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="EV Charger" onclick="setDiagramTool('symbol','EV Charger')">⚡ EV Charger</button><button class="symbolChip diagramToolBtn" data-tool="symbol" data-symbol="Ground Rod" onclick="setDiagramTool('symbol','Ground Rod')">⏚ Ground Rod</button></div></div><div class="inspectorCard"><div class="toolGroupTitle">Style & Label</div><div class="compactProperties"><label>Color<input id="diagramColor" class="colorDot" type="color" value="#1f5f8b"></label><label>Size<input id="diagramSize" class="input compactInput" type="number" min="2" max="48" value="4"></label></div><label class="small">Label<input id="diagramText" class="input compactInput" placeholder="MSP, Meter, Gateway"></label><button class="btn secondary mini inspectorApply" onclick="applyDiagramSelectionStyle()">Apply to Selection</button></div></aside><div class="canvasPanel"><div class="diagramCanvasWrap cleanCanvas"><canvas id="diagramCanvas" class="diagramCanvas" width="1000" height="650"></canvas></div><div class="zoomBar"><span class="small">Grid snap • 45° lines • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setDiagramZoom(diagramZoom-.15)">−</button><span id="diagramZoomLabel">100%</span><button class="iconAction" onclick="setDiagramZoom(diagramZoom+.15)">+</button><button class="btn secondary mini" onclick="fitDiagramZoom()">Fit</button></div></div></div></div>
+            <div class="savedMediaSection"><div class="savedHead"><b>Saved Diagrams</b><span class="small">Reopen, duplicate, rename, or delete.</span></div><div class="diagramSaved" id="diagramList"></div></div>
           </div>
         </div>
 
@@ -301,7 +262,7 @@
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
-      <h3>v2.0.0 — Safer, Faster Estimating</h3><ul><li>Automatic $1,200 trench minimum enforcement.</li><li>Pre-export quote validation and configurable PDF photo, drawing, and signature options.</li><li>Favorite and recently used material shortcuts with keyboard quick-add.</li><li>Testable pricing engine and centralized version display.</li></ul>
+      <h3>v2.1.0 — Media Editor Overhaul</h3><ul><li>Cleaner, focused photo and diagram workspaces.</li><li>Undo and redo, duplicate, layer controls, selection styling, zoom, and keyboard shortcuts.</li><li>Saved photos and diagrams can be reopened and safely updated with autosave.</li><li>Searchable equipment library and more reliable saved-media management.</li></ul><h3>v2.0.0 — Safer, Faster Estimating</h3><ul><li>Automatic $1,200 trench minimum enforcement.</li><li>Pre-export quote validation and configurable PDF photo, drawing, and signature options.</li><li>Favorite and recently used material shortcuts with keyboard quick-add.</li><li>Testable pricing engine and centralized version display.</li></ul>
       <h3>v1.3.5</h3><ul><li>Added 12/2 Romex by ft at $0.89.</li><li>Added 12/2 Romex 250ft at $176.00.</li><li>Added 6/3 Romex by the ft at $4.69 and renamed the 50-foot option to 6/3 Romex 50 ft at $278.00.</li><li>Codex integration.</li></ul><h3>v1.3.4</h3><ul><li>Added EV Load Management Device under Equipment at a cost of $986.47.</li><li>Tesla EV Charger remains set to $601.86.</li><li>Corrected all visible and internal version labels to v1.3.4.</li></ul><h3>v1.3.2</h3>
       <ul><li>Saved projects, photos, and diagrams now use durable on-device storage instead of relying on browser localStorage limits.</li><li>Added full project backup and restore.</li><li>Added unsaved-change status, safer quantity validation, and rounded quote calculations.</li></ul>
       <h3>v1.2.1 — PDF Layout Reliability</h3>
