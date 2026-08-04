@@ -206,6 +206,8 @@ const materials = [
   {item:"3 inch rigid lb",category:"Conduit Fittings",cost:168.92},
   {item:"Trench thru dirt by the ft",category:"Trench",cost:40.00},
   {item:"Trench thru concrete by the ft",category:"Trench",cost:60.00},
+  {item:"Dig only thru dirt by the ft",category:"Trench",cost:20.00},
+  {item:"Dig only thru concrete by the ft",category:"Trench",cost:40.00},
   {item:"SNPRAK 232-10095-USA UR-45 172\" MILL RAIL MADE IN USA",category:"Snap N Rack",cost:27.00},
   {item:"SNPRAK 242-01214 ULTRA RAIL SPLICE BLACK",category:"Snap N Rack",cost:4.87},
   {item:"SNPRAK 242-02071 ULTRA RAIL MID CLAMP BLACK",category:"Snap N Rack",cost:2.85},
@@ -349,7 +351,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.3';
+const APP_VERSION='v2.2.4';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';

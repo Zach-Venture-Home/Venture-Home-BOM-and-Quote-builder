@@ -1,6 +1,11 @@
-# Venture Home Estimator Pro v2.2.3
+# Venture Home Estimator Pro v2.2.4
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.4 changes
+- Adds Dig only thru dirt by the ft under Trench at $20.00 per foot.
+- Adds Dig only thru concrete by the ft under Trench at $40.00 per foot.
+- Both services use the automatic $1,200 trench minimum.
 
 ## v2.2.3 changes
 - Adds 500 KCMIL triplex by the ft under Wire at $7.04 per foot.

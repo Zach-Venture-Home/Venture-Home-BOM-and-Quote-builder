@@ -4,6 +4,8 @@ const pricing=require('../pricing-core.js');
 const total=(rows,markup=.125)=>pricing.calculateTotals(rows,markup,1.3);
 assert.equal(total([{item:'Trench thru dirt by the ft',category:'Trench',cost:40,qty:10}]).materialServicesBase,1200);
 assert.equal(total([{item:'Trench thru concrete by the ft',category:'Trench',cost:60,qty:25}]).materialServicesBase,1500);
+assert.equal(total([{item:'Dig only thru dirt by the ft',category:'Trench',cost:20,qty:10}]).materialServicesBase,1200);
+assert.equal(total([{item:'Dig only thru concrete by the ft',category:'Trench',cost:40,qty:31}]).materialServicesBase,1240);
 assert.equal(total([{item:'Minimum trench pricing',category:'Trench',cost:1200,qty:1}]).materialServicesBase,1200);
 assert.equal(total([{item:'Trench thru dirt by the ft',category:'Trench',cost:40,qty:10},{item:'Minimum trench pricing',category:'Trench',cost:1200,qty:1}]).materialServicesBase,1200);
 const laborQuote=total([{item:'Labor',category:'Labor',cost:100,qty:2}]);
