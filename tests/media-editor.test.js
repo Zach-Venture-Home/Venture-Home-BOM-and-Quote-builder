@@ -32,9 +32,10 @@ assert.match(app, /drawFittedCanvasText\(ctx,st\.text\|\|''/,'photo text must re
 assert.match(app, /const DIAGRAM_SYMBOL_GLYPHS=/,'diagram symbols must have a shared icon map');
 assert.match(app, /symbol:diagramSymbol/,'placed diagram symbols must preserve their selected icon type');
 assert.match(app, /function drawDiagramSymbol\(/,'diagram symbols must render their designated palette icon');
-assert.match(app, /const APP_VERSION='v2\.2\.1'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.2\.1["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.2\.1["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /\{item:"Span Mlo 24 Panel",category:"Equipment",cost:2550\.00\}/,'Span Mlo 24 Panel must be available under Equipment at $2,550');
+assert.match(app, /const APP_VERSION='v2\.2\.2'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.2\.2["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.2\.2["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.2.1
+# Venture Home Estimator Pro v2.2.2
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.2 changes
+- Adds Span Mlo 24 Panel under Equipment at a cost of $2,550.00.
 
 ## v2.2.1 changes
 - Makes the photo editing surface follow the photo's true aspect ratio for a cleaner Paint-style workspace.

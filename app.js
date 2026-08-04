@@ -246,6 +246,7 @@ const materials = [
 {item:"Powerwall 3",category:"Equipment",cost:7612.44},
 {item:"Backup Gateway 3",category:"Equipment",cost:892.96},
 {item:"200 Amp SPAN Panel",category:"Equipment",cost:3813.78},
+{item:"Span Mlo 24 Panel",category:"Equipment",cost:2550.00},
   {item:"Polaris Insulation Displacement Connector",category:"Equipment",cost:32.46},
   {item:"4/0 Ser Connector Wet",category:"Fittings",cost:16.54},
   {item:"4/0 Ser Connector Dry",category:"Fittings",cost:4.28},
@@ -347,7 +348,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.1';
+const APP_VERSION='v2.2.2';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
