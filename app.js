@@ -133,6 +133,7 @@ const materials = [
   {item:"Electrical Handhole",category:"Enclosures",cost:238.19},
   {item:"200 A Disco",category:"Enclosures",cost:247.79},
   {item:"200 A Meter Main",category:"Enclosures",cost:351.21},
+  {item:"320 A Meter Main",category:"Enclosures",cost:1103.01},
   {item:"400 A Meter Main",category:"Enclosures",cost:1626.38},
   {item:"1 inch SEU Weatherhead",category:"Equipment",cost:15.76},
   {item:"100 amp 2 gang meter main",category:"Enclosures",cost:600.00},
@@ -351,7 +352,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.4';
+const APP_VERSION='v2.2.5';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';

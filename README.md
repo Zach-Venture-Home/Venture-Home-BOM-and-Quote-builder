@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.2.4
+# Venture Home Estimator Pro v2.2.5
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.5 changes
+- Adds 320 A Meter Main under Enclosures at $1,103.01.
 
 ## v2.2.4 changes
 - Adds Dig only thru dirt by the ft under Trench at $20.00 per foot.
