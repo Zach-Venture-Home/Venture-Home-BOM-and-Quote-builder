@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.2.2
+# Venture Home Estimator Pro v2.2.3
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.3 changes
+- Adds 500 KCMIL triplex by the ft under Wire at $7.04 per foot.
 
 ## v2.2.2 changes
 - Adds Span Mlo 24 Panel under Equipment at a cost of $2,550.00.

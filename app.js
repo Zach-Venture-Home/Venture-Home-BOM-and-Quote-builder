@@ -183,6 +183,7 @@ const materials = [
   {item:"#4 Copper SER by the ft",category:"Wire",cost:8.47},
   {item:"2/0 Copper by the ft",category:"Wire",cost:3.79},
   {item:"4/0 Aluminum SER by the ft",category:"Wire",cost:5.03},
+  {item:"500 KCMIL triplex by the ft",category:"Wire",cost:7.04},
   {item:"2/0 Copper SER by the ft",category:"Wire",cost:13.25},
   {item:"#1 aluminum SER by the ft",category:"Wire",cost:2.75},
   {item:"#2 aluminum SER by the ft",category:"Wire",cost:1.98},
@@ -348,7 +349,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.2';
+const APP_VERSION='v2.2.3';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
