@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.2.0" />
+<link rel="stylesheet" href="styles.css?v=2.2.1" />
 </head>
 <body>
 <div class="app">
@@ -202,7 +202,7 @@
                 <div class="inspectorCard"><div class="toolGroupTitle">Style</div><div class="compactProperties"><label>Color<input id="drawColor" class="colorDot" type="color" value="#e03131"></label><label>Size<input id="drawSize" class="input compactInput" type="number" min="2" max="48" value="5"></label><label>Opacity %<input id="equipmentOpacity" class="input compactInput" type="number" min="10" max="100" value="100"></label></div><label class="small">Text<input id="drawText" class="input compactInput" placeholder="Type a label"></label><button class="btn secondary mini inspectorApply" onclick="applyPhotoSelectionStyle()">Apply to Selection</button></div>
                 <label class="small captionField"><b>Photo Caption</b><input id="photoSaveCaption" class="input" placeholder="Proposed equipment location"></label>
               </aside>
-              <div class="canvasPanel"><div class="canvasWrap cleanCanvas"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty"><b>Open a site photo</b><span>Then choose a markup tool or equipment item.</span></div></div><div class="zoomBar"><span class="small">Drag to move • handles resize • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setPhotoZoom(photoZoom-.15)">−</button><span id="photoZoomLabel">100%</span><button class="iconAction" onclick="setPhotoZoom(photoZoom+.15)">+</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div></div>
+              <div class="canvasPanel"><div id="photoCanvasWrap" class="canvasWrap cleanCanvas photoCanvasStage"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty"><b>Open a site photo</b><span>Then choose a markup tool or equipment item.</span></div></div><div class="zoomBar"><span class="small">Drag to move • handles resize • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setPhotoZoom(photoZoom-.15)">−</button><span id="photoZoomLabel">100%</span><button class="iconAction" onclick="setPhotoZoom(photoZoom+.15)">+</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div></div>
             </div>
             <div class="savedMediaSection"><div class="savedHead"><b>Saved Photos</b><span class="small">Reopen any recent photo to continue editing.</span></div><div class="photoList" id="photoList"></div></div>
           </div>
@@ -262,6 +262,7 @@
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
+      <h3>v2.2.1 — Photo Canvas & Diagram Symbols</h3><ul><li>The photo editing surface now follows each image's true aspect ratio without distortion.</li><li>Portrait and landscape photos maximize cleanly within the available workspace.</li><li>Placed diagram equipment now uses the designated palette icon instead of a generic square.</li><li>Photo and diagram PDF output remains unchanged.</li></ul>
       <h3>v2.2.0 — Media Workspace Improvements</h3><ul><li>Project tabs now sit above the photo and diagram editors for a wider workspace.</li><li>Media canvases fit within the visible browser window.</li><li>Lines can be drawn consecutively and directly over existing lines.</li><li>Text wraps and scales to remain inside resized text boxes.</li><li>Versioned assets prevent older cached interface files from masking new releases.</li></ul>
       <h3>v2.1.0 — Media Editor Overhaul</h3><ul><li>Cleaner, focused photo and diagram workspaces.</li><li>Undo and redo, duplicate, layer controls, selection styling, zoom, and keyboard shortcuts.</li><li>Saved photos and diagrams can be reopened and safely updated with autosave.</li><li>Searchable equipment library and more reliable saved-media management.</li></ul><h3>v2.0.0 — Safer, Faster Estimating</h3><ul><li>Automatic $1,200 trench minimum enforcement.</li><li>Pre-export quote validation and configurable PDF photo, drawing, and signature options.</li><li>Favorite and recently used material shortcuts with keyboard quick-add.</li><li>Testable pricing engine and centralized version display.</li></ul>
       <h3>v1.3.5</h3><ul><li>Added 12/2 Romex by ft at $0.89.</li><li>Added 12/2 Romex 250ft at $176.00.</li><li>Added 6/3 Romex by the ft at $4.69 and renamed the 50-foot option to 6/3 Romex 50 ft at $278.00.</li><li>Codex integration.</li></ul><h3>v1.3.4</h3><ul><li>Added EV Load Management Device under Equipment at a cost of $986.47.</li><li>Tesla EV Charger remains set to $601.86.</li><li>Corrected all visible and internal version labels to v1.3.4.</li></ul><h3>v1.3.2</h3>
@@ -276,7 +277,7 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.2.0" defer></script>
-<script src="app.js?v=2.2.0" defer></script>
+<script src="pricing-core.js?v=2.2.1" defer></script>
+<script src="app.js?v=2.2.1" defer></script>
 </body>
 </html>

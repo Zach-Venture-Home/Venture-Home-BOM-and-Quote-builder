@@ -1,6 +1,12 @@
-# Venture Home Estimator Pro v2.2.0
+# Venture Home Estimator Pro v2.2.1
 
 Standalone offline BOM and custom quote builder.
+
+## v2.2.1 changes
+- Makes the photo editing surface follow the photo's true aspect ratio for a cleaner Paint-style workspace.
+- Keeps portrait and landscape photos fully visible without stretching or changing PDF output.
+- Places designated electrical icons on diagrams instead of generic labeled squares.
+- Preserves diagram symbol identity when saving, reopening, duplicating, and resizing.
 
 ## v2.2.0 changes
 - Moves project tabs above the photo and diagram workspaces for more editing room.

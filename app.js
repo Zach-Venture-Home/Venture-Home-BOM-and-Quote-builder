@@ -347,7 +347,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.0';
+const APP_VERSION='v2.2.1';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -1140,17 +1140,31 @@ function preloadEquipmentImages(){
 function setPhotoZoom(z){
   photoZoom=Math.max(.35,Math.min(2.5,Number(z)||1));
   const canvas=document.getElementById('photoCanvas');
-  if(canvas){canvas.style.width=Math.round(canvas.width*photoZoom)+'px'; canvas.style.height='auto';}
+  if(canvas){canvas.style.width=Math.round(canvas.width*photoZoom)+'px'; canvas.style.height='auto'; syncPhotoWorkspaceFrame();}
   const label=document.getElementById('photoZoomLabel'); if(label)label.textContent=Math.round(photoZoom*100)+'%';
+}
+function photoWorkspaceMaxHeight(){return Math.min(700,Math.max(360,window.innerHeight-340));}
+function syncPhotoWorkspaceFrame(){
+  const canvas=document.getElementById('photoCanvas'),wrap=document.getElementById('photoCanvasWrap');
+  if(!canvas||!wrap)return;
+  if(!currentPhotoImage){wrap.classList.remove('hasPhoto');wrap.style.width='';wrap.style.height='';return;}
+  const panel=wrap.parentElement;
+  const displayWidth=Math.max(1,parseFloat(canvas.style.width)||canvas.getBoundingClientRect().width||canvas.width);
+  const displayHeight=displayWidth*Math.max(1,canvas.height)/Math.max(1,canvas.width);
+  const frameWidth=Math.min(Math.max(1,panel?.clientWidth||displayWidth+26),Math.ceil(displayWidth+26));
+  const frameHeight=Math.min(photoWorkspaceMaxHeight(),Math.ceil(displayHeight+26));
+  wrap.classList.add('hasPhoto');wrap.style.width=frameWidth+'px';wrap.style.height=frameHeight+'px';
 }
 function fitPhotoZoom(){
   const canvas=document.getElementById('photoCanvas');
-  const wrap=canvas?.parentElement;
+  const wrap=document.getElementById('photoCanvasWrap');
   if(canvas&&wrap){
-    const widthScale=(wrap.clientWidth-28)/Math.max(1,canvas.width);
-    const heightScale=(wrap.clientHeight-28)/Math.max(1,canvas.height);
+    const panel=wrap.parentElement;
+    const widthScale=((panel?.clientWidth||wrap.clientWidth)-28)/Math.max(1,canvas.width);
+    const heightScale=(photoWorkspaceMaxHeight()-28)/Math.max(1,canvas.height);
     photoZoom=Math.min(1,Math.max(.2,Math.min(widthScale,heightScale)));
     canvas.style.width=Math.round(canvas.width*photoZoom)+'px'; canvas.style.height='auto';
+    syncPhotoWorkspaceFrame();
   }
   const label=document.getElementById('photoZoomLabel'); if(label)label.textContent='Fit';
 }
@@ -1336,6 +1350,7 @@ function redrawPhotoCanvas(previewStroke=null){
     canvas.width=900; canvas.height=520;
     canvas.style.display='none';
     if(empty) empty.style.display='block';
+    syncPhotoWorkspaceFrame();
     return;
   }
   const maxW=1800, maxH=1400;
@@ -1348,6 +1363,7 @@ function redrawPhotoCanvas(previewStroke=null){
   if(photoZoom===1) canvas.style.width=''; else canvas.style.width=Math.round(w*photoZoom)+'px';
   canvas.style.height='auto';
   if(empty) empty.style.display='none';
+  syncPhotoWorkspaceFrame();
   ctx.clearRect(0,0,w,h);
   ctx.drawImage(currentPhotoImage,0,0,w,h);
   drawStrokes.forEach((st,idx)=>{ drawMarkupStroke(ctx,st); if(idx===selectedStrokeIndex) drawSelection(ctx,st); });
@@ -1510,6 +1526,7 @@ function updateSummaryDock(){
 let diagramObjects=[]; let diagramActive=null; let diagramSelected=-1; let diagramMode=null; let diagramDragStart=null; let diagramOriginal=null; let diagramSymbol='MSP'; let diagramTool='select';
 let diagramUndoStack=[]; let diagramRedoStack=[]; let diagramEditingId=''; let diagramDirty=false; let diagramMutationStarted=false; let diagramAutosaveTimer=null; let diagramZoom=1;
 const DIAGRAM_GRID=25;
+const DIAGRAM_SYMBOL_GLYPHS={MSP:'▣',Meter:'Ⓜ',Disconnect:'⏻',Gateway:'▤','EV Charger':'⚡','Ground Rod':'⏚',Equipment:'◆'};
 function persistDiagrams(){
   markProjectDirty();
   persistCurrentMedia().catch(()=>showNotice('Diagram changes could not be saved. Export a backup before closing.','warning'));
@@ -1595,7 +1612,7 @@ function startDiagramAction(evt){const tool=getDiagramTool(); let p=diagramPoint
   if(tool==='symbol'){
     const label=style.text || diagramSymbol || 'Equipment';
     pushDiagramHistory();
-    diagramObjects.push({type:'symbol',x:p.x-55,y:p.y-30,w:110,h:60,text:label,color:style.color,size:style.size});
+    diagramObjects.push({type:'symbol',symbol:diagramSymbol,x:p.x-55,y:p.y-38,w:110,h:76,text:label,color:style.color,size:style.size});
     diagramSelected=diagramObjects.length-1; setDiagramTool('select'); redrawDiagramCanvas(); markDiagramChanged(); return;
   }
   if(tool==='text'){
@@ -1629,8 +1646,19 @@ function editSelectedDiagramText(){
   if(o.type!=='text')return;
   beginInlineDiagramText({x:o.x,y:o.y},{color:o.color,size:Math.max(2,(o.size||16)-12)},diagramSelected);
 }
+function drawDiagramSymbol(ctx,o,x,y,w,h){
+  const key=o.symbol||((o.text||'') in DIAGRAM_SYMBOL_GLYPHS?o.text:'Equipment');
+  const glyph=DIAGRAM_SYMBOL_GLYPHS[key]||DIAGRAM_SYMBOL_GLYPHS.Equipment;
+  const absW=Math.abs(w),absH=Math.abs(h),left=Math.min(x,x+w),top=Math.min(y,y+h);
+  const iconHeight=Math.max(15,absH*.62),labelHeight=Math.max(9,absH-iconHeight);
+  const iconSize=Math.max(16,Math.min(48,absW*.5,iconHeight*.72));
+  ctx.fillStyle=o.color||'#1f5f8b';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=`bold ${iconSize}px "Arial Unicode MS","Apple Symbols",Arial,sans-serif`;
+  ctx.fillText(glyph,left+absW/2,top+iconHeight/2);
+  drawFittedCanvasText(ctx,o.text||key,left,top+iconHeight,absW,labelHeight,Math.min(14,Math.max(9,absH*.18)),{padding:1,minSize:7,align:'center',vertical:'center'});
+}
 function drawDiagramObject(ctx,o,selected=false){ctx.save(); ctx.strokeStyle=o.color||'#1f5f8b'; ctx.fillStyle=o.color||'#1f5f8b'; ctx.lineWidth=o.size||4; ctx.lineCap='round'; ctx.lineJoin='round'; const b=objBounds(o); const x=o.x, y=o.y, w=o.w??((o.x2||x)-x), h=o.h??((o.y2||y)-y);
-  if(o.type==='rect'){ctx.strokeRect(x,y,w,h);} else if(o.type==='circle'){ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2); ctx.stroke();} else if(o.type==='line'||o.type==='arrow'){ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(o.x2,o.y2); ctx.stroke(); if(o.type==='arrow'){const ang=Math.atan2(o.y2-o.y,o.x2-o.x), len=Math.max(16,(o.size||4)*4); ctx.beginPath(); ctx.moveTo(o.x2,o.y2); ctx.lineTo(o.x2-len*Math.cos(ang-Math.PI/6),o.y2-len*Math.sin(ang-Math.PI/6)); ctx.lineTo(o.x2-len*Math.cos(ang+Math.PI/6),o.y2-len*Math.sin(ang+Math.PI/6)); ctx.closePath(); ctx.fill();}} else if(o.type==='text'){drawFittedCanvasText(ctx,o.text||'',x,y,Math.abs(w),Math.abs(h),Math.max(14,o.size||16),{padding:6,minSize:6});} else if(o.type==='symbol'){ctx.strokeStyle=o.color||'#1f5f8b'; ctx.fillStyle='rgba(244,247,251,.94)'; ctx.lineWidth=3; ctx.fillRect(x,y,w,h); ctx.strokeRect(x,y,w,h); ctx.fillStyle=o.color||'#1f5f8b'; drawFittedCanvasText(ctx,o.text||'Equipment',x,y,Math.abs(w),Math.abs(h),16,{padding:7,minSize:7,align:'center',vertical:'center'});}
+  if(o.type==='rect'){ctx.strokeRect(x,y,w,h);} else if(o.type==='circle'){ctx.beginPath(); ctx.ellipse(x+w/2,y+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2); ctx.stroke();} else if(o.type==='line'||o.type==='arrow'){ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(o.x2,o.y2); ctx.stroke(); if(o.type==='arrow'){const ang=Math.atan2(o.y2-o.y,o.x2-o.x), len=Math.max(16,(o.size||4)*4); ctx.beginPath(); ctx.moveTo(o.x2,o.y2); ctx.lineTo(o.x2-len*Math.cos(ang-Math.PI/6),o.y2-len*Math.sin(ang-Math.PI/6)); ctx.lineTo(o.x2-len*Math.cos(ang+Math.PI/6),o.y2-len*Math.sin(ang+Math.PI/6)); ctx.closePath(); ctx.fill();}} else if(o.type==='text'){drawFittedCanvasText(ctx,o.text||'',x,y,Math.abs(w),Math.abs(h),Math.max(14,o.size||16),{padding:6,minSize:6});} else if(o.type==='symbol'){drawDiagramSymbol(ctx,o,x,y,w,h);}
   if(selected){ctx.strokeStyle='#102235'; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.strokeRect(b.x-6,b.y-6,b.w+12,b.h+12); ctx.setLineDash([]); ctx.fillStyle='#102235'; ctx.fillRect(b.x2+2,b.y2+2,10,10);} ctx.restore();}
 function redrawDiagramCanvas(preview=null){const canvas=document.getElementById('diagramCanvas'); if(!canvas)return; const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#edf2f7'; ctx.lineWidth=1; for(let x=0;x<canvas.width;x+=DIAGRAM_GRID){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();} for(let y=0;y<canvas.height;y+=DIAGRAM_GRID){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();} ctx.fillStyle='#607080'; ctx.font='12px Arial'; ctx.fillText('Venture Home Electrical Diagram',18,22); diagramObjects.forEach((o,i)=>drawDiagramObject(ctx,o,i===diagramSelected)); if(preview) drawDiagramObject(ctx,preview,false);}
 function setDiagramZoom(z){diagramZoom=Math.max(.35,Math.min(2.5,Number(z)||1));const canvas=document.getElementById('diagramCanvas');if(canvas){canvas.style.width=Math.round(canvas.width*diagramZoom)+'px';canvas.style.height='auto';}const label=document.getElementById('diagramZoomLabel');if(label)label.textContent=Math.round(diagramZoom*100)+'%';}
