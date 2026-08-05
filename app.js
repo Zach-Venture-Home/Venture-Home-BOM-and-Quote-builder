@@ -352,7 +352,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.7';
+const APP_VERSION='v2.2.8';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -370,6 +370,8 @@ function isLabor(row){return String(row.category).trim().toLowerCase()==='labor'
 function isAllowedMaterialMarkup(value){return value===0 || value===0.125 || value===0.20;}
 function currentMaterialMarkup(){const saved=localStorage.getItem('vh_materialMarkup'); if(saved===null)return DEFAULT_MATERIAL_MARKUP; const value=Number(saved); return isAllowedMaterialMarkup(value) ? value : DEFAULT_MATERIAL_MARKUP;}
 function materialMarkupLabel(){return (currentMaterialMarkup()*100).toFixed(currentMaterialMarkup()*100 % 1 ? 1 : 0) + '%';}
+function currentLaborMultiplier(){return currentMaterialMarkup()===0 ? 1 : LABOR_MULTIPLIER;}
+function laborSummaryLabel(){return currentLaborMultiplier()===1 ? 'Labor at cost' : 'Labor after 1.3x multiplier';}
 function setMaterialMarkup(value){
   const n=Number(value);
   if(!isAllowedMaterialMarkup(n)) return;
@@ -385,9 +387,9 @@ function isFee(row){
          name==='disco/reco fee' ||
          name==='truck roll x1';
 }
-function sellUnit(row){ if(isLabor(row)) return row.cost * LABOR_MULTIPLIER; return row.cost; }
-function lineSellTotal(row){ const base=(Number(row.cost)||0)*(Number(row.qty)||0); if(isLabor(row)) return base*LABOR_MULTIPLIER; return base; }
-function markupLabel(row){ if(isLabor(row)) return '1.3×'; if(isFee(row)) return 'Admin fee'; return 'End markup'; }
+function sellUnit(row){ if(isLabor(row)) return row.cost * currentLaborMultiplier(); return row.cost; }
+function lineSellTotal(row){ const base=(Number(row.cost)||0)*(Number(row.qty)||0); if(isLabor(row)) return base*currentLaborMultiplier(); return base; }
+function markupLabel(row){ if(isLabor(row)) return currentLaborMultiplier()===1?'At cost':'1.3×'; if(isFee(row)) return 'Admin fee'; return 'End markup'; }
 function normalizeQuantity(value){
   const quantity=Number(value);
   return Number.isFinite(quantity) && quantity>0 ? Math.min(quantity,MAX_ITEM_QUANTITY) : 0;
@@ -665,7 +667,7 @@ function startNewProject(){
 function isRepair(row){return String(row.category).trim().toLowerCase()==='repairs' || String(row.category).trim().toLowerCase()==='drywall repair';}
 function roundMoney(value){return Math.round((Number.isFinite(Number(value))?Number(value):0)*100)/100;}
 function effectiveQuoteRows(){return VenturePricing.effectiveRows(selected);}
-function totals(){return VenturePricing.calculateTotals(selected,currentMaterialMarkup(),LABOR_MULTIPLIER);}
+function totals(){return VenturePricing.calculateTotals(selected,currentMaterialMarkup(),currentLaborMultiplier());}
 function customerPricingBreakdown(t){
   const multiplier=1+currentMaterialMarkup();
   const groups=[
@@ -705,7 +707,10 @@ function updateCostDashboard(){
   const lines=document.getElementById('dashboardItems');
   if(lines) lines.textContent=String(selected.filter(r=>(Number(r.qty)||0)>0).length);
   const rate=document.getElementById('dashboardMarkupRate');
-  if(rate) rate.textContent='Labor 1.3× first • '+materialMarkupLabel()+' end markup on entire subtotal';
+  const atCost=currentMaterialMarkup()===0;
+  if(rate) rate.textContent=atCost?'At-cost mode • no labor multiplier • no end markup':'Labor 1.3× first • '+materialMarkupLabel()+' end markup on entire subtotal';
+  const beforeMarkupNote=document.getElementById('dashboardBeforeMarkupNote');
+  if(beforeMarkupNote) beforeMarkupNote.textContent=atCost?'Materials, fees, repairs, and labor at base cost':'Materials, fees, repairs, and labor after 1.3×';
 }
 function renderSelected(){
   const automaticRows=effectiveQuoteRows().filter(row=>row.automatic);
@@ -1721,7 +1726,7 @@ function getProjectInfo(){
 function safeFileName(name){
   return String(name || 'venture_home').trim().replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,60) || 'venture_home';
 }
-function downloadSelectedCSV(){ if(!ensureDocumentReady())return; const header=['Item','Qty','Category','Unit Cost','Line Total']; const rows=effectiveQuoteRows().map(r=>[itemWithConduitLength(r),r.qty,r.category,Number(r.cost).toFixed(2),((Number(r.cost)||0)*(Number(r.qty)||0)).toFixed(2)]); const t=totals(); rows.push([]); rows.push(['Materials & Services','','','',t.materialServicesBase.toFixed(2)]); rows.push(['Administrative Fees','','','',t.adminFeeBase.toFixed(2)]); rows.push(['Labor after 1.3x multiplier','','','',t.laborAdjusted.toFixed(2)]); rows.push(['Price Before End Markup','','','',t.beforeMarkup.toFixed(2)]); rows.push(['End Markup '+materialMarkupLabel()+'','','','',t.markupAmount.toFixed(2)]); rows.push(['Customer Total','','','',t.grand.toFixed(2)]); const csv=[header,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'); downloadBlob(csv,'venture_home_selected_quote.csv','text/csv');}
+function downloadSelectedCSV(){ if(!ensureDocumentReady())return; const header=['Item','Qty','Category','Unit Cost','Line Total']; const rows=effectiveQuoteRows().map(r=>[itemWithConduitLength(r),r.qty,r.category,Number(r.cost).toFixed(2),((Number(r.cost)||0)*(Number(r.qty)||0)).toFixed(2)]); const t=totals(); rows.push([]); rows.push(['Materials & Services','','','',t.materialServicesBase.toFixed(2)]); rows.push(['Administrative Fees','','','',t.adminFeeBase.toFixed(2)]); rows.push([laborSummaryLabel(),'','','',t.laborAdjusted.toFixed(2)]); rows.push(['Price Before End Markup','','','',t.beforeMarkup.toFixed(2)]); rows.push(['End Markup '+materialMarkupLabel()+'','','','',t.markupAmount.toFixed(2)]); rows.push(['Customer Total','','','',t.grand.toFixed(2)]); const csv=[header,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'); downloadBlob(csv,'venture_home_selected_quote.csv','text/csv');}
 function downloadBOMPDF(){
   if(!ensureDocumentReady())return;
   const bomItems = effectiveQuoteRows().filter(r=>!isLabor(r)&&!isFee(r)&&!r.automatic);
@@ -2061,7 +2066,13 @@ function buildProfessionalPdf(doc){
     } else {
       const t=doc.totals;
       const x=pageW-292, w=250, row=16;
-      const termText=[
+      const atCost=currentMaterialMarkup()===0;
+      const termText=atCost ? [
+        'Line items show the true base unit and extended prices.',
+        'At-cost mode applies no labor multiplier and no end markup.',
+        'The Customer Total reflects the base project cost.',
+        'Final pricing may change if site conditions or scope changes.'
+      ] : [
         'Line items show the true base unit and extended prices.',
         'The selected end markup is applied once to the full subtotal after labor is multiplied by 1.3.',
         'The Customer Total includes adjusted labor and the final end markup.',
@@ -2073,7 +2084,7 @@ function buildProfessionalPdf(doc){
       if(y-summaryH<70) newPage();
       rect(x,y-summaryH,w,summaryH,light); border(x,y-summaryH,w,summaryH,line);
       textAt('Quote Summary', x+12, y-18, 11, 'F2', navy);
-      const beforeMarkup=t.beforeMarkup; const entries=[['Materials & Services',money(t.materialServicesBase)],['Administrative Fees',money(t.adminFeeBase)],['Labor after 1.3x multiplier',money(t.laborAdjusted)],['Price Before End Markup',money(beforeMarkup)],['End Markup '+materialMarkupLabel(),money(t.markupAmount)],['Price After Markup',money(t.grand)]];
+      const beforeMarkup=t.beforeMarkup; const entries=[['Materials & Services',money(t.materialServicesBase)],['Administrative Fees',money(t.adminFeeBase)],[laborSummaryLabel(),money(t.laborAdjusted)],['Price Before End Markup',money(beforeMarkup)],['End Markup '+materialMarkupLabel(),money(t.markupAmount)],['Price After Markup',money(t.grand)]];
       entries.forEach((e,i)=>{ const yy=y-40-(i*row); if(i===3){rect(x+8,yy-6,w-16,19,[0.925,0.945,0.970]); textAt(e[0],x+14,yy,9,'F2',navy); rightText(e[1],x+w-14,yy,9,'F2',navy);} else if(i===5){rect(x+8,yy-6,w-16,19,navy); textAt(e[0],x+14,yy,9,'F2',white); rightText(e[1],x+w-14,yy,9,'F2',white);} else {textAt(e[0],x+14,yy,8.3,'F1',text); rightText(e[1],x+w-14,yy,8.3,'F1',text);} });
       rect(margin,y-summaryH,240,summaryH,white); border(margin,y-summaryH,240,summaryH,line);
       textAt('Quote Terms', margin+12, y-18, 11, 'F2', navy);

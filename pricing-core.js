@@ -32,8 +32,9 @@
       else if(isFee(row)) adminFeeBase=roundMoney(adminFeeBase+base);
       else {materialServicesBase=roundMoney(materialServicesBase+base);if(isRepair(row))repairBase=roundMoney(repairBase+base);else materialBase=roundMoney(materialBase+base);}
     });
-    const laborMultiplierAmount=roundMoney(laborBase*(laborMultiplier-1));
-    const laborAdjusted=roundMoney(laborBase*laborMultiplier);
+    const appliedLaborMultiplier=Number(markup)===0?1:laborMultiplier;
+    const laborMultiplierAmount=roundMoney(laborBase*(appliedLaborMultiplier-1));
+    const laborAdjusted=roundMoney(laborBase*appliedLaborMultiplier);
     const nonLaborBase=roundMoney(materialServicesBase+adminFeeBase);
     const beforeMarkup=roundMoney(nonLaborBase+laborAdjusted);
     const markupAmount=roundMoney(beforeMarkup*markup);
