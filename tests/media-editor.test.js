@@ -37,9 +37,10 @@ assert.match(app, /\{item:"500 KCMIL triplex by the ft",category:"Wire",cost:7\.
 assert.match(app, /\{item:"Dig only thru dirt by the ft",category:"Trench",cost:20\.00\}/,'dirt-only digging must be available under Trench at $20 per foot');
 assert.match(app, /\{item:"Dig only thru concrete by the ft",category:"Trench",cost:40\.00\}/,'concrete-only digging must be available under Trench at $40 per foot');
 assert.match(app, /\{item:"320 A Meter Main",category:"Enclosures",cost:1103\.01\}/,'320 A Meter Main must be available under Enclosures at $1,103.01');
-assert.match(app, /const APP_VERSION='v2\.2\.5'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.2\.5["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.2\.5["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /\['Project Coordinating & Permits',customerPricing\.fees\]/,'customer proposal must use the approved fees label');
+assert.match(app, /const APP_VERSION='v2\.2\.6'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.2\.6["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.2\.6["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

@@ -352,7 +352,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.5';
+const APP_VERSION='v2.2.6';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -1894,7 +1894,7 @@ function buildCustomerFacingPdf(doc){
   y-=infoH+28;
   section('Project Description', doc.projectDescription || doc.projectName || 'Not specified');
   section('Scope of Work', doc.scopeOfWork || 'Not specified');
-  const investmentNote='This total includes the listed project scope, materials, labor, administrative fees, and standard project coordination.';
+  const investmentNote='This total includes the listed project scope, materials, labor, project coordinating and permits, and standard project coordination.';
   const pricingNote='Final pricing may change if site conditions or customer-approved scope changes occur.';
   const noteLines=wrapToWidth(investmentNote, pageW-margin*2-32, 9, 'F1');
   const pricingLines=wrapToWidth(pricingNote, pageW-margin*2-32, 9, 'F1');
@@ -1905,7 +1905,7 @@ function buildCustomerFacingPdf(doc){
   const pricingRows=[
     ['Materials & Services',customerPricing.materials],
     ['Labor',customerPricing.labor],
-    ['Fees',customerPricing.fees]
+    ['Project Coordinating & Permits',customerPricing.fees]
   ];
   pricingRows.forEach((entry,index)=>{
     const rowY=y-52-(index*22);
