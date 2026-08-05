@@ -352,7 +352,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.6';
+const APP_VERSION='v2.2.7';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -367,11 +367,12 @@ let storageReady=false;
 
 function money(n){const value=Number(n); return (Number.isFinite(value)?value:0).toLocaleString('en-US',{style:'currency',currency:'USD'});} 
 function isLabor(row){return String(row.category).trim().toLowerCase()==='labor';}
-function currentMaterialMarkup(){const value=Number(localStorage.getItem('vh_materialMarkup')); return value===0.20 || value===0.125 ? value : DEFAULT_MATERIAL_MARKUP;}
+function isAllowedMaterialMarkup(value){return value===0 || value===0.125 || value===0.20;}
+function currentMaterialMarkup(){const saved=localStorage.getItem('vh_materialMarkup'); if(saved===null)return DEFAULT_MATERIAL_MARKUP; const value=Number(saved); return isAllowedMaterialMarkup(value) ? value : DEFAULT_MATERIAL_MARKUP;}
 function materialMarkupLabel(){return (currentMaterialMarkup()*100).toFixed(currentMaterialMarkup()*100 % 1 ? 1 : 0) + '%';}
 function setMaterialMarkup(value){
   const n=Number(value);
-  if(n!==0.125 && n!==0.20) return;
+  if(!isAllowedMaterialMarkup(n)) return;
   localStorage.setItem('vh_materialMarkup', String(n));
   markProjectDirty();
   updateMarkupDisplay();
@@ -1826,7 +1827,8 @@ async function importFullBackupFile(input){
     localStorage.setItem('vh_customWorkType',String(current.customWorkType||''));
     localStorage.setItem('vh_projectDescription',String(current.workType||''));
     localStorage.setItem('vh_scopeOfWork',String(current.scopeOfWork||''));
-    localStorage.setItem('vh_materialMarkup',String(current.materialMarkup===0.20?0.20:0.125));
+    const restoredMarkup=Number(current.materialMarkup);
+    localStorage.setItem('vh_materialMarkup',String(isAllowedMaterialMarkup(restoredMarkup)?restoredMarkup:DEFAULT_MATERIAL_MARKUP));
     localStorage.setItem('vh_scopePresets',JSON.stringify(current.presets&&typeof current.presets==='object'?current.presets:{}));
     localStorage.setItem('vh_autoApplyPreset',current.autoApplyPreset===false?'false':'true');
     if(current.currentProjectId) localStorage.setItem('vh_currentProjectId',String(current.currentProjectId)); else localStorage.removeItem('vh_currentProjectId');

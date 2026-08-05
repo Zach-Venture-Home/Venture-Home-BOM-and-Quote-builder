@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.2.6" />
+<link rel="stylesheet" href="styles.css?v=2.2.7" />
 </head>
 <body>
 <div class="app">
@@ -73,6 +73,7 @@
       <div class="quoteMarkupBox">
         <div class="small"><b>Quote Markup</b></div>
         <div class="markupControls compactMarkup">
+          <label class="markupOption" onclick="setMaterialMarkup(0)"><input type="radio" name="materialMarkupMain" value="0"> 0% End Markup</label>
           <label class="markupOption" onclick="setMaterialMarkup(0.125)"><input type="radio" name="materialMarkupMain" value="0.125" checked> 12.5% End Markup</label>
           <label class="markupOption" onclick="setMaterialMarkup(0.20)"><input type="radio" name="materialMarkupMain" value="0.20"> 20% End Markup</label>
         </div>
@@ -162,6 +163,7 @@
           <div class="card">
             <div class="sectionTitle"><h2>Pricing Review</h2><span class="small">Internal pricing controls. Customer document hides markup details.</span></div>
             <div class="markupControls">
+              <label class="markupOption" onclick="setMaterialMarkup(0)"><input type="radio" name="materialMarkupPricing" value="0"> 0% End Markup</label>
               <label class="markupOption" onclick="setMaterialMarkup(0.125)"><input type="radio" name="materialMarkupPricing" value="0.125" checked> 12.5% End Markup</label>
               <label class="markupOption" onclick="setMaterialMarkup(0.20)"><input type="radio" name="materialMarkupPricing" value="0.20"> 20% End Markup</label>
             </div>
@@ -262,6 +264,7 @@
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
+      <h3>v2.2.7 — Markup Options</h3><ul><li>Added a 0% end-markup option that is retained in saved projects and backups.</li></ul>
       <h3>v2.2.6 — Customer Proposal Wording</h3><ul><li>Renamed the customer-facing Fees section to Project Coordinating &amp; Permits.</li></ul>
       <h3>v2.2.5 — Enclosure Pricing</h3><ul><li>Added 320 A Meter Main under Enclosures at $1,103.01.</li></ul>
       <h3>v2.2.4 — Trench Services</h3><ul><li>Added Dig only thru dirt by the ft at $20.00 per foot.</li><li>Added Dig only thru concrete by the ft at $40.00 per foot.</li><li>Both services use the automatic $1,200 trench minimum.</li></ul>
@@ -282,7 +285,7 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.2.6" defer></script>
-<script src="app.js?v=2.2.6" defer></script>
+<script src="pricing-core.js?v=2.2.7" defer></script>
+<script src="app.js?v=2.2.7" defer></script>
 </body>
 </html>
