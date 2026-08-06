@@ -37,14 +37,20 @@ assert.match(app, /\{item:"500 KCMIL triplex by the ft",category:"Wire",cost:7\.
 assert.match(app, /\{item:"Dig only thru dirt by the ft",category:"Trench",cost:20\.00\}/,'dirt-only digging must be available under Trench at $20 per foot');
 assert.match(app, /\{item:"Dig only thru concrete by the ft",category:"Trench",cost:40\.00\}/,'concrete-only digging must be available under Trench at $40 per foot');
 assert.match(app, /\{item:"320 A Meter Main",category:"Enclosures",cost:1103\.01\}/,'320 A Meter Main must be available under Enclosures at $1,103.01');
+assert.match(app, /\{item:"4 gang meter",category:"Enclosures",cost:1000\.67\}/,'4 gang meter must be available under Enclosures at $1,000.67');
+assert.match(app, /\{item:"4 gang meter main",category:"Enclosures",cost:1915\.00\}/,'4 gang meter main must be available under Enclosures at $1,915.00');
 assert.match(app, /\['Project Coordinating & Permits',customerPricing\.fees\]/,'customer proposal must use the approved fees label');
 assert.match(app, /value===0 \|\| value===0\.125 \|\| value===0\.20/,'0%, 12.5%, and 20% must be valid markup choices');
-assert.match(app, /function currentLaborMultiplier\(\)\{return currentMaterialMarkup\(\)===0 \? 1 : LABOR_MULTIPLIER;\}/,'0% markup must disable the labor multiplier');
+assert.match(app, /function currentLaborMultiplier\(\)\{return currentMaterialMarkup\(\)===0 && !zeroMarkupUsesLaborMultiplier\(\) \? 1 : LABOR_MULTIPLIER;\}/,'zero-markup pricing must support base labor and multiplied labor modes');
+assert.match(app, /zeroMarkupLaborMultiplier:zeroMarkupUsesLaborMultiplier\(\)/,'saved projects and backups must retain the zero-markup labor mode');
+assert.match(app, /p\.zeroMarkupLaborMultiplier===true/,'loading a project must restore the zero-markup labor mode');
+assert.match(app, /current\.zeroMarkupLaborMultiplier===true/,'backup imports must restore the zero-markup labor mode');
 assert.match(html, /name="materialMarkupMain" value="0"/,'main quote controls must include 0% markup');
 assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review controls must include 0% markup');
-assert.match(app, /const APP_VERSION='v2\.2\.8'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.2\.8["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.2\.8["']/,'app script URL must be cache-busted for the current release');
+assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
+assert.match(app, /const APP_VERSION='v2\.2\.9'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.2\.9["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.2\.9["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

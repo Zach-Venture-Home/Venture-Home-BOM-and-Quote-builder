@@ -144,6 +144,8 @@ const materials = [
   {item:"200 amp 3 gang meter main",category:"Enclosures",cost:1256.80},
   {item:"200 amp Panel",category:"Enclosures",cost:264.49},
   {item:"400 amp 3 gang meter main",category:"Enclosures",cost:1650.00},
+  {item:"4 gang meter",category:"Enclosures",cost:1000.67},
+  {item:"4 gang meter main",category:"Enclosures",cost:1915.00},
   {item:"Surge Protector",category:"Equipment",cost:140.00},
   {item:"Tesla Rapid Shut Down (RSD)",category:"Equipment",cost:208.91},
   {item:"Tesla Ev Charger",category:"Equipment",cost:601.86},
@@ -352,10 +354,11 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.8';
+const APP_VERSION='v2.2.9';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
+const ZERO_MARKUP_LABOR_KEY='vh_zeroMarkupLaborMultiplier';
 const DB_NAME='venture_home_estimator';
 const DB_VERSION=1;
 const PROJECT_INDEX_KEY='projectIndex';
@@ -370,12 +373,16 @@ function isLabor(row){return String(row.category).trim().toLowerCase()==='labor'
 function isAllowedMaterialMarkup(value){return value===0 || value===0.125 || value===0.20;}
 function currentMaterialMarkup(){const saved=localStorage.getItem('vh_materialMarkup'); if(saved===null)return DEFAULT_MATERIAL_MARKUP; const value=Number(saved); return isAllowedMaterialMarkup(value) ? value : DEFAULT_MATERIAL_MARKUP;}
 function materialMarkupLabel(){return (currentMaterialMarkup()*100).toFixed(currentMaterialMarkup()*100 % 1 ? 1 : 0) + '%';}
-function currentLaborMultiplier(){return currentMaterialMarkup()===0 ? 1 : LABOR_MULTIPLIER;}
+function zeroMarkupUsesLaborMultiplier(){return localStorage.getItem(ZERO_MARKUP_LABOR_KEY)==='true';}
+function currentLaborMultiplier(){return currentMaterialMarkup()===0 && !zeroMarkupUsesLaborMultiplier() ? 1 : LABOR_MULTIPLIER;}
+function currentPricingMode(){return currentMaterialMarkup()!==0?'standard':(currentLaborMultiplier()===1?'at-cost':'labor-only');}
+function pricingSelectionLabel(){return currentPricingMode()==='at-cost'?'0% At Cost':currentPricingMode()==='labor-only'?'0% + Labor 1.3×':materialMarkupLabel();}
 function laborSummaryLabel(){return currentLaborMultiplier()===1 ? 'Labor at cost' : 'Labor after 1.3x multiplier';}
-function setMaterialMarkup(value){
+function setMaterialMarkup(value,useLaborMultiplier=false){
   const n=Number(value);
   if(!isAllowedMaterialMarkup(n)) return;
   localStorage.setItem('vh_materialMarkup', String(n));
+  localStorage.setItem(ZERO_MARKUP_LABOR_KEY,n===0 && useLaborMultiplier?'true':'false');
   markProjectDirty();
   updateMarkupDisplay();
   renderSelected();
@@ -439,7 +446,7 @@ function getProject(id){return dbRequest('projects','readonly',store=>store.get(
 function deleteProjectRecord(id){return dbRequest('projects','readwrite',store=>store.delete(id));}
 function getAllProjects(){return dbRequest('projects','readonly',store=>store.getAll());}
 function projectMeta(project){
-  return {id:project.id,projectName:project.projectName,projectAddress:project.projectAddress,workType:project.workType,projectDescription:project.projectDescription,scopeOfWork:project.scopeOfWork,selected:(project.selected||[]).map(r=>({...r})),materialMarkup:project.materialMarkup,grandTotal:project.grandTotal,updatedAt:project.updatedAt};
+  return {id:project.id,projectName:project.projectName,projectAddress:project.projectAddress,workType:project.workType,projectDescription:project.projectDescription,scopeOfWork:project.scopeOfWork,selected:(project.selected||[]).map(r=>({...r})),materialMarkup:project.materialMarkup,zeroMarkupLaborMultiplier:project.zeroMarkupLaborMultiplier===true,grandTotal:project.grandTotal,updatedAt:project.updatedAt};
 }
 function legacyProjects(){try{return JSON.parse(localStorage.getItem('vh_savedProjects') || '[]');}catch(e){return [];}}
 async function initializeDurableStorage(){
@@ -483,11 +490,11 @@ async function init(){
   const versionLabel=document.getElementById('appVersion'); if(versionLabel) versionLabel.textContent=APP_VERSION;
   const modalVersion=document.getElementById('modalAppVersion'); if(modalVersion) modalVersion.textContent=APP_VERSION;
   const subtitle=document.querySelector('.brand p'); if(subtitle) subtitle.textContent='Estimator Pro '+APP_VERSION+' • durable project storage • branded proposals • BOM and quote PDF exports';
-  const savedMarkup=String(currentMaterialMarkup());
   document.querySelectorAll('.markupOption input[type="radio"]').forEach(r=>{
-    if(Number(r.value)===currentMaterialMarkup()) r.checked=true;
-    r.addEventListener('change',()=>setMaterialMarkup(r.value));
-    r.addEventListener('click',()=>setMaterialMarkup(r.value));
+    const useLaborMultiplier=r.dataset.zeroLabor==='true';
+    const apply=()=>setMaterialMarkup(r.value,useLaborMultiplier);
+    r.addEventListener('change',()=>{if(r.checked)apply();});
+    r.addEventListener('click',apply);
   });
   updateMarkupDisplay();
   const autoPresetBox=document.getElementById('autoApplyPreset');
@@ -540,11 +547,13 @@ async function init(){
 }
 function updateMarkupDisplay(){
   const selectedMarkup=currentMaterialMarkup();
-  const label=materialMarkupLabel();
+  const label=pricingSelectionLabel();
   const stat=document.getElementById('markupStat');
   if(stat) stat.textContent=label;
   document.querySelectorAll('.markupOption input[type="radio"]').forEach(r=>{
-    const isSelected=Math.abs(Number(r.value)-selectedMarkup)<0.0001;
+    const sameMarkup=Math.abs(Number(r.value)-selectedMarkup)<0.0001;
+    const sameZeroMode=selectedMarkup!==0 || (r.dataset.zeroLabor==='true')===zeroMarkupUsesLaborMultiplier();
+    const isSelected=sameMarkup && sameZeroMode;
     r.checked=isSelected;
     const option=r.closest('.markupOption');
     if(option) option.classList.toggle('selected', isSelected);
@@ -649,13 +658,13 @@ function startNewProject(){
   diagramSelected=-1;
   diagramMode=null;
 
-  ['vh_projectName','vh_projectAddress','vh_workType','vh_customWorkType','vh_projectDescription','vh_scopeOfWork','vh_selected','vh_sitePhotos','vh_savedDiagrams','vh_currentProjectId'].forEach(k=>localStorage.removeItem(k));
+  ['vh_projectName','vh_projectAddress','vh_workType','vh_customWorkType','vh_projectDescription','vh_scopeOfWork','vh_selected','vh_sitePhotos','vh_savedDiagrams','vh_currentProjectId',ZERO_MARKUP_LABOR_KEY].forEach(k=>localStorage.removeItem(k));
   localStorage.setItem('vh_materialMarkup','0.125');
 
   const values={projectName:'',projectAddress:'',customWorkType:'',scopeOfWork:'',photoSaveCaption:'',diagramText:'MSP'};
   Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id); if(el) el.value=value;});
   const wt=document.getElementById('workType'); if(wt) wt.value='';
-  const markup=document.querySelector('input[name="materialMarkup"][value="0.125"]'); if(markup) markup.checked=true;
+  const markup=document.querySelector('.markupOption input[value="0.125"]'); if(markup) markup.checked=true;
   const upload=document.getElementById('sitePhotoUpload'); if(upload) upload.value='';
 
   syncCustomWorkTypeUI();
@@ -707,10 +716,10 @@ function updateCostDashboard(){
   const lines=document.getElementById('dashboardItems');
   if(lines) lines.textContent=String(selected.filter(r=>(Number(r.qty)||0)>0).length);
   const rate=document.getElementById('dashboardMarkupRate');
-  const atCost=currentMaterialMarkup()===0;
-  if(rate) rate.textContent=atCost?'At-cost mode • no labor multiplier • no end markup':'Labor 1.3× first • '+materialMarkupLabel()+' end markup on entire subtotal';
+  const pricingMode=currentPricingMode();
+  if(rate) rate.textContent=pricingMode==='at-cost'?'At-cost mode • no labor multiplier • no end markup':pricingMode==='labor-only'?'Labor 1.3× • no end markup':'Labor 1.3× first • '+materialMarkupLabel()+' end markup on entire subtotal';
   const beforeMarkupNote=document.getElementById('dashboardBeforeMarkupNote');
-  if(beforeMarkupNote) beforeMarkupNote.textContent=atCost?'Materials, fees, repairs, and labor at base cost':'Materials, fees, repairs, and labor after 1.3×';
+  if(beforeMarkupNote) beforeMarkupNote.textContent=currentLaborMultiplier()===1?'Materials, fees, repairs, and labor at base cost':'Materials, fees, repairs, and labor after 1.3×';
 }
 function renderSelected(){
   const automaticRows=effectiveQuoteRows().filter(row=>row.automatic);
@@ -895,6 +904,7 @@ function currentProjectData(){
     savedDiagrams:savedDiagrams.map(d=>({...d})),
     selected:selected.map(r=>({...r})),
     materialMarkup:currentMaterialMarkup(),
+    zeroMarkupLaborMultiplier:zeroMarkupUsesLaborMultiplier(),
     grandTotal:t.grand,
     updatedAt:new Date().toISOString()
   };
@@ -936,6 +946,7 @@ async function loadProject(id){
   localStorage.setItem('vh_projectDescription', p.workType || p.projectDescription || '');
   localStorage.setItem('vh_scopeOfWork', p.scopeOfWork || '');
   if(p.materialMarkup!==undefined) localStorage.setItem('vh_materialMarkup', String(p.materialMarkup));
+  localStorage.setItem(ZERO_MARKUP_LABOR_KEY,p.zeroMarkupLaborMultiplier===true?'true':'false');
   sitePhotos=(p.sitePhotos || []).map(ph=>({...ph}));
   savedDiagrams=(p.savedDiagrams || []).map(d=>({...d}));
   persistSitePhotos(); persistDiagrams();
@@ -1530,7 +1541,7 @@ function updateSummaryDock(){
   const address=(document.getElementById('projectAddress')?.value || 'Not specified').trim() || 'Not specified';
   const wt=selectedWorkType() || 'Not selected';
   const scope=(document.getElementById('scopeOfWork')?.value || 'Not specified').trim() || 'Not specified';
-  const fields=[['dockProjectName',pn],['dockWorkType',wt],['dockLineItems',String(selected.length)],['dockPhotos',String(sitePhotos.length)],['dockDiagrams',String(savedDiagrams.length)],['dockMarkup',materialMarkupLabel()],['dockGrandTotal',money(t.grand)],['overviewProjectName',pn],['overviewWorkType',wt],['overviewAddress',address],['overviewScope',scope]];
+  const fields=[['dockProjectName',pn],['dockWorkType',wt],['dockLineItems',String(selected.length)],['dockPhotos',String(sitePhotos.length)],['dockDiagrams',String(savedDiagrams.length)],['dockMarkup',pricingSelectionLabel()],['dockGrandTotal',money(t.grand)],['overviewProjectName',pn],['overviewWorkType',wt],['overviewAddress',address],['overviewScope',scope]];
   fields.forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
 }
 
@@ -1797,7 +1808,7 @@ function backupCurrentState(){
     projectAddress:document.getElementById('projectAddress')?.value || localStorage.getItem('vh_projectAddress') || '',
     workType:selectedWorkType(), customWorkType:document.getElementById('customWorkType')?.value || localStorage.getItem('vh_customWorkType') || '',
     scopeOfWork:document.getElementById('scopeOfWork')?.value || localStorage.getItem('vh_scopeOfWork') || '',
-    materialMarkup:currentMaterialMarkup(), currentProjectId:currentProjectId(),
+    materialMarkup:currentMaterialMarkup(), zeroMarkupLaborMultiplier:zeroMarkupUsesLaborMultiplier(), currentProjectId:currentProjectId(),
     presets:savedScopePresets(), autoApplyPreset:autoApplyPresetEnabled()
   };
 }
@@ -1834,6 +1845,7 @@ async function importFullBackupFile(input){
     localStorage.setItem('vh_scopeOfWork',String(current.scopeOfWork||''));
     const restoredMarkup=Number(current.materialMarkup);
     localStorage.setItem('vh_materialMarkup',String(isAllowedMaterialMarkup(restoredMarkup)?restoredMarkup:DEFAULT_MATERIAL_MARKUP));
+    localStorage.setItem(ZERO_MARKUP_LABOR_KEY,current.zeroMarkupLaborMultiplier===true?'true':'false');
     localStorage.setItem('vh_scopePresets',JSON.stringify(current.presets&&typeof current.presets==='object'?current.presets:{}));
     localStorage.setItem('vh_autoApplyPreset',current.autoApplyPreset===false?'false':'true');
     if(current.currentProjectId) localStorage.setItem('vh_currentProjectId',String(current.currentProjectId)); else localStorage.removeItem('vh_currentProjectId');
@@ -2066,11 +2078,16 @@ function buildProfessionalPdf(doc){
     } else {
       const t=doc.totals;
       const x=pageW-292, w=250, row=16;
-      const atCost=currentMaterialMarkup()===0;
-      const termText=atCost ? [
+      const pricingMode=currentPricingMode();
+      const termText=pricingMode==='at-cost' ? [
         'Line items show the true base unit and extended prices.',
         'At-cost mode applies no labor multiplier and no end markup.',
         'The Customer Total reflects the base project cost.',
+        'Final pricing may change if site conditions or scope changes.'
+      ] : pricingMode==='labor-only' ? [
+        'Line items show the true base unit and extended prices.',
+        'Labor is multiplied by 1.3; no end markup is applied.',
+        'The Customer Total includes adjusted labor with no end markup.',
         'Final pricing may change if site conditions or scope changes.'
       ] : [
         'Line items show the true base unit and extended prices.',
