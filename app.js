@@ -150,6 +150,7 @@ const materials = [
   {item:"Tesla Rapid Shut Down (RSD)",category:"Equipment",cost:208.91},
   {item:"Tesla Ev Charger",category:"Equipment",cost:601.86},
   {item:"EV Load Management Device",category:"Equipment",cost:986.47},
+  {item:"Load Shed Relay",category:"Equipment",cost:225.89},
   {item:"2 1/2 Inch PVC LB",category:"Conduit Fittings",cost:36.69},
   {item:"1 5/8\" Unistrut x 10 ft",category:"Fasteners",cost:52.49},
   {item:"3/4 bolt (25 pack)",category:"Fasteners",cost:18.39},
