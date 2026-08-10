@@ -173,6 +173,7 @@ const materials = [
   {item:"Wirenuts Red (100)",category:"Other Material",cost:36.31},
   {item:"15 A 2-Pole Breaker",category:"Overcurrent Protection",cost:28.00},
   {item:"15A Breakers (8)",category:"Overcurrent Protection",cost:55.84},
+  {item:"100A Two-Pole Breaker",category:"Overcurrent Protection",cost:95.00},
   {item:"20 A 2-Pole Breaker",category:"Overcurrent Protection",cost:28.00},
   {item:"200 A CSR Breaker",category:"Overcurrent Protection",cost:198.17},
   {item:"20A Breaker sleeve (12)",category:"Overcurrent Protection",cost:84.98},
