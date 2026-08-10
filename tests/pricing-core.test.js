@@ -25,6 +25,16 @@ const laborOnlyQuote=total([{item:'Panel',category:'Equipment',cost:1000,qty:1},
 assert.equal(laborOnlyQuote.laborAdjusted,260);
 assert.equal(laborOnlyQuote.markupAmount,0);
 assert.equal(laborOnlyQuote.grand,1260);
+const detailedRows=pricing.customerDetailedRows([
+  {item:'Panel',category:'Equipment',cost:1000,qty:1},
+  {item:'Labor',category:'Labor',cost:100,qty:2}
+],.125,1.3);
+assert.equal(detailedRows.reduce((sum,row)=>sum+row.customerPrice,0),1417.5);
+assert.equal(detailedRows.find(row=>row.item==='Labor').customerPrice,292.5);
+const detailedTrenchRows=pricing.customerDetailedRows([{item:'Dig only thru dirt by the ft',category:'Trench',cost:20,qty:10}],.125,1.3);
+assert.equal(detailedTrenchRows.length,1);
+assert.equal(detailedTrenchRows[0].customerPrice,1350);
+assert.equal(detailedTrenchRows.some(row=>row.automatic),false);
 assert.equal(pricing.validateProject({rows:[]}).length,5);
 assert.equal(pricing.validateProject({projectName:'Smith',projectAddress:'1 Main St',workType:'EV Charger',scopeOfWork:'Install charger',rows:[{item:'Charger',category:'Equipment',cost:1,qty:1}]}).length,0);
 console.log('pricing-core tests passed');

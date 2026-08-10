@@ -40,6 +40,9 @@ assert.match(app, /\{item:"320 A Meter Main",category:"Enclosures",cost:1103\.01
 assert.match(app, /\{item:"4 gang meter",category:"Enclosures",cost:1000\.67\}/,'4 gang meter must be available under Enclosures at $1,000.67');
 assert.match(app, /\{item:"4 gang meter main",category:"Enclosures",cost:1915\.00\}/,'4 gang meter main must be available under Enclosures at $1,915.00');
 assert.match(app, /\['Project Coordinating & Permits',customerPricing\.fees\]/,'customer proposal must use the approved fees label');
+assert.match(app, /function downloadCustomerDetailedPDF\(\)/,'customer detailed quote export must be available');
+assert.match(app, /VenturePricing\.customerDetailedRows\(selected,currentMaterialMarkup\(\),currentLaborMultiplier\(\)\)/,'customer detailed quote must use customer-safe allocated line pricing');
+assert.match(html, /Customer Detailed Quote PDF/,'documents tab must expose the customer detailed quote');
 assert.match(app, /value===0 \|\| value===0\.125 \|\| value===0\.20/,'0%, 12.5%, and 20% must be valid markup choices');
 assert.match(app, /function currentLaborMultiplier\(\)\{return currentMaterialMarkup\(\)===0 && !zeroMarkupUsesLaborMultiplier\(\) \? 1 : LABOR_MULTIPLIER;\}/,'zero-markup pricing must support base labor and multiplied labor modes');
 assert.match(app, /zeroMarkupLaborMultiplier:zeroMarkupUsesLaborMultiplier\(\)/,'saved projects and backups must retain the zero-markup labor mode');
@@ -48,9 +51,10 @@ assert.match(app, /current\.zeroMarkupLaborMultiplier===true/,'backup imports mu
 assert.match(html, /name="materialMarkupMain" value="0"/,'main quote controls must include 0% markup');
 assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review controls must include 0% markup');
 assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
-assert.match(app, /const APP_VERSION='v2\.2\.9'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.2\.9["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.2\.9["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /const APP_VERSION='v2\.3\.0'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.3\.0["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /pricing-core\.js\?v=2\.3\.0["']/,'pricing engine URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.3\.0["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

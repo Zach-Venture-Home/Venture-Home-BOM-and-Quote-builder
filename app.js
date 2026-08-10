@@ -356,7 +356,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.2.9';
+const APP_VERSION='v2.3.0';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -1798,6 +1798,31 @@ function downloadCustomerPDF(){
     includeAcceptance:optionChecked('customerSignature')
   });
 }
+function downloadCustomerDetailedPDF(){
+  if(!ensureDocumentReady())return;
+  const project=getProjectInfo();
+  const baseName=safeFileName(project.projectName || 'venture_home');
+  const rows=VenturePricing.customerDetailedRows(selected,currentMaterialMarkup(),currentLaborMultiplier()).map(row=>({
+    item:itemWithConduitLength(row),
+    qty:String(row.qty),
+    category:row.category,
+    customerPrice:money(row.customerPrice)
+  }));
+  makeProfessionalPdf({
+    type:'customer-detail',
+    title:'Customer Detailed Quote',
+    filename:`${baseName}_Customer_Detailed_Quote.pdf`,
+    rows,
+    totals:totals(),
+    projectName:project.projectName,
+    projectAddress:project.projectAddress,
+    projectDescription:project.projectDescription || '',
+    scopeOfWork:document.getElementById('scopeOfWork')?.value || '',
+    sitePhotos:optionChecked('customerPhotos')?sitePhotos:[],
+    savedDiagrams:optionChecked('customerDiagrams')?savedDiagrams:[],
+    includeAcceptance:optionChecked('customerSignature')
+  });
+}
 function buildAndDownloadCustomerPdf(doc){
   const pdf = buildCustomerFacingPdf(doc);
   downloadBlob(pdf, doc.filename, 'application/pdf');
@@ -2004,7 +2029,7 @@ function buildProfessionalPdf(doc){
     const lines=[]; String(str??'').split(/\n/).forEach((para,pi,all)=>{ const words=para.split(/\s+/).filter(Boolean); let cur=''; words.forEach(word=>{ let candidate=(cur+' '+word).trim(); if(textWidth(candidate,size,font)<=maxWidth){cur=candidate;} else { if(cur)lines.push(cur); if(textWidth(word,size,font)<=maxWidth) cur=word; else {let chunk=''; for(const ch of word){const test=chunk+ch; if(textWidth(test,size,font)>maxWidth&&chunk){lines.push(chunk);chunk=ch;} else chunk=test;} cur=chunk;} } }); if(cur)lines.push(cur); if(pi<all.length-1&&!words.length)lines.push(''); }); return lines.length?lines:[''];
   }
   function footer(){ textAt('Venture Home BOM & Custom Quote Tool', margin, 24, 8, 'F1', muted); rightText(`Page ${pageNo}`, pageW-margin, 24, 8, 'F1', muted); }
-  const media=doc.type==='quote' ? [
+  const media=['quote','customer-detail'].includes(doc.type) ? [
     ...(doc.sitePhotos || []).filter(p=>p && p.dataUrl).map(p=>({...p,kind:'Photo',label:p.caption || 'Proposed equipment location'})),
     ...(doc.savedDiagrams || []).filter(d=>d && d.dataUrl).map(d=>({...d,kind:'Diagram',label:d.title || 'Electrical diagram'}))
   ] : [];
@@ -2014,7 +2039,7 @@ function buildProfessionalPdf(doc){
     textAt(doc.title.toUpperCase(), margin, pageH-72, 11, 'F1', yellow);
     const today=new Date().toLocaleDateString();
     rightText(`Date Generated: ${today}`, pageW-margin, pageH-38, 9, 'F1', white);
-    rightText(`Document: ${doc.type==='bom'?'BOM':'QUOTE'}-${Date.now().toString().slice(-6)}`, pageW-margin, pageH-56, 9, 'F1', white);
+    rightText(`Document: ${doc.type==='bom'?'BOM':doc.type==='customer-detail'?'CUSTOMER':'QUOTE'}-${Date.now().toString().slice(-6)}`, pageW-margin, pageH-56, 9, 'F1', white);
     y=pageH-122;
     const leftValueX=margin+104, leftValueW=190;
     const pName=wrapToWidth(doc.projectName || 'Not specified',leftValueW,9,'F1');
@@ -2026,20 +2051,21 @@ function buildProfessionalPdf(doc){
     iy-=pName.length*11+10;
     textAt('Address:', margin+14, iy, 9, 'F2', muted); pAddr.forEach((ln,i)=>textAt(ln,leftValueX,iy-i*11,9,'F1',text));
     textAt('Prepared By:', 350, y-20, 9, 'F2', muted); textAt('Venture Home', 426, y-20, 9, 'F1', text);
-    textAt('Status:', 350, y-42, 9, 'F2', muted); textAt(doc.type==='bom'?'Bill of Materials':'Custom Quote', 426, y-42, 9, 'F1', text);
+    textAt('Status:', 350, y-42, 9, 'F2', muted); textAt(doc.type==='bom'?'Bill of Materials':doc.type==='customer-detail'?'Customer Quote':'Custom Quote', 426, y-42, 9, 'F1', text);
     y-=infoH+26;
   }
   function tableHeader(){
     rect(margin,y,pageW-margin*2,22,navy);
-    const cols = doc.type==='bom' ? bomCols : quoteCols;
+    const cols = doc.type==='bom' ? bomCols : doc.type==='customer-detail' ? customerDetailCols : quoteCols;
     cols.forEach(c=>textAt(c.label,c.x+4,y+7,8,'F2',white));
     y-=22;
   }
   function newPage(){ if(ops.length){footer(); pages.push(ops.join('\n'));} ops=[]; pageNo++; docHeader(); tableHeader(); }
   const bomCols=[{key:'item',label:'Material Item',x:margin,w:300},{key:'qty',label:'Qty',x:margin+304,w:54},{key:'category',label:'Category',x:margin+360,w:168}];
   const quoteCols=[{key:'item',label:'Item / Service',x:margin,w:246},{key:'qty',label:'Qty',x:margin+250,w:38},{key:'category',label:'Category',x:margin+292,w:100},{key:'unitCost',label:'Unit Cost',x:margin+396,w:64},{key:'lineTotal',label:'Line Total',x:margin+464,w:64}];
+  const customerDetailCols=[{key:'item',label:'Item / Service',x:margin,w:282},{key:'qty',label:'Qty',x:margin+286,w:42},{key:'category',label:'Category',x:margin+332,w:118},{key:'customerPrice',label:'Price',x:margin+454,w:74}];
   newPage();
-  const cols = doc.type==='bom' ? bomCols : quoteCols;
+  const cols = doc.type==='bom' ? bomCols : doc.type==='customer-detail' ? customerDetailCols : quoteCols;
   if(!doc.rows.length){ textAt('No items selected for this document.', margin+6, y-16, 10, 'F1', muted); y-=30; }
   doc.rows.forEach((r,idx)=>{
     const itemLines=wrapToWidth(r.item, cols[0].w-8, 8.5, 'F2');
@@ -2052,12 +2078,12 @@ function buildProfessionalPdf(doc){
     itemLines.forEach((ln,i)=>textAt(ln, cols[0].x+4, y-15-(i*11), 8.5, i===0?'F2':'F1', text));
     cols.slice(1).forEach(c=>{
       const val=r[c.key]??'';
-      if(['unitCost','lineTotal'].includes(c.key)) rightText(val,c.x+c.w-6,y-15,8.5,'F1',text); else if(c.key==='category') categoryLines.forEach((ln,i)=>textAt(ln,c.x+4,y-15-i*11,8.2,'F1',text)); else textAt(val,c.x+4,y-15,8.5,'F1',text);
+      if(['unitCost','lineTotal','customerPrice'].includes(c.key)) rightText(val,c.x+c.w-6,y-15,8.5,'F1',text); else if(c.key==='category') categoryLines.forEach((ln,i)=>textAt(ln,c.x+4,y-15-i*11,8.2,'F1',text)); else textAt(val,c.x+4,y-15,8.5,'F1',text);
     });
     y-=rowH;
   });
   function scopeSection(){
-    if(doc.type!=='quote') return;
+    if(!['quote','customer-detail'].includes(doc.type)) return;
     const raw=(doc.scopeOfWork || '').trim();
     if(!raw) return;
     const lines=[];
@@ -2077,6 +2103,21 @@ function buildProfessionalPdf(doc){
       textAt('BOM Notes', margin+14, y-20, 10, 'F2', text);
       const noteLines=wrapToWidth('This bill of materials intentionally excludes labor, permit fees, disconnect/reconnect fees, and all cost information.',pageW-margin*2-28,8.5,'F1'); noteLines.forEach((ln,i)=>textAt(ln,margin+14,y-40-i*11,8.5,'F1',text));
       y-=78;
+    } else if(doc.type==='customer-detail') {
+      const boxH=doc.includeAcceptance===false?104:190;
+      if(y-boxH<70) newPage();
+      rect(margin,y-boxH,pageW-margin*2,boxH,light); border(margin,y-boxH,pageW-margin*2,boxH,line);
+      textAt('Project Investment',margin+16,y-24,12,'F2',navy);
+      textAt('Total Customer Quote',margin+16,y-54,14,'F2',text); rightText(money(doc.totals.grand),pageW-margin-18,y-54,18,'F2',green);
+      const customerNote=wrapToWidth('Line prices are the final quoted prices for the listed scope. Final pricing may change if site conditions or customer-approved scope changes occur.',pageW-margin*2-32,8.5,'F1');
+      customerNote.forEach((ln,i)=>textAt(ln,margin+16,y-78-(i*11),8.5,'F1',muted));
+      if(doc.includeAcceptance!==false){
+        const acceptanceY=y-122;
+        textAt('Acceptance',margin+16,acceptanceY,11,'F2',navy);
+        textAt('Customer Signature:',margin+16,acceptanceY-30,9,'F1',text); border(margin+110,acceptanceY-35,246,18,line);
+        textAt('Date:',pageW-margin-142,acceptanceY-30,9,'F1',text); border(pageW-margin-108,acceptanceY-35,94,18,line);
+      }
+      y-=boxH+20;
     } else {
       const t=doc.totals;
       const x=pageW-292, w=250, row=16;
@@ -2121,7 +2162,8 @@ function buildProfessionalPdf(doc){
     ops=[]; pageNo++;
     rect(0,pageH-92,pageW,92,navy);
     ops.push(`q 200 0 0 25 ${margin} ${pageH-54} cm /BrandLogo Do Q`);
-    textAt(asset.kind==='Diagram'?'INTERNAL QUOTE - ELECTRICAL DIAGRAM':'INTERNAL QUOTE - SITE PHOTO',margin,pageH-72,11,'F1',yellow);
+    const mediaTitle=doc.type==='customer-detail'?(asset.kind==='Diagram'?'CUSTOMER QUOTE - ELECTRICAL DIAGRAM':'CUSTOMER QUOTE - SITE PHOTO'):(asset.kind==='Diagram'?'INTERNAL QUOTE - ELECTRICAL DIAGRAM':'INTERNAL QUOTE - SITE PHOTO');
+    textAt(mediaTitle,margin,pageH-72,11,'F1',yellow);
     rightText(`Page ${pageNo}`,pageW-margin,pageH-56,9,'F1',white);
     const captionLines=wrapToWidth(`${asset.kind} ${index+1}: ${asset.label}`,pageW-margin*2,12,'F2').slice(0,2);
     captionLines.forEach((lineText,lineIndex)=>textAt(lineText,margin,pageH-126-(lineIndex*15),12,'F2',navy));
