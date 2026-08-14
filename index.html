@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.3.1" />
+<link rel="stylesheet" href="styles.css?v=2.3.2" />
 </head>
 <body>
 <div class="app">
@@ -180,7 +180,7 @@
         </div>
 
         <div id="tab_photos" class="tabPanel">
-          <div class="card">
+          <div id="photoEditorCard" class="card photoEditorCard">
             <div class="editorHeader"><div><h2>Site Photo Editor</h2><span class="small">Mark equipment locations without covering the photo.</span></div><span id="photoEditStatus" class="editorStatus">New photo</span></div>
             <div class="editorCommandBar">
               <label class="btn secondary fileButton">Open Photo<input id="sitePhotoUpload" type="file" accept="image/*"></label>
@@ -198,15 +198,19 @@
                 <button class="iconAction" onclick="duplicateSelectedMarkup()" title="Duplicate selected">⧉</button><button class="iconAction" onclick="moveSelectedPhotoLayer(-1)" title="Send backward">↓</button><button class="iconAction" onclick="moveSelectedPhotoLayer(1)" title="Bring forward">↑</button>
                 <button class="iconAction dangerIcon" onclick="deleteSelectedMarkup()" title="Delete selected">⌫</button>
               </div>
+              <div class="workspaceActionGroup">
+                <button id="photoToolsToggle" class="btn secondary mini workspaceControl" onclick="togglePhotoTools()" aria-pressed="false" aria-expanded="true" aria-controls="photoEditorSidebar" title="Hide or show the equipment and style panels">Hide Tools</button>
+                <button id="photoWorkspaceToggle" class="btn secondary mini workspaceControl" onclick="togglePhotoWorkspace()" aria-pressed="false" aria-expanded="false" aria-controls="photoEditorCard" title="Use the full window for photo editing">⛶ Expand</button>
+              </div>
               <button id="savePhotoButton" class="btn green" onclick="saveMarkedPhoto()">Save Photo</button>
             </div>
             <div class="cleanEditorLayout">
-              <aside class="editorSidePanel">
+              <aside id="photoEditorSidebar" class="editorSidePanel">
                 <details class="assetDrawer"><summary>Equipment Library</summary><input id="equipmentSearch" class="input compactInput" placeholder="Find equipment…"><div id="equipmentGrid" class="equipmentGrid"></div><div id="selectedEquipmentName" class="selectedEquipmentName" style="display:none"></div></details>
-                <div class="inspectorCard"><div class="toolGroupTitle">Style</div><div class="compactProperties"><label>Color<input id="drawColor" class="colorDot" type="color" value="#e03131"></label><label>Size<input id="drawSize" class="input compactInput" type="number" min="2" max="48" value="5"></label><label>Opacity %<input id="equipmentOpacity" class="input compactInput" type="number" min="10" max="100" value="100"></label></div><label class="small">Text<input id="drawText" class="input compactInput" placeholder="Type a label"></label><button class="btn secondary mini inspectorApply" onclick="applyPhotoSelectionStyle()">Apply to Selection</button></div>
+                <div class="inspectorCard"><div class="toolGroupTitle">Style</div><div class="compactProperties"><label>Color<input id="drawColor" class="colorDot" type="color" value="#e03131"></label><label>Size<input id="drawSize" class="input compactInput" type="number" min="2" max="48" value="5"></label><label>Opacity %<input id="equipmentOpacity" class="input compactInput" type="number" min="10" max="100" value="100"></label></div><label class="small">Text<input id="drawText" class="input compactInput" placeholder="Type a label"></label><button class="btn secondary mini inspectorApply" onclick="applyPhotoSelectionStyle()">Apply to Selection</button><div id="photoRotationTools" class="rotationControl disabled" aria-disabled="true"><div class="rotationHead"><span>Rotation</span><output id="photoRotationValue">0°</output></div><div class="rotationActions"><button class="iconAction" data-photo-rotation-control onclick="rotateSelectedPhotoMarkup(-15)" title="Rotate left 15 degrees" disabled>↶</button><input id="photoRotation" class="input compactInput" type="number" min="-180" max="180" step="1" value="0" aria-label="Selected item rotation in degrees" disabled><button class="iconAction" data-photo-rotation-control onclick="rotateSelectedPhotoMarkup(15)" title="Rotate right 15 degrees" disabled>↷</button></div><div class="rotationHint">Use the controls or drag the round handle.</div></div></div>
                 <label class="small captionField"><b>Photo Caption</b><input id="photoSaveCaption" class="input" placeholder="Proposed equipment location"></label>
               </aside>
-              <div class="canvasPanel"><div id="photoCanvasWrap" class="canvasWrap cleanCanvas photoCanvasStage"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty"><b>Open a site photo</b><span>Then choose a markup tool or equipment item.</span></div></div><div class="zoomBar"><span class="small">Drag to move • handles resize • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setPhotoZoom(photoZoom-.15)">−</button><span id="photoZoomLabel">100%</span><button class="iconAction" onclick="setPhotoZoom(photoZoom+.15)">+</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div></div>
+              <div class="canvasPanel"><div id="photoCanvasWrap" class="canvasWrap cleanCanvas photoCanvasStage"><canvas id="photoCanvas" class="photoCanvas"></canvas><div id="photoEmpty" class="empty"><b>Open a site photo</b><span>Then choose a markup tool or equipment item.</span></div></div><div class="zoomBar"><span class="small">Drag to move • square handles resize • round handle rotates • double-click text to edit</span><div class="zoomButtons"><button class="iconAction" onclick="setPhotoZoom(photoZoom-.15)">−</button><span id="photoZoomLabel">100%</span><button class="iconAction" onclick="setPhotoZoom(photoZoom+.15)">+</button><button class="btn secondary mini" onclick="fitPhotoZoom()">Fit</button></div></div></div>
             </div>
             <div class="savedMediaSection"><div class="savedHead"><b>Saved Photos</b><span class="small">Reopen any recent photo to continue editing.</span></div><div class="photoList" id="photoList"></div></div>
           </div>
@@ -267,6 +271,7 @@
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
+      <h3>v2.3.2 — Larger Photo Editor &amp; Rotation</h3><ul><li>Added an expanded, full-window editing mode and collapsible tool panels for a much larger canvas.</li><li>Placed equipment can now be rotated with an on-canvas handle, 15-degree controls, or an exact angle.</li><li>Rotated equipment remains selectable, resizable, editable after saving, and unchanged in PDF placement behavior.</li></ul>
       <h3>v2.3.1 — Equipment Cutout Library</h3><ul><li>Removed surrounding backgrounds and objects from every photo-editor equipment image.</li><li>Added Meter Main, Subpanel, Smart Panel, Backup Gateway, Weatherproof NEMA 14-50R, EV Charger Pedestal, and 1-inch EMT stick, 90, and LB cutouts.</li><li>Moved equipment artwork into dedicated asset files for safer future additions.</li></ul>
       <h3>v2.3.0 — Customer Detailed Quote</h3><ul><li>Added a customer-safe detailed PDF with individual line-item selling prices and no backend pricing math.</li><li>Customer line prices reconcile exactly to the final quote total, including labor pricing and automatic trench minimums.</li></ul>
       <h3>v2.2.9 — Zero-Markup Modes &amp; Meter Equipment</h3><ul><li>Added separate 0% At Cost and 0% + Labor 1.3× pricing modes with saved-project and backup persistence.</li><li>Added 4 gang meter at $1,000.67 and 4 gang meter main at $1,915.00 under Enclosures.</li></ul>
@@ -292,8 +297,8 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.3.1" defer></script>
-<script src="equipment-library.js?v=2.3.1" defer></script>
-<script src="app.js?v=2.3.1" defer></script>
+<script src="pricing-core.js?v=2.3.2" defer></script>
+<script src="equipment-library.js?v=2.3.2" defer></script>
+<script src="app.js?v=2.3.2" defer></script>
 </body>
 </html>

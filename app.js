@@ -355,6 +355,7 @@ let photoEditingId = '';
 let photoDirty = false;
 let photoMutationStarted = false;
 let photoAutosaveTimer = null;
+let photoWorkspaceReturnFocus = null;
 const MEDIA_HISTORY_LIMIT = 60;
 const equipmentImageCache = {};
 let pendingEquipmentId = null;
@@ -389,7 +390,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.3.1';
+const APP_VERSION='v2.3.2';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -1064,20 +1065,24 @@ function initPhotoMarkup(){
   const canvas=document.getElementById('photoCanvas');
   if(!upload || !canvas) return;
   upload.addEventListener('change', handleSitePhotoUpload);
-  canvas.addEventListener('mousedown', startPhotoMarkup);
-  canvas.addEventListener('mousemove', movePhotoMarkup);
+  canvas.addEventListener('pointerdown',event=>{if(event.button!==undefined&&event.button!==0)return;try{canvas.setPointerCapture(event.pointerId);}catch(error){}startPhotoMarkup(event);});
+  canvas.addEventListener('pointermove', movePhotoMarkup);
+  canvas.addEventListener('pointerup',event=>{try{canvas.releasePointerCapture(event.pointerId);}catch(error){}endPhotoMarkup();});
+  canvas.addEventListener('pointercancel',endPhotoMarkup);
   canvas.addEventListener('dblclick', editSelectedPhotoText);
-  window.addEventListener('mouseup', endPhotoMarkup);
-  canvas.addEventListener('touchstart', e=>{e.preventDefault(); startPhotoMarkup(e.touches[0]);},{passive:false});
-  canvas.addEventListener('touchmove', e=>{e.preventDefault(); movePhotoMarkup(e.touches[0]);},{passive:false});
-  window.addEventListener('touchend', endPhotoMarkup);
   document.getElementById('equipmentSearch')?.addEventListener('input',renderEquipmentLibrary);
   document.getElementById('photoSaveCaption')?.addEventListener('input',()=>{if(currentPhotoImage)markPhotoChanged();});
+  document.getElementById('photoRotation')?.addEventListener('input',event=>{
+    const value=event.target.value;
+    if(value!==''&&value!=='-'&&Number.isFinite(Number(value)))setSelectedPhotoRotation(value);
+  });
   renderEquipmentLibrary();
   preloadEquipmentImages();
   setDrawTool(currentDrawTool());
   redrawPhotoCanvas();
   updatePhotoEditorStatus();
+  updatePhotoWorkspaceControls();
+  syncPhotoSelectionInspector();
 }
 function handleSitePhotoUpload(e){
   const file=e.target.files && e.target.files[0]; if(!file) return;
@@ -1091,7 +1096,7 @@ function handleSitePhotoUpload(e){
       selectedStrokeIndex=-1;
       photoEditingId=''; photoDirty=true; resetPhotoHistory(); photoZoom=1;
       const caption=document.getElementById('photoSaveCaption'); if(caption)caption.value='';
-      redrawPhotoCanvas();
+      redrawPhotoCanvas(); syncPhotoSelectionInspector();
       fitPhotoZoom(); updatePhotoEditorStatus(); document.getElementById('workspaceShell')?.scrollIntoView({block:'start',behavior:'auto'});
     };
     img.src=ev.target.result;
@@ -1153,7 +1158,7 @@ function beginInlinePhotoText(point,style,existingIndex=-1){
       const stroke={type:'text',color:existing?.color || style.color,size:fontSize,text:value,start:{x:point.x,y:point.y},end:existing?.end?cloneMedia(existing.end):{x:point.x+box.w,y:point.y+box.h}};
       if(existingIndex>=0) drawStrokes[existingIndex]=stroke;
       else {drawStrokes.push(stroke); selectedStrokeIndex=drawStrokes.length-1;}
-      setDrawTool('select'); redrawPhotoCanvas(); markPhotoChanged();
+      setDrawTool('select'); redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();
     },
     onCancel:()=>{setDrawTool('select'); redrawPhotoCanvas();}
   });
@@ -1201,25 +1206,44 @@ function setPhotoZoom(z){
   if(canvas){canvas.style.width=Math.round(canvas.width*photoZoom)+'px'; canvas.style.height='auto'; syncPhotoWorkspaceFrame();}
   const label=document.getElementById('photoZoomLabel'); if(label)label.textContent=Math.round(photoZoom*100)+'%';
 }
-function photoWorkspaceMaxHeight(){return Math.min(700,Math.max(360,window.innerHeight-340));}
+function photoWorkspaceIsExpanded(){return document.body.classList.contains('photoWorkspaceExpanded');}
+function photoWorkspaceMaxHeight(){return photoWorkspaceIsExpanded()?Math.max(320,window.innerHeight-190):Math.max(420,Math.min(900,window.innerHeight-250));}
+function updatePhotoWorkspaceControls(){
+  const card=document.getElementById('photoEditorCard');
+  const expanded=photoWorkspaceIsExpanded(), collapsed=card?.classList.contains('toolsCollapsed')===true;
+  const expandButton=document.getElementById('photoWorkspaceToggle'), toolsButton=document.getElementById('photoToolsToggle');
+  if(expandButton){expandButton.textContent=expanded?'⛶ Exit':'⛶ Expand';expandButton.setAttribute('aria-pressed',String(expanded));expandButton.setAttribute('aria-expanded',String(expanded));}
+  if(toolsButton){toolsButton.textContent=collapsed?'Show Tools':'Hide Tools';toolsButton.setAttribute('aria-pressed',String(collapsed));toolsButton.setAttribute('aria-expanded',String(!collapsed));}
+}
+function setPhotoWorkspaceExpanded(expanded){
+  const next=Boolean(expanded);
+  if(next===photoWorkspaceIsExpanded())return;
+  if(next)photoWorkspaceReturnFocus=document.activeElement;
+  document.body.classList.toggle('photoWorkspaceExpanded',next);
+  updatePhotoWorkspaceControls();
+  requestAnimationFrame(()=>{syncPhotoWorkspaceFrame();fitPhotoZoom();if(!next&&photoWorkspaceReturnFocus?.focus&&photoWorkspaceReturnFocus.offsetParent!==null)photoWorkspaceReturnFocus.focus();});
+}
+function togglePhotoWorkspace(){setPhotoWorkspaceExpanded(!photoWorkspaceIsExpanded());}
+function togglePhotoTools(){
+  const card=document.getElementById('photoEditorCard');if(!card)return;
+  card.classList.toggle('toolsCollapsed');updatePhotoWorkspaceControls();requestAnimationFrame(()=>{syncPhotoWorkspaceFrame();fitPhotoZoom();});
+}
 function syncPhotoWorkspaceFrame(){
   const canvas=document.getElementById('photoCanvas'),wrap=document.getElementById('photoCanvasWrap');
   if(!canvas||!wrap)return;
   if(!currentPhotoImage){wrap.classList.remove('hasPhoto');wrap.style.width='';wrap.style.height='';return;}
-  const panel=wrap.parentElement;
-  const displayWidth=Math.max(1,parseFloat(canvas.style.width)||canvas.getBoundingClientRect().width||canvas.width);
-  const displayHeight=displayWidth*Math.max(1,canvas.height)/Math.max(1,canvas.width);
-  const frameWidth=Math.min(Math.max(1,panel?.clientWidth||displayWidth+26),Math.ceil(displayWidth+26));
-  const frameHeight=Math.min(photoWorkspaceMaxHeight(),Math.ceil(displayHeight+26));
-  wrap.classList.add('hasPhoto');wrap.style.width=frameWidth+'px';wrap.style.height=frameHeight+'px';
+  wrap.classList.add('hasPhoto');wrap.style.width='100%';wrap.style.height=photoWorkspaceIsExpanded()?'':photoWorkspaceMaxHeight()+'px';
 }
 function fitPhotoZoom(){
   const canvas=document.getElementById('photoCanvas');
   const wrap=document.getElementById('photoCanvasWrap');
   if(canvas&&wrap){
-    const panel=wrap.parentElement;
-    const widthScale=((panel?.clientWidth||wrap.clientWidth)-28)/Math.max(1,canvas.width);
-    const heightScale=(photoWorkspaceMaxHeight()-28)/Math.max(1,canvas.height);
+    syncPhotoWorkspaceFrame();
+    const computed=getComputedStyle(wrap);
+    const horizontalPadding=parseFloat(computed.paddingLeft||0)+parseFloat(computed.paddingRight||0);
+    const verticalPadding=parseFloat(computed.paddingTop||0)+parseFloat(computed.paddingBottom||0);
+    const widthScale=(Math.max(1,wrap.clientWidth-horizontalPadding))/Math.max(1,canvas.width);
+    const heightScale=(Math.max(1,wrap.clientHeight-verticalPadding))/Math.max(1,canvas.height);
     photoZoom=Math.min(1,Math.max(.2,Math.min(widthScale,heightScale)));
     canvas.style.width=Math.round(canvas.width*photoZoom)+'px'; canvas.style.height='auto';
     syncPhotoWorkspaceFrame();
@@ -1255,8 +1279,8 @@ function startPhotoMarkup(evt){
     syncPhotoSelectionInspector();
     redrawPhotoCanvas();
     if(hit.index>=0){
-      pushPhotoHistory(); photoMutationStarted=true;
-      photoEditMode=hit.handle ? 'resize' : 'move';
+      photoMutationStarted=false;
+      photoEditMode=hit.handle==='rotate' ? 'rotate' : (hit.handle ? 'resize' : 'move');
       photoResizeHandle=hit.handle || null;
       photoDragStart=p;
       photoOriginalStroke=cloneStroke(drawStrokes[hit.index]);
@@ -1271,8 +1295,9 @@ function startPhotoMarkup(evt){
     const defaultW=Math.min(300, Math.max(120, canvasDefaultEquipmentWidth(asset.id)));
     const aspect=img && img.naturalHeight ? img.naturalHeight/img.naturalWidth : 1;
     pushPhotoHistory();
-    activeStroke={type:'equipment', assetId:asset.id, assetName:asset.name, opacity:style.opacity, start:p, end:{x:p.x+defaultW,y:p.y+defaultW*aspect}};
+    activeStroke={type:'equipment', assetId:asset.id, assetName:asset.name, opacity:style.opacity, rotation:0, start:p, end:{x:p.x+defaultW,y:p.y+defaultW*aspect}};
     drawStrokes.push(activeStroke); selectedStrokeIndex=drawStrokes.length-1; activeStroke=null; setDrawTool('select'); redrawPhotoCanvas();
+    syncPhotoSelectionInspector();
     markPhotoChanged();
     return;
   }
@@ -1288,16 +1313,21 @@ function movePhotoMarkup(evt){
   const p=photoPoint(evt);
   if(photoEditMode && selectedStrokeIndex>=0 && photoOriginalStroke){
     const dx=p.x-photoDragStart.x, dy=p.y-photoDragStart.y;
-    if(photoEditMode==='move') drawStrokes[selectedStrokeIndex]=moveStroke(photoOriginalStroke,dx,dy);
-    else drawStrokes[selectedStrokeIndex]=resizeStroke(photoOriginalStroke,photoResizeHandle,p);
-    redrawPhotoCanvas();
+    let nextStroke;
+    if(photoEditMode==='move')nextStroke=moveStroke(photoOriginalStroke,dx,dy);
+    else if(photoEditMode==='rotate')nextStroke=rotatePhotoStroke(photoOriginalStroke,p,evt.shiftKey);
+    else nextStroke=resizeStroke(photoOriginalStroke,photoResizeHandle,p);
+    if(JSON.stringify(nextStroke)!==JSON.stringify(drawStrokes[selectedStrokeIndex])){
+      if(!photoMutationStarted)pushPhotoHistory();
+      photoMutationStarted=true;drawStrokes[selectedStrokeIndex]=nextStroke;redrawPhotoCanvas();syncPhotoSelectionInspector();
+    }
     return;
   }
   if(!activeStroke){
     const canvas=document.getElementById('photoCanvas');
     if(currentDrawTool()==='select'){
       const hit=hitTestMarkup(p);
-      if(canvas) canvas.style.cursor=hit.handle?'nwse-resize':(hit.index>=0?'move':'default');
+      if(canvas) canvas.style.cursor=hit.handle==='rotate'?'grab':(hit.handle?'nwse-resize':(hit.index>=0?'move':'default'));
     } else if(canvas) canvas.style.cursor='crosshair';
     return;
   }
@@ -1306,8 +1336,8 @@ function movePhotoMarkup(evt){
   redrawPhotoCanvas(activeStroke);
 }
 function endPhotoMarkup(){
-  if(photoEditMode){photoEditMode=null; photoDragStart=null; photoOriginalStroke=null; photoResizeHandle=null; if(photoMutationStarted)markPhotoChanged(); photoMutationStarted=false; redrawPhotoCanvas(); return;}
-  if(activeStroke){drawStrokes.push(activeStroke); selectedStrokeIndex=drawStrokes.length-1; activeStroke=null; redrawPhotoCanvas(); markPhotoChanged();}
+  if(photoEditMode){photoEditMode=null; photoDragStart=null; photoOriginalStroke=null; photoResizeHandle=null; if(photoMutationStarted)markPhotoChanged(); photoMutationStarted=false; redrawPhotoCanvas(); syncPhotoSelectionInspector(); return;}
+  if(activeStroke){drawStrokes.push(activeStroke); selectedStrokeIndex=drawStrokes.length-1; activeStroke=null; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 }
 function cloneStroke(st){return JSON.parse(JSON.stringify(st));}
 function movePoint(pt,dx,dy){return {x:(pt.x||0)+dx,y:(pt.y||0)+dy};}
@@ -1318,10 +1348,18 @@ function moveStroke(st,dx,dy){
   if(n.points) n.points=n.points.map(pt=>movePoint(pt,dx,dy));
   return n;
 }
+function rotatePhotoStroke(st,point,snapToIncrement=false){
+  const n=cloneStroke(st),geometry=photoMarkupGeometry(n);if(!geometry||!photoMarkupCanRotate(n))return n;
+  let degrees=Math.atan2(point.y-geometry.center.y,point.x-geometry.center.x)*180/Math.PI+90;
+  if(snapToIncrement)degrees=Math.round(degrees/15)*15;
+  n.rotation=normalizePhotoRotation(degrees);
+  return n;
+}
 function resizeStroke(st,handle,p){
   const n=cloneStroke(st);
   if(!handle) return n;
   if(n.type==='pen') return n;
+  if(photoMarkupCanRotate(n)&&Math.abs(normalizePhotoRotation(n.rotation))>.001) return resizeRotatedPhotoStroke(n,handle,p);
   let a=n.start || {x:0,y:0}, b=n.end || a;
   const x1=Math.min(a.x,b.x), y1=Math.min(a.y,b.y), x2=Math.max(a.x,b.x), y2=Math.max(a.y,b.y);
   let nx1=x1, ny1=y1, nx2=x2, ny2=y2;
@@ -1341,20 +1379,63 @@ function markupBounds(st){
   const a=st.start || {x:0,y:0}, b=st.end || a;
   return {x1:Math.min(a.x,b.x),y1:Math.min(a.y,b.y),x2:Math.max(a.x,b.x),y2:Math.max(a.y,b.y)};
 }
+function normalizePhotoRotation(value){
+  const degrees=Number(value);if(!Number.isFinite(degrees))return 0;
+  const normalized=((degrees+180)%360+360)%360-180;
+  return Math.abs(normalized)<.0001?0:normalized;
+}
+function photoMarkupCanRotate(st){return st?.type==='equipment';}
+function rotatePhotoPoint(point,center,radians){
+  const cos=Math.cos(radians),sin=Math.sin(radians),dx=point.x-center.x,dy=point.y-center.y;
+  return {x:center.x+dx*cos-dy*sin,y:center.y+dx*sin+dy*cos};
+}
+function photoMarkupGeometry(st){
+  const bounds=markupBounds(st);if(!bounds)return null;
+  const center={x:(bounds.x1+bounds.x2)/2,y:(bounds.y1+bounds.y2)/2};
+  const rotation=photoMarkupCanRotate(st)?normalizePhotoRotation(st.rotation):0;
+  return {bounds,center,rotation,radians:rotation*Math.PI/180};
+}
+function photoPointInMarkupFrame(st,point){
+  const geometry=photoMarkupGeometry(st);if(!geometry||!geometry.rotation)return {x:point.x,y:point.y};
+  return rotatePhotoPoint(point,geometry.center,-geometry.radians);
+}
+function photoCanvasUiScale(){
+  const canvas=document.getElementById('photoCanvas'),rect=canvas?.getBoundingClientRect();
+  return canvas&&rect?.width>0?Math.max(.25,canvas.width/rect.width):1;
+}
+function resizeRotatedPhotoStroke(st,handle,point){
+  if(handle==='rotate')return cloneStroke(st);
+  const n=cloneStroke(st),geometry=photoMarkupGeometry(n);if(!geometry)return n;
+  const {bounds,center,radians}=geometry,local=rotatePhotoPoint(point,center,-radians);
+  let x1=bounds.x1,y1=bounds.y1,x2=bounds.x2,y2=bounds.y2;
+  const minSize=Math.max(12,14*photoCanvasUiScale());
+  if(handle.includes('w'))x1=Math.min(x2-minSize,local.x);
+  if(handle.includes('e'))x2=Math.max(x1+minSize,local.x);
+  if(handle.includes('n'))y1=Math.min(y2-minSize,local.y);
+  if(handle.includes('s'))y2=Math.max(y1+minSize,local.y);
+  const localCenter={x:(x1+x2)/2,y:(y1+y2)/2};
+  const worldCenter=rotatePhotoPoint(localCenter,center,radians);
+  const halfWidth=(x2-x1)/2,halfHeight=(y2-y1)/2;
+  n.start={x:worldCenter.x-halfWidth,y:worldCenter.y-halfHeight};
+  n.end={x:worldCenter.x+halfWidth,y:worldCenter.y+halfHeight};
+  return n;
+}
 function selectionHandles(st){
-  const b=markupBounds(st); if(!b) return [];
-  const cx=(b.x1+b.x2)/2, cy=(b.y1+b.y2)/2;
-  return [
+  const geometry=photoMarkupGeometry(st); if(!geometry) return [];
+  const b=geometry.bounds,cx=geometry.center.x,cy=geometry.center.y;
+  const handles=[
     {name:'nw',x:b.x1,y:b.y1},{name:'n',x:cx,y:b.y1},{name:'ne',x:b.x2,y:b.y1},
     {name:'e',x:b.x2,y:cy},{name:'se',x:b.x2,y:b.y2},{name:'s',x:cx,y:b.y2},
     {name:'sw',x:b.x1,y:b.y2},{name:'w',x:b.x1,y:cy}
   ];
+  if(photoMarkupCanRotate(st))handles.push({name:'rotate',x:cx,y:b.y1-32*photoCanvasUiScale()});
+  return handles.map(handle=>({...handle,...rotatePhotoPoint(handle,geometry.center,geometry.radians)}));
 }
 function hitTestMarkup(p){
-  const handleSize=10;
+  const handleSize=11*photoCanvasUiScale();
   if(selectedStrokeIndex>=0 && drawStrokes[selectedStrokeIndex]){
     for(const h of selectionHandles(drawStrokes[selectedStrokeIndex])){
-      if(Math.abs(p.x-h.x)<=handleSize && Math.abs(p.y-h.y)<=handleSize) return {index:selectedStrokeIndex,handle:h.name};
+      if(Math.hypot(p.x-h.x,p.y-h.y)<=handleSize) return {index:selectedStrokeIndex,handle:h.name};
     }
   }
   for(let i=drawStrokes.length-1;i>=0;i--){
@@ -1363,7 +1444,7 @@ function hitTestMarkup(p){
   return {index:-1,handle:null};
 }
 function pointHitsStroke(p,st){
-  const tol=Math.max(8,(st.size||5)+6);
+  const uiScale=photoCanvasUiScale(),tol=Math.max(8*uiScale,(st.size||5)+6*uiScale);
   if(st.type==='pen' && st.points){
     for(let i=1;i<st.points.length;i++) if(distanceToSegment(p,st.points[i-1],st.points[i])<=tol) return true;
     return false;
@@ -1371,16 +1452,17 @@ function pointHitsStroke(p,st){
   const a=st.start || {x:0,y:0}, b=st.end || a;
   if(st.type==='line' || st.type==='arrow') return distanceToSegment(p,a,b)<=tol;
   const bounds=markupBounds(st); if(!bounds) return false;
-  const inside=p.x>=bounds.x1-tol && p.x<=bounds.x2+tol && p.y>=bounds.y1-tol && p.y<=bounds.y2+tol;
+  const testPoint=photoMarkupCanRotate(st)?photoPointInMarkupFrame(st,p):p;
+  const inside=testPoint.x>=bounds.x1-tol && testPoint.x<=bounds.x2+tol && testPoint.y>=bounds.y1-tol && testPoint.y<=bounds.y2+tol;
   if(st.type==='text' || st.type==='equipment') return inside;
   if(st.type==='rect'){
-    const nearX=Math.abs(p.x-bounds.x1)<=tol || Math.abs(p.x-bounds.x2)<=tol;
-    const nearY=Math.abs(p.y-bounds.y1)<=tol || Math.abs(p.y-bounds.y2)<=tol;
+    const nearX=Math.abs(testPoint.x-bounds.x1)<=tol || Math.abs(testPoint.x-bounds.x2)<=tol;
+    const nearY=Math.abs(testPoint.y-bounds.y1)<=tol || Math.abs(testPoint.y-bounds.y2)<=tol;
     return inside && (nearX || nearY);
   }
   if(st.type==='circle'){
     const cx=(bounds.x1+bounds.x2)/2, cy=(bounds.y1+bounds.y2)/2, rx=Math.max(1,(bounds.x2-bounds.x1)/2), ry=Math.max(1,(bounds.y2-bounds.y1)/2);
-    const v=Math.pow((p.x-cx)/rx,2)+Math.pow((p.y-cy)/ry,2);
+    const v=Math.pow((testPoint.x-cx)/rx,2)+Math.pow((testPoint.y-cy)/ry,2);
     return Math.abs(v-1)<0.25 || (v<1 && inside);
   }
   return inside;
@@ -1392,10 +1474,14 @@ function distanceToSegment(p,a,b){
   return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));
 }
 function drawSelection(ctx,st){
-  const b=markupBounds(st); if(!b) return;
-  ctx.save(); ctx.strokeStyle='#00c889'; ctx.lineWidth=1; ctx.setLineDash([6,4]); ctx.strokeRect(b.x1,b.y1,b.x2-b.x1,b.y2-b.y1); ctx.setLineDash([]);
+  const handles=selectionHandles(st); if(!handles.length) return;
+  const byName=Object.fromEntries(handles.map(handle=>[handle.name,handle]));
+  const uiScale=photoCanvasUiScale(),corners=['nw','ne','se','sw'].map(name=>byName[name]);
+  ctx.save(); ctx.strokeStyle='#00c889'; ctx.lineWidth=Math.max(1,uiScale); ctx.setLineDash([6*uiScale,4*uiScale]);
+  ctx.beginPath();ctx.moveTo(corners[0].x,corners[0].y);corners.slice(1).forEach(point=>ctx.lineTo(point.x,point.y));ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+  if(byName.rotate){ctx.beginPath();ctx.moveTo(byName.n.x,byName.n.y);ctx.lineTo(byName.rotate.x,byName.rotate.y);ctx.stroke();}
   ctx.fillStyle='white'; ctx.strokeStyle='#00c889';
-  selectionHandles(st).forEach(h=>{ctx.beginPath(); ctx.rect(h.x-5,h.y-5,10,10); ctx.fill(); ctx.stroke();});
+  handles.forEach(handle=>{ctx.beginPath();if(handle.name==='rotate')ctx.arc(handle.x,handle.y,7*uiScale,0,Math.PI*2);else ctx.rect(handle.x-5*uiScale,handle.y-5*uiScale,10*uiScale,10*uiScale);ctx.fill();ctx.stroke();});
   ctx.restore();
 }
 
@@ -1458,15 +1544,18 @@ function drawMarkupStroke(ctx,st){
     ctx.beginPath(); ctx.ellipse(cx,cy,Math.max(1,rx),Math.max(1,ry),0,0,Math.PI*2); ctx.stroke();
   } else if(st.type==='equipment'){
     const img=equipmentImageCache[st.assetId];
+    const geometry=photoMarkupGeometry(st);
+    const x=Math.min(a.x,b.x), y=Math.min(a.y,b.y), w=Math.max(1,Math.abs(b.x-a.x)), h=Math.max(1,Math.abs(b.y-a.y));
+    ctx.globalAlpha=Math.max(.1,Math.min(1,Number(st.opacity)||1));
+    if(geometry){ctx.translate(geometry.center.x,geometry.center.y);ctx.rotate(geometry.radians);}
     if(img){
-      const x=Math.min(a.x,b.x), y=Math.min(a.y,b.y), w=Math.abs(b.x-a.x), h=Math.abs(b.y-a.y);
-      ctx.globalAlpha=Math.max(.1,Math.min(1,Number(st.opacity)||1));
-      ctx.drawImage(img,x,y,Math.max(1,w),Math.max(1,h));
-      ctx.globalAlpha=1;
+      ctx.drawImage(img,geometry?-w/2:x,geometry?-h/2:y,w,h);
     } else {
-      ctx.strokeStyle='#00c889'; ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);
-      ctx.font='bold 18px Arial'; ctx.fillStyle='#00c889'; ctx.fillText(st.assetName || 'Equipment', Math.min(a.x,b.x)+8, Math.min(a.y,b.y)+24);
+      const localX=geometry?-w/2:x, localY=geometry?-h/2:y;
+      ctx.strokeStyle='#00c889'; ctx.strokeRect(localX,localY,w,h);
+      ctx.font='bold 18px Arial'; ctx.fillStyle='#00c889'; ctx.fillText(st.assetName || 'Equipment',localX+8,localY+24);
     }
+    ctx.globalAlpha=1;
   } else if(st.type==='text'){
     const size=Math.max(12,Number(st.size)||20);
     const x=Math.min(a.x,b.x), y=Math.min(a.y,b.y);
@@ -1510,14 +1599,41 @@ function drawFittedCanvasText(ctx,text,x,y,width,height,maxSize,options={}){
   ctx.restore();
 }
 
-function clearPhotoDrawing(){if(!drawStrokes.length)return; if(!confirm('Clear all markup from this photo?'))return; pushPhotoHistory(); drawStrokes=[]; activeStroke=null; selectedStrokeIndex=-1; redrawPhotoCanvas(); markPhotoChanged();}
-function undoPhotoDrawing(){if(!photoUndoStack.length)return; photoRedoStack.push(photoSnapshot()); drawStrokes=photoUndoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); markPhotoChanged();}
-function redoPhotoDrawing(){if(!photoRedoStack.length)return; photoUndoStack.push(photoSnapshot()); drawStrokes=photoRedoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); markPhotoChanged();}
-function deleteSelectedMarkup(){if(selectedStrokeIndex>=0){pushPhotoHistory(); drawStrokes.splice(selectedStrokeIndex,1); selectedStrokeIndex=-1; redrawPhotoCanvas(); markPhotoChanged();}}
-function duplicateSelectedMarkup(){if(selectedStrokeIndex<0)return; pushPhotoHistory(); const copy=moveStroke(drawStrokes[selectedStrokeIndex],20,20); drawStrokes.push(copy); selectedStrokeIndex=drawStrokes.length-1; redrawPhotoCanvas(); markPhotoChanged();}
-function moveSelectedPhotoLayer(direction){if(selectedStrokeIndex<0)return; const target=Math.max(0,Math.min(drawStrokes.length-1,selectedStrokeIndex+direction)); if(target===selectedStrokeIndex)return; pushPhotoHistory(); [drawStrokes[selectedStrokeIndex],drawStrokes[target]]=[drawStrokes[target],drawStrokes[selectedStrokeIndex]]; selectedStrokeIndex=target; redrawPhotoCanvas(); markPhotoChanged();}
-function syncPhotoSelectionInspector(){const st=drawStrokes[selectedStrokeIndex]; if(!st)return; const color=document.getElementById('drawColor'), size=document.getElementById('drawSize'), opacity=document.getElementById('equipmentOpacity'), text=document.getElementById('drawText'); if(color&&st.color)color.value=st.color; if(size&&st.size)size.value=st.size; if(opacity&&st.type==='equipment')opacity.value=Math.round((st.opacity||1)*100); if(text&&st.type==='text')text.value=st.text||'';}
-function applyPhotoSelectionStyle(){const st=drawStrokes[selectedStrokeIndex]; if(!st){showNotice('Select a markup item first.','warning');return;} pushPhotoHistory(); const style=currentPhotoStyle(); if(st.type==='equipment')st.opacity=style.opacity; else {st.color=style.color; st.size=st.type==='text'?Math.max(12,style.size*4):style.size;} if(st.type==='text'&&style.text)st.text=style.text; redrawPhotoCanvas(); markPhotoChanged();}
+function clearPhotoDrawing(){if(!drawStrokes.length)return; if(!confirm('Clear all markup from this photo?'))return; pushPhotoHistory(); drawStrokes=[]; activeStroke=null; selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+function undoPhotoDrawing(){if(!photoUndoStack.length)return; photoRedoStack.push(photoSnapshot()); drawStrokes=photoUndoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+function redoPhotoDrawing(){if(!photoRedoStack.length)return; photoUndoStack.push(photoSnapshot()); drawStrokes=photoRedoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+function deleteSelectedMarkup(){if(selectedStrokeIndex>=0){pushPhotoHistory(); drawStrokes.splice(selectedStrokeIndex,1); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}}
+function duplicateSelectedMarkup(){if(selectedStrokeIndex<0)return; pushPhotoHistory(); const copy=moveStroke(drawStrokes[selectedStrokeIndex],20,20); drawStrokes.push(copy); selectedStrokeIndex=drawStrokes.length-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+function moveSelectedPhotoLayer(direction){if(selectedStrokeIndex<0)return; const target=Math.max(0,Math.min(drawStrokes.length-1,selectedStrokeIndex+direction)); if(target===selectedStrokeIndex)return; pushPhotoHistory(); [drawStrokes[selectedStrokeIndex],drawStrokes[target]]=[drawStrokes[target],drawStrokes[selectedStrokeIndex]]; selectedStrokeIndex=target; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+function syncPhotoSelectionInspector(){
+  const st=drawStrokes[selectedStrokeIndex];
+  const color=document.getElementById('drawColor'), size=document.getElementById('drawSize'), opacity=document.getElementById('equipmentOpacity'), text=document.getElementById('drawText');
+  if(st){
+    if(color&&st.color)color.value=st.color;
+    if(size&&st.size)size.value=st.size;
+    if(opacity&&st.type==='equipment')opacity.value=Math.round((st.opacity||1)*100);
+    if(text&&st.type==='text')text.value=st.text||'';
+  }
+  const canRotate=photoMarkupCanRotate(st),rotation=canRotate?normalizePhotoRotation(st.rotation):0;
+  const rotationInput=document.getElementById('photoRotation'),rotationValue=document.getElementById('photoRotationValue'),rotationTools=document.getElementById('photoRotationTools');
+  if(rotationInput){rotationInput.value=String(Math.round(rotation));rotationInput.disabled=!canRotate;}
+  if(rotationValue)rotationValue.textContent=`${Math.round(rotation)}°`;
+  if(rotationTools){rotationTools.classList.toggle('disabled',!canRotate);rotationTools.setAttribute('aria-disabled',String(!canRotate));}
+  document.querySelectorAll('[data-photo-rotation-control]').forEach(button=>{button.disabled=!canRotate;});
+}
+function setSelectedPhotoRotation(value){
+  const st=drawStrokes[selectedStrokeIndex];
+  if(!photoMarkupCanRotate(st)){showNotice('Select an equipment item to rotate it.','warning');syncPhotoSelectionInspector();return;}
+  const rotation=normalizePhotoRotation(value);
+  if(rotation===normalizePhotoRotation(st.rotation)){syncPhotoSelectionInspector();return;}
+  pushPhotoHistory();st.rotation=rotation;redrawPhotoCanvas();syncPhotoSelectionInspector();markPhotoChanged();
+}
+function rotateSelectedPhotoMarkup(delta){
+  const st=drawStrokes[selectedStrokeIndex];
+  if(!photoMarkupCanRotate(st)){showNotice('Select an equipment item to rotate it.','warning');return;}
+  setSelectedPhotoRotation(normalizePhotoRotation(st.rotation)+Number(delta||0));
+}
+function applyPhotoSelectionStyle(){const st=drawStrokes[selectedStrokeIndex]; if(!st){showNotice('Select a markup item first.','warning');return;} pushPhotoHistory(); const style=currentPhotoStyle(); if(st.type==='equipment')st.opacity=style.opacity; else {st.color=style.color; st.size=st.type==='text'?Math.max(12,style.size*4):style.size;} if(st.type==='text'&&style.text)st.text=style.text; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 function editSelectedPhotoText(evt){const hit=hitTestMarkup(photoPoint(evt)); if(hit.index<0||drawStrokes[hit.index]?.type!=='text')return; selectedStrokeIndex=hit.index; const st=drawStrokes[hit.index], b=markupBounds(st); beginInlinePhotoText({x:b.x1,y:b.y1},{color:st.color,size:Math.max(3,(st.size||20)/4)},hit.index);}
 function saveMarkedPhoto(){
   const canvas=document.getElementById('photoCanvas'); if(!canvas || !currentPhotoImage){alert('Upload a photo first.'); return;}
@@ -1528,7 +1644,7 @@ function saveMarkedPhoto(){
   photoEditingId=record.id; photoDirty=false; persistSitePhotos(); renderPhotoList(); updatePhotoEditorStatus('Saved · '+caption); showNotice(existing>=0?'Photo updated.':'Photo saved.','success');
 }
 function updatePhotoCaption(id,val){const p=sitePhotos.find(x=>x.id===id); if(p){p.caption=val; persistSitePhotos();}}
-function editPhoto(id){const p=sitePhotos.find(x=>x.id===id); if(!p)return; const source=p.originalData||p.dataUrl; const img=new Image(); img.onload=()=>{currentPhotoImage=img; currentPhotoOriginalData=source; drawStrokes=cloneMedia(p.strokes||[]); photoEditingId=id; photoDirty=false; selectedStrokeIndex=-1; resetPhotoHistory(); const caption=document.getElementById('photoSaveCaption'); if(caption)caption.value=p.caption||''; redrawPhotoCanvas(); fitPhotoZoom(); updatePhotoEditorStatus(); document.getElementById('photoCanvas')?.scrollIntoView({behavior:'smooth',block:'center'});}; img.src=source;}
+function editPhoto(id){const p=sitePhotos.find(x=>x.id===id); if(!p)return; const source=p.originalData||p.dataUrl; const img=new Image(); img.onload=()=>{currentPhotoImage=img; currentPhotoOriginalData=source; drawStrokes=cloneMedia(p.strokes||[]); photoEditingId=id; photoDirty=false; selectedStrokeIndex=-1; resetPhotoHistory(); const caption=document.getElementById('photoSaveCaption'); if(caption)caption.value=p.caption||''; redrawPhotoCanvas(); syncPhotoSelectionInspector(); fitPhotoZoom(); updatePhotoEditorStatus(); document.getElementById('photoCanvas')?.scrollIntoView({behavior:'smooth',block:'center'});}; img.src=source;}
 function duplicatePhoto(id){const p=sitePhotos.find(x=>x.id===id); if(!p)return; sitePhotos.push({...cloneMedia(p),id:'photo_'+Date.now(),caption:(p.caption||'Photo')+' Copy'}); persistSitePhotos(); renderPhotoList();}
 function deletePhoto(id){if(!confirm('Delete this saved photo?'))return; sitePhotos=sitePhotos.filter(p=>p.id!==id); if(photoEditingId===id){photoEditingId='';photoDirty=!!currentPhotoImage;} persistSitePhotos(); renderPhotoList(); updatePhotoEditorStatus();}
 function renderPhotoList(){
@@ -1552,6 +1668,7 @@ function generateProject(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function backToSelector(){
+  if(photoWorkspaceIsExpanded())setPhotoWorkspaceExpanded(false);
   document.body.classList.remove('mediaEditorActive');
   document.getElementById('projectPage').style.display='none';
   document.getElementById('selectorPage').style.display='grid';
@@ -1560,6 +1677,7 @@ function backToSelector(){
 }
 
 function showWorkspaceTab(tab){
+  if(tab!=='photos'&&photoWorkspaceIsExpanded())setPhotoWorkspaceExpanded(false);
   document.querySelectorAll('.tabPanel').forEach(p=>p.classList.remove('active'));
   const panel=document.getElementById('tab_'+tab); if(panel) panel.classList.add('active');
   document.querySelectorAll('.navBtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
@@ -1741,10 +1859,12 @@ function initMediaEditorShortcuts(){
     const photoActive=document.getElementById('tab_photos')?.classList.contains('active');
     const diagramActiveTab=document.getElementById('tab_diagrams')?.classList.contains('active');
     if(!photoActive&&!diagramActiveTab)return;
+    if(event.key==='Escape'&&photoWorkspaceIsExpanded()){event.preventDefault();setPhotoWorkspaceExpanded(false);return;}
     const modifier=event.metaKey||event.ctrlKey;
     if(modifier&&event.key.toLowerCase()==='z'){event.preventDefault();if(photoActive)(event.shiftKey?redoPhotoDrawing:undoPhotoDrawing)();else (event.shiftKey?redoDiagramObject:undoDiagramObject)();return;}
     if(modifier&&event.key.toLowerCase()==='d'){event.preventDefault();photoActive?duplicateSelectedMarkup():duplicateSelectedDiagramObject();return;}
     if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();photoActive?deleteSelectedMarkup():deleteSelectedDiagramObject();return;}
+    if(photoActive&&(event.key==='['||event.key===']')){event.preventDefault();rotateSelectedPhotoMarkup(event.key==='['?-15:15);return;}
     const key=event.key.toLowerCase();
     const tools=photoActive?{v:'select',p:'pen',a:'arrow',l:'line',r:'rect',c:'circle',t:'text'}:{v:'select',a:'arrow',l:'line',r:'rect',c:'circle',t:'text'};
     if(tools[key]){event.preventDefault();photoActive?setDrawTool(tools[key]):setDiagramTool(tools[key]);}

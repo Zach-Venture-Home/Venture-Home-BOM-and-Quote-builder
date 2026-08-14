@@ -1,6 +1,11 @@
-# Venture Home Estimator Pro v2.3.1
+# Venture Home Estimator Pro v2.3.2
 
 Standalone offline BOM and custom quote builder.
+
+## v2.3.2 changes
+- Adds a full-window photo editing mode and a collapsible tools panel for a much larger working area.
+- Adds reliable rotation for placed equipment using an on-canvas handle, 15-degree controls, or exact degree entry.
+- Keeps rotated equipment selectable and resizable while preserving editable saves and the existing PDF output.
 
 ## v2.3.1 changes
 - Replaces photo-editor equipment backgrounds with transparent cutouts.

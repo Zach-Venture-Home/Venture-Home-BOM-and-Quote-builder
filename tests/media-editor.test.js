@@ -10,6 +10,8 @@ const equipmentLibrary = fs.readFileSync(path.join(root, 'equipment-library.js')
 for (const name of [
   'redoPhotoDrawing', 'duplicateSelectedMarkup', 'moveSelectedPhotoLayer',
   'editPhoto', 'applyPhotoSelectionStyle', 'photoExportDataUrl',
+  'togglePhotoWorkspace', 'togglePhotoTools', 'rotatePhotoStroke',
+  'setSelectedPhotoRotation', 'rotateSelectedPhotoMarkup',
   'redoDiagramObject', 'duplicateSelectedDiagramObject', 'moveSelectedDiagramLayer',
   'loadDiagram', 'applyDiagramSelectionStyle', 'diagramExportDataUrl'
 ]) assert.match(app, new RegExp(`function ${name}\\(`), `missing ${name}`);
@@ -25,7 +27,15 @@ assert.match(app, /if\(style\.tool==='select'\)\{/,'photo drawing tools must be 
 assert.doesNotMatch(app.match(/function endDiagramAction\(\).*\n/)?.[0] || '', /setDiagramTool\('select'\)/,'diagram drawing tool should remain active for overlapping and consecutive lines');
 assert.match(app, /Math\.min\(widthScale,heightScale\)/,'photo fit must account for both viewport width and height');
 assert.match(app, /function syncPhotoWorkspaceFrame\(/,'photo workspace must follow the rendered photo dimensions');
-assert.match(app, /photoWorkspaceMaxHeight\(\)-28/,'photo fit must use the available editor viewport height');
+assert.match(app, /wrap\.clientHeight-verticalPadding/,'photo fit must use the rendered editor viewport height');
+assert.match(app, /classList\.toggle\('photoWorkspaceExpanded',next\)/,'photo editor must offer a full-window workspace');
+assert.match(app, /classList\.toggle\('toolsCollapsed'\)/,'photo editor tool panels must be collapsible');
+assert.match(app, /rotation:0, start:p/,'new equipment must start with a persisted rotation value');
+assert.match(app, /hit\.handle==='rotate' \? 'rotate'/,'the round selection handle must start rotation mode');
+assert.match(app, /ctx\.rotate\(geometry\.radians\)/,'equipment rendering must apply its saved rotation');
+assert.match(app, /photoPointInMarkupFrame\(st,p\)/,'rotated hit testing must use inverse rotation');
+assert.match(app, /canvas\.setPointerCapture\(event\.pointerId\)/,'photo manipulation must retain the active pointer outside the item bounds');
+assert.match(app, /photoRotation'\)\?\.addEventListener\('input'/,'exact rotation entry must update while the value is edited');
 assert.match(app, /classList\.toggle\('mediaEditorActive',mediaActive\)/,'media editor viewport mode must be enabled from tab navigation');
 assert.match(app, /function fittedCanvasTextLayout\(/,'responsive text layout helper is required');
 assert.match(app, /Math\.abs\(w\),Math\.abs\(h\),Math\.max\(14,o\.size\|\|16\)/,'diagram text must render inside its resized box');
@@ -44,7 +54,7 @@ assert.match(app, /\['Project Coordinating & Permits',customerPricing\.fees\]/,'
 assert.match(app, /function downloadCustomerDetailedPDF\(\)/,'customer detailed quote export must be available');
 assert.match(app, /VenturePricing\.customerDetailedRows\(selected,currentMaterialMarkup\(\),currentLaborMultiplier\(\)\)/,'customer detailed quote must use customer-safe allocated line pricing');
 assert.match(html, /Customer Detailed Quote PDF/,'documents tab must expose the customer detailed quote');
-assert.match(html, /equipment-library\.js\?v=2\.3\.1/,'equipment cutout library must load before the app');
+assert.match(html, /equipment-library\.js\?v=2\.3\.2/,'equipment cutout library must load before the app');
 assert.match(app, /function equipmentAssetSource\(/,'photo editor must support external equipment cutouts');
 for (const id of ['meter','tap_box','main_service_panel','ac_disconnect','enphase_combiner','tesla_solar_inverter','powerwall3','tesla_wall_connector','meter_main','subpanel','smart_panel','backup_gateway','ev_charger_pedestal','nema_14_50_receptacle','emt_1in_1ft','emt_1in_90','emt_1in_lb']) {
   assert.match(equipmentLibrary, new RegExp(`id:'${id}'`), `missing equipment cutout ${id}`);
@@ -57,14 +67,14 @@ assert.match(app, /current\.zeroMarkupLaborMultiplier===true/,'backup imports mu
 assert.match(html, /name="materialMarkupMain" value="0"/,'main quote controls must include 0% markup');
 assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review controls must include 0% markup');
 assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
-assert.match(app, /const APP_VERSION='v2\.3\.1'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.3\.1["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /pricing-core\.js\?v=2\.3\.1["']/,'pricing engine URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.3\.1["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /const APP_VERSION='v2\.3\.2'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.3\.2["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /pricing-core\.js\?v=2\.3\.2["']/,'pricing engine URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.3\.2["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');
-for (const id of ['photoEditStatus', 'equipmentSearch', 'savePhotoButton', 'photoCanvasWrap', 'diagramEditStatus', 'diagramSaveTitle', 'saveDiagramButton']) {
+for (const id of ['photoEditStatus', 'equipmentSearch', 'savePhotoButton', 'photoCanvasWrap', 'photoRotation', 'photoWorkspaceToggle', 'photoToolsToggle', 'photoEditorSidebar', 'diagramEditStatus', 'diagramSaveTitle', 'saveDiagramButton']) {
   assert.ok(ids.includes(id), `missing #${id}`);
 }
 
