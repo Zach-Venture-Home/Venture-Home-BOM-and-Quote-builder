@@ -5,6 +5,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const equipmentLibrary = fs.readFileSync(path.join(root, 'equipment-library.js'), 'utf8');
 
 for (const name of [
   'redoPhotoDrawing', 'duplicateSelectedMarkup', 'moveSelectedPhotoLayer',
@@ -43,6 +44,11 @@ assert.match(app, /\['Project Coordinating & Permits',customerPricing\.fees\]/,'
 assert.match(app, /function downloadCustomerDetailedPDF\(\)/,'customer detailed quote export must be available');
 assert.match(app, /VenturePricing\.customerDetailedRows\(selected,currentMaterialMarkup\(\),currentLaborMultiplier\(\)\)/,'customer detailed quote must use customer-safe allocated line pricing');
 assert.match(html, /Customer Detailed Quote PDF/,'documents tab must expose the customer detailed quote');
+assert.match(html, /equipment-library\.js\?v=2\.3\.1/,'equipment cutout library must load before the app');
+assert.match(app, /function equipmentAssetSource\(/,'photo editor must support external equipment cutouts');
+for (const id of ['meter','tap_box','main_service_panel','ac_disconnect','enphase_combiner','tesla_solar_inverter','powerwall3','tesla_wall_connector','meter_main','subpanel','smart_panel','backup_gateway','ev_charger_pedestal','nema_14_50_receptacle','emt_1in_1ft','emt_1in_90','emt_1in_lb']) {
+  assert.match(equipmentLibrary, new RegExp(`id:'${id}'`), `missing equipment cutout ${id}`);
+}
 assert.match(app, /value===0 \|\| value===0\.125 \|\| value===0\.20/,'0%, 12.5%, and 20% must be valid markup choices');
 assert.match(app, /function currentLaborMultiplier\(\)\{return currentMaterialMarkup\(\)===0 && !zeroMarkupUsesLaborMultiplier\(\) \? 1 : LABOR_MULTIPLIER;\}/,'zero-markup pricing must support base labor and multiplied labor modes');
 assert.match(app, /zeroMarkupLaborMultiplier:zeroMarkupUsesLaborMultiplier\(\)/,'saved projects and backups must retain the zero-markup labor mode');
@@ -51,10 +57,10 @@ assert.match(app, /current\.zeroMarkupLaborMultiplier===true/,'backup imports mu
 assert.match(html, /name="materialMarkupMain" value="0"/,'main quote controls must include 0% markup');
 assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review controls must include 0% markup');
 assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
-assert.match(app, /const APP_VERSION='v2\.3\.0'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.3\.0["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /pricing-core\.js\?v=2\.3\.0["']/,'pricing engine URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.3\.0["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /const APP_VERSION='v2\.3\.1'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.3\.1["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /pricing-core\.js\?v=2\.3\.1["']/,'pricing engine URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.3\.1["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

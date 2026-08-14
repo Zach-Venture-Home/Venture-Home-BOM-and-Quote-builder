@@ -1,6 +1,14 @@
-# Venture Home Estimator Pro v2.2.5
+# Venture Home Estimator Pro v2.3.1
 
 Standalone offline BOM and custom quote builder.
+
+## v2.3.1 changes
+- Replaces photo-editor equipment backgrounds with transparent cutouts.
+- Adds Meter Main, Subpanel, Smart Panel, Backup Gateway, Weatherproof NEMA 14-50R, EV Charger Pedestal, and 1-inch EMT stick, 90, and LB cutouts.
+- Moves equipment artwork into inspectable asset files for safer future additions.
+
+## v2.3.0 changes
+- Adds a customer-safe detailed quote PDF with individual selling prices.
 
 ## v2.2.5 changes
 - Adds 320 A Meter Main under Enclosures at $1,103.01.
@@ -49,6 +57,8 @@ Open `index.html` in a modern browser.
 ## Files
 - `index.html` — application interface
 - `styles.css` — application styling
+- `equipment-library.js` — photo-editor equipment cutout catalog
+- `assets/equipment/` — transparent equipment artwork
 - `app.js` — materials, pricing, project storage, PDF generation, photo markup, and diagram logic
 
 ## v1.3.5 changes
