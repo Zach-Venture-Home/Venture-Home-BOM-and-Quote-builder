@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.3.3
+# Venture Home Estimator Pro v2.3.4
 
 Standalone offline BOM and custom quote builder.
+
+## v2.3.4 changes
+- Adds Meter Socket Pedestal Assembly under Enclosures at a cost of $187.19.
 
 ## v2.3.3 changes
 - Adds 6 gang meter main under Enclosures at a cost of $2,295.14.

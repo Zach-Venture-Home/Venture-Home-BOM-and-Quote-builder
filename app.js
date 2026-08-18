@@ -154,6 +154,7 @@ const materials = [
   {item:"4 gang meter",category:"Enclosures",cost:1000.67},
   {item:"4 gang meter main",category:"Enclosures",cost:1915.00},
   {item:"6 gang meter main",category:"Enclosures",cost:2295.14},
+  {item:"Meter Socket Pedestal Assembly",category:"Enclosures",cost:187.19},
   {item:"Surge Protector",category:"Equipment",cost:140.00},
   {item:"Tesla Rapid Shut Down (RSD)",category:"Equipment",cost:208.91},
   {item:"Tesla Ev Charger",category:"Equipment",cost:601.86},
@@ -391,7 +392,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.3.3';
+const APP_VERSION='v2.3.4';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
