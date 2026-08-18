@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.3.2
+# Venture Home Estimator Pro v2.3.3
 
 Standalone offline BOM and custom quote builder.
+
+## v2.3.3 changes
+- Adds 6 gang meter main under Enclosures at a cost of $2,295.14.
 
 ## v2.3.2 changes
 - Adds a full-window photo editing mode and a collapsible tools panel for a much larger working area.
