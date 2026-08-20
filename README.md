@@ -1,6 +1,25 @@
-# Venture Home Estimator Pro v2.3.4
+# Venture Home Estimator Pro v2.3.8
 
 Standalone offline BOM and custom quote builder.
+
+## v2.3.8 changes
+- Adds a 25% end-markup option to the main quote controls and Pricing Review.
+- Retains the 25% selection in saved projects and backups and applies it to totals, exports, and PDFs.
+
+## v2.3.7 changes
+- Adds 18 unambiguous materials found across 17 historical project quote tabs.
+- Adds 400 A and 600 A disconnects, CT meters, and fuses; two-pole AFCI breakers; and service fittings.
+- Normalizes 500 and 600 KCMIL aluminum XHHW-2 plus Enphase control cable to per-foot pricing.
+- Leaves out every duplicate, conflicting, bundled, project-specific, or underspecified source row.
+
+## v2.3.6 changes
+- Adds six new source-list materials after removing existing and explicitly excluded items.
+- Normalizes 250 KCMIL to $5.20 per foot, 350 KCMIL triplex to $52.00 per foot, and 1/0 SER to $2.58 per foot.
+- Adds a 3 1/2 inch galvanized rigid weatherhead, Riser Coupling, and Riser Connector at single-item prices.
+
+## v2.3.5 changes
+- Internal quote PDFs now show under-minimum trench work as a $1,200 base line total before end markup.
+- Multiple trench lines share the minimum proportionally while preserving the correct quote total.
 
 ## v2.3.4 changes
 - Adds Meter Socket Pedestal Assembly under Enclosures at a cost of $187.19.

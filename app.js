@@ -120,8 +120,11 @@ const materials = [
   {item:"2 inch rigid conduit clamp box (50)",category:"Conduit Fittings",cost:116.50},
   {item:"3 inch galvanized rigid connector",category:"Conduit Fittings",cost:61.14},
   {item:"3 inch galvanized rigid weatherhead",category:"Conduit Fittings",cost:68.55},
+  {item:"3 1/2 inch galvanized rigid weatherhead",category:"Conduit Fittings",cost:114.02},
   {item:"3 inch pvc connector",category:"Conduit Fittings",cost:28.00},
   {item:"3 inch pvc coupling",category:"Conduit Fittings",cost:21.00},
+  {item:"4 inch PVC Connector",category:"Conduit Fittings",cost:7.65},
+  {item:"4 inch PVC Coupling",category:"Conduit Fittings",cost:8.14},
   {item:"3 inch pvc conduit clamp box (20)",category:"Conduit Fittings",cost:94.23},
   {item:"3 inch pvc weatherhead",category:"Conduit Fittings",cost:123.40},
   {item:"3 inch rigid coupling",category:"Conduit Fittings",cost:42.82},
@@ -141,7 +144,11 @@ const materials = [
   {item:"200 A Disco",category:"Enclosures",cost:247.79},
   {item:"200 A Meter Main",category:"Enclosures",cost:351.21},
   {item:"320 A Meter Main",category:"Enclosures",cost:1103.01},
+  {item:"400 A Disco",category:"Enclosures",cost:1551.00},
+  {item:"400 A CT Meter",category:"Enclosures",cost:1567.00},
   {item:"400 A Meter Main",category:"Enclosures",cost:1626.38},
+  {item:"600 A Disco",category:"Enclosures",cost:2740.00},
+  {item:"600 A CT Meter",category:"Enclosures",cost:1566.30},
   {item:"1 inch SEU Weatherhead",category:"Equipment",cost:15.76},
   {item:"100 amp 2 gang meter main",category:"Enclosures",cost:600.00},
   {item:"100 amp 3 gang meter main",category:"Enclosures",cost:1134.93},
@@ -175,6 +182,7 @@ const materials = [
   {item:"Labor Electrician",category:"Labor",cost:50.00},
   {item:"Labor Apprentice",category:"Labor",cost:30.00},
   {item:"Romex / MC Connectors (100)",category:"Fittings",cost:38.12},
+  {item:"2 inch SEU Connector",category:"Fittings",cost:10.00},
   {item:"SEU Strap box (25)",category:"Fittings",cost:57.11},
   {item:"SEU Wall Plate",category:"Fittings",cost:15.00},
   {item:"Labor Electrician MA",category:"Labor",cost:60.00},
@@ -190,17 +198,23 @@ const materials = [
   {item:"125A Eaton BR Two-Pole Breaker",category:"Overcurrent Protection",cost:150.00},
   {item:"20 A 2-Pole Breaker",category:"Overcurrent Protection",cost:28.00},
   {item:"200 A CSR Breaker",category:"Overcurrent Protection",cost:198.17},
+  {item:"200 A 4-Pole Breaker",category:"Overcurrent Protection",cost:143.00},
   {item:"20A Breaker sleeve (12)",category:"Overcurrent Protection",cost:84.98},
   {item:"30 A 2- Pole Breaker",category:"Overcurrent Protection",cost:28.00},
   {item:"40A 2-pole Breaker",category:"Overcurrent Protection",cost:28.00},
   {item:"50A Eaton BR Two-Pole Breaker",category:"Overcurrent Protection",cost:30.00},
   {item:"60A 2-pole Breaker",category:"Overcurrent Protection",cost:28.00},
+  {item:"400 A Fuses",category:"Overcurrent Protection",cost:224.00},
+  {item:"600 A Fuses",category:"Overcurrent Protection",cost:341.74},
+  {item:"15 A Two-Pole AFCI Breaker",category:"Overcurrent Protection",cost:112.00},
+  {item:"20 A Two-Pole AFCI Breaker",category:"Overcurrent Protection",cost:112.00},
   {item:"20A Eaton BR Single-Pole GFCI Breaker",category:"Overcurrent Protection",cost:65.00},
   {item:"30A Eaton BR Two-Pole GFCI Breaker",category:"Overcurrent Protection",cost:80.00},
   {item:"40A Eaton BR Two-Pole GFCI Breaker",category:"Overcurrent Protection",cost:100.00},
   {item:"50A Eaton BR Two-Pole GFCI Breaker",category:"Overcurrent Protection",cost:100.00},
   {item:"60A Eaton BR Two-Pole GFCI Breaker",category:"Overcurrent Protection",cost:120.00},
   {item:"60A Disconnect",category:"Overcurrent Protection",cost:82.37},
+  {item:"60 A NEMA 3R Fused Disconnect",category:"Overcurrent Protection",cost:156.00},
   {item:"60A Fuses",category:"Overcurrent Protection",cost:19.37},
   {item:"#12 Copper THHN/THWN-2 by the ft",category:"Wire",cost:1.05},
   {item:"#8 Copper THHN/THWN-2 by the ft",category:"Wire",cost:1.25},
@@ -217,8 +231,14 @@ const materials = [
   {item:"#4 Copper SER by the ft",category:"Wire",cost:8.47},
   {item:"2/0 Copper by the ft",category:"Wire",cost:3.79},
   {item:"4/0 Aluminum SER by the ft",category:"Wire",cost:5.03},
+  {item:"250 KCMIL by the ft",category:"Wire",cost:5.20},
+  {item:"350 KCMIL triplex by the ft",category:"Wire",cost:52.00},
+  {item:"500 KCMIL Aluminum XHHW-2 by the ft",category:"Wire",cost:2.70},
   {item:"500 KCMIL triplex by the ft",category:"Wire",cost:7.04},
+  {item:"600 KCMIL Aluminum XHHW-2 by the ft",category:"Wire",cost:3.37},
+  {item:"Enphase Control Cable by the ft",category:"Wire",cost:1.35},
   {item:"2/0 Copper SER by the ft",category:"Wire",cost:13.25},
+  {item:"1/0 SER by the ft",category:"Wire",cost:2.58},
   {item:"#1 aluminum SER by the ft",category:"Wire",cost:2.75},
   {item:"#2 aluminum SER by the ft",category:"Wire",cost:1.98},
   {item:"4/0 Aluminum SEU by the ft",category:"Wire",cost:3.51},
@@ -235,7 +255,9 @@ const materials = [
   {item:"6/3 Romex by the ft",category:"Wire",cost:4.69},
   {item:"6/3 Romex 50 ft",category:"Wire",cost:278.00},
   {item:"1 inch rigid LB",category:"Conduit Fittings",cost:38.92},
+  {item:"1 1/4 inch Rigid LB",category:"Conduit Fittings",cost:44.00},
   {item:"2 inch rigid LB",category:"Conduit Fittings",cost:51.27},
+  {item:"2 inch Rigid 90-Degree Elbow",category:"Conduit Fittings",cost:40.43},
   {item:"2 1/2 inch rigid LB",category:"Conduit Fittings",cost:132.60},
   {item:"3 inch rigid lb",category:"Conduit Fittings",cost:168.92},
   {item:"Trench thru dirt by the ft",category:"Trench",cost:40.00},
@@ -289,6 +311,8 @@ const materials = [
   {item:"4/0 Ser Connector Dry",category:"Fittings",cost:4.28},
   {item:"#2 Ser Connector Wet",category:"Fittings",cost:7.82},
   {item:"#2 Ser Connector Dry",category:"Fittings",cost:2.78},
+  {item:"Riser Coupling",category:"Fittings",cost:35.00},
+  {item:"Riser Connector",category:"Fittings",cost:46.36},
   {item:"Ilisco Grounding Crimp",category:"Grounding",cost:8.91},
   {item:"3/8 Grounding Connector",category:"Grounding",cost:17.69},
   {item:"Carpenter",category:"Labor",cost:32.00},
@@ -392,7 +416,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.3.4';
+const APP_VERSION='v2.3.8';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -408,7 +432,7 @@ let storageReady=false;
 
 function money(n){const value=Number(n); return (Number.isFinite(value)?value:0).toLocaleString('en-US',{style:'currency',currency:'USD'});} 
 function isLabor(row){return String(row.category).trim().toLowerCase()==='labor';}
-function isAllowedMaterialMarkup(value){return value===0 || value===0.125 || value===0.20;}
+function isAllowedMaterialMarkup(value){return value===0 || value===0.125 || value===0.20 || value===0.25;}
 function currentMaterialMarkup(){const saved=localStorage.getItem('vh_materialMarkup'); if(saved===null)return DEFAULT_MATERIAL_MARKUP; const value=Number(saved); return isAllowedMaterialMarkup(value) ? value : DEFAULT_MATERIAL_MARKUP;}
 function materialMarkupLabel(){return (currentMaterialMarkup()*100).toFixed(currentMaterialMarkup()*100 % 1 ? 1 : 0) + '%';}
 function zeroMarkupUsesLaborMultiplier(){return localStorage.getItem(ZERO_MARKUP_LABOR_KEY)==='true';}
@@ -1895,7 +1919,12 @@ function getProjectInfo(){
 function safeFileName(name){
   return String(name || 'venture_home').trim().replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,60) || 'venture_home';
 }
-function downloadSelectedCSV(){ if(!ensureDocumentReady())return; const header=['Item','Qty','Category','Unit Cost','Line Total']; const rows=effectiveQuoteRows().map(r=>[itemWithConduitLength(r),r.qty,r.category,Number(r.cost).toFixed(2),((Number(r.cost)||0)*(Number(r.qty)||0)).toFixed(2)]); const t=totals(); rows.push([]); rows.push(['Materials & Services','','','',t.materialServicesBase.toFixed(2)]); rows.push(['Administrative Fees','','','',t.adminFeeBase.toFixed(2)]); rows.push([laborSummaryLabel(),'','','',t.laborAdjusted.toFixed(2)]); rows.push(['Price Before End Markup','','','',t.beforeMarkup.toFixed(2)]); rows.push(['End Markup '+materialMarkupLabel()+'','','','',t.markupAmount.toFixed(2)]); rows.push(['Customer Total','','','',t.grand.toFixed(2)]); const csv=[header,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'); downloadBlob(csv,'venture_home_selected_quote.csv','text/csv');}
+function internalQuoteItemLabel(row,minimumRowCount){
+  const item=itemWithConduitLength(row);
+  if(!row.minimumApplied) return item;
+  return item+(minimumRowCount>1?' (share of $1,200 trench minimum)':' ($1,200 trench minimum applied)');
+}
+function downloadSelectedCSV(){ if(!ensureDocumentReady())return; const header=['Item','Qty','Category','Unit Cost','Line Total']; const quoteRows=VenturePricing.internalQuoteRows(selected); const minimumRowCount=quoteRows.filter(row=>row.minimumApplied).length; const rows=quoteRows.map(r=>[internalQuoteItemLabel(r,minimumRowCount),r.qty,r.category,Number(r.baseUnitCost).toFixed(2),Number(r.baseLineTotal).toFixed(2)]); const t=totals(); rows.push([]); rows.push(['Materials & Services','','','',t.materialServicesBase.toFixed(2)]); rows.push(['Administrative Fees','','','',t.adminFeeBase.toFixed(2)]); rows.push([laborSummaryLabel(),'','','',t.laborAdjusted.toFixed(2)]); rows.push(['Price Before End Markup','','','',t.beforeMarkup.toFixed(2)]); rows.push(['End Markup '+materialMarkupLabel()+'','','','',t.markupAmount.toFixed(2)]); rows.push(['Customer Total','','','',t.grand.toFixed(2)]); const csv=[header,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'); downloadBlob(csv,'venture_home_selected_quote.csv','text/csv');}
 function downloadBOMPDF(){
   if(!ensureDocumentReady())return;
   const bomItems = effectiveQuoteRows().filter(r=>!isLabor(r)&&!isFee(r)&&!r.automatic);
@@ -1914,12 +1943,14 @@ function downloadBOMPDF(){
 }
 function downloadQuotePDF(){
   if(!ensureDocumentReady())return;
-  const rows = effectiveQuoteRows().map(r=>({
-    item:itemWithConduitLength(r),
+  const quoteRows=VenturePricing.internalQuoteRows(selected);
+  const minimumRowCount=quoteRows.filter(row=>row.minimumApplied).length;
+  const rows = quoteRows.map(r=>({
+    item:internalQuoteItemLabel(r,minimumRowCount),
     qty:String(r.qty),
     category:r.category,
-    unitCost:money(r.cost),
-    lineTotal:money((Number(r.cost)||0)*(Number(r.qty)||0))
+    unitCost:money(r.baseUnitCost),
+    lineTotal:money(r.baseLineTotal)
   }));
   const project=getProjectInfo();
   const baseName=safeFileName(project.projectName || 'venture_home');
