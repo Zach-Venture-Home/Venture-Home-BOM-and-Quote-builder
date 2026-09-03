@@ -416,7 +416,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.3.8';
+const APP_VERSION='v2.4.0';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -568,6 +568,7 @@ async function init(){
   const sel=document.getElementById('category'); cats.forEach(c=>{const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o);});
   document.getElementById('search').addEventListener('input', renderMaterials);
   document.getElementById('category').addEventListener('change', renderMaterials);
+  ensurePricingLibrarySeeded();
   const savedSearchBox=document.getElementById('savedSearch');
   if(savedSearchBox) savedSearchBox.addEventListener('input', renderSavedProjects);
   const projectNameBox=document.getElementById('projectName');
@@ -623,10 +624,12 @@ function updateMarkupDisplay(){
 }
 function populateWorkTypes(){
   const sel=document.getElementById('workType');
-  if(!sel || sel.dataset.loaded==='true') return;
-  WORK_TYPES.forEach(w=>{const o=document.createElement('option'); o.value=w.item; o.textContent=w.item; sel.appendChild(o);});
+  if(!sel) return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">Select work type...</option>';
+  pricingLibraryNames().forEach(name=>{const o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);});
   const other=document.createElement('option'); other.value='__other__'; other.textContent='Other (Custom)'; sel.appendChild(other);
-  sel.dataset.loaded='true';
+  if([...sel.options].some(option=>option.value===current)) sel.value=current;
 }
 function selectedWorkType(){
   const workTypeBox=document.getElementById('workType');
@@ -636,7 +639,8 @@ function selectedWorkType(){
   return (workTypeBox?.value || localStorage.getItem('vh_workType') || '').trim();
 }
 function workTypeRecord(name){
-  return WORK_TYPES.find(w=>w.item===name) || null;
+  const entry=savedScopePresets()[name];
+  return entry ? {item:name,scope:entry.scopeText||'',price:entry.price||''} : (WORK_TYPES.find(w=>w.item===name) || null);
 }
 function syncCustomWorkTypeUI(){
   const workTypeBox=document.getElementById('workType');
@@ -804,9 +808,30 @@ function optionChecked(id,defaultValue=true){const input=document.getElementById
 
 const PRESET_STORAGE_KEY = 'vh_scopePresets';
 function savedScopePresets(){try{return JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '{}') || {};}catch(e){return {};}}
-function setSavedScopePresets(presets){localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets || {})); updatePresetStatus();}
+function ensurePricingLibrarySeeded(){
+  const entries=savedScopePresets(); let changed=false;
+  WORK_TYPES.forEach(record=>{
+    const existing=entries[record.item]||{};
+    if(!entries[record.item]||!existing.scopeText){entries[record.item]={scope:record.item,scopeText:existing.scopeText||record.scope,price:existing.price??record.price,updatedAt:existing.updatedAt||'',items:Array.isArray(existing.items)?existing.items:[]};changed=true;}
+  });
+  if(changed)localStorage.setItem(PRESET_STORAGE_KEY,JSON.stringify(entries));
+}
+function setSavedScopePresets(presets){localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets || {}));populateWorkTypes();updatePresetStatus();}
 function presetCleanItem(row){return {item:String(row.item||''), category:String(row.category||''), qty:Number(row.qty)||1};}
 function normalizePresetScopeName(name){return String(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function pricingLibraryNames(){return [...new Set([...WORK_TYPES.map(record=>record.item),...Object.keys(savedScopePresets())])].sort((a,b)=>a.localeCompare(b));}
+function loadPricingLibraryEntry(name){
+  const picker=document.getElementById('presetPicker');if(picker)picker.value=name;
+  const workType=document.getElementById('workType');if(workType)workType.value=name;
+  applyWorkType(name);updatePresetStatus();
+}
+function newPricingLibraryEntry(){
+  const name=String(prompt('New Pricing Library work type name:')||'').trim();if(!name)return;
+  const scope=String(prompt('Enter the generalized scope of work for '+name+':')||'').trim();
+  const entries=savedScopePresets();if(entries[name]&&!confirm('Replace the existing Pricing Library entry for "'+name+'"?'))return;
+  entries[name]={scope:name,scopeText:scope,price:'',updatedAt:new Date().toISOString(),items:[]};
+  setSavedScopePresets(entries);loadPricingLibraryEntry(name);showNotice('Pricing Library entry created. Add materials, then save the scope and current BOM.','success');
+}
 function findSavedPreset(scope){
   const presets=savedScopePresets();
   if(presets[scope]) return {key:scope, preset:presets[scope]};
@@ -827,7 +852,7 @@ function currentPresetScope(){
 }
 
 function autoApplyPresetEnabled(){return localStorage.getItem('vh_autoApplyPreset') !== 'false';}
-function presetNames(){return Object.keys(savedScopePresets()).sort();}
+function presetNames(){return pricingLibraryNames();}
 function applyPresetByScope(scope, opts={}){
   scope=String(scope||'').trim();
   if(!scope) return false;
@@ -853,14 +878,14 @@ function maybeAutoApplyPresetForWorkType(scope){
   if(!autoApplyPresetEnabled()) return;
   scope=String(scope||'').trim();
   if(!scope || scope==='__other__') return;
-  if(!findSavedPreset(scope)) return;
+  if(!findSavedPreset(scope)?.preset?.items?.length) return;
   applyPresetByScope(scope,{silent:true,confirmReplace:true});
 }
 function populatePresetPicker(){
   const picker=document.getElementById('presetPicker');
   if(!picker) return;
   const current=picker.value;
-  picker.innerHTML='<option value="">Select saved preset...</option>';
+  picker.innerHTML='<option value="">Select pricing-library entry...</option>';
   presetNames().forEach(name=>{const o=document.createElement('option'); o.value=name; o.textContent=name; picker.appendChild(o);});
   if(current && savedScopePresets()[current]) picker.value=current;
 }
@@ -872,24 +897,25 @@ function applyPresetFromPicker(){
 }
 
 function saveSelectionAsPreset(){
-  if(!selected.length){alert('Build a selection first, then save it as a preset.'); return;}
   let scope=currentPresetScope();
   if(!scope){alert('Select a work type first, then try again.'); return;}
-  const typed=prompt('Save current selection as preset for this work type:', scope);
+  const typed=prompt('Save this Pricing Library entry under which work type?', scope);
   if(typed===null) return;
   scope=String(typed||'').trim();
   if(!scope){alert('Preset was not saved because no work type was entered.'); return;}
   const presets=savedScopePresets();
   const existing=presets[scope];
-  if(existing && !confirm('Replace the existing preset for "'+scope+'"?')) return;
+  if(existing?.updatedAt && !confirm('Update the existing Pricing Library entry for "'+scope+'"?')) return;
   presets[scope]={
     scope,
+    scopeText:(document.getElementById('scopeOfWork')?.value||existing?.scopeText||workTypeRecord(scope)?.scope||'').trim(),
+    price:existing?.price||workTypeRecord(scope)?.price||'',
     updatedAt:new Date().toISOString(),
     items:selected.map(presetCleanItem)
   };
   setSavedScopePresets(presets);
   populatePresetPicker();
-  alert('Preset saved for '+scope+' with '+selected.length+' line item'+(selected.length===1?'':'s')+'.');
+  alert('Pricing Library entry saved for '+scope+' with '+selected.length+' default material line item'+(selected.length===1?'':'s')+'.');
 }
 function applySavedPreset(){
   let scope=currentPresetScope();
@@ -915,8 +941,9 @@ function deleteSavedPreset(){
     if(choice===null) return;
     scope=String(choice||'').trim();
   }
-  if(!presets[scope]){alert('Preset not found.'); return;}
-  if(!confirm('Delete saved preset for "'+scope+'"?')) return;
+  if(!presets[scope]){alert('Pricing Library entry not found.'); return;}
+  if(WORK_TYPES.some(record=>record.item===scope)){alert('Built-in work types cannot be deleted. You can update their scope and default materials.');return;}
+  if(!confirm('Delete custom Pricing Library entry for "'+scope+'"?')) return;
   delete presets[scope]; setSavedScopePresets(presets); populatePresetPicker(); alert('Preset deleted.');
 }
 function exportSavedPresets(){
@@ -924,7 +951,7 @@ function exportSavedPresets(){
   const count=Object.keys(presets).length;
   if(!count){alert('No saved presets to export yet.'); return;}
   const payload={app:'Venture Home Estimator Pro',version:APP_VERSION,exportedAt:new Date().toISOString(),presets};
-  downloadBlob(JSON.stringify(payload,null,2),'venture_home_scope_presets.json','application/json');
+  downloadBlob(JSON.stringify(payload,null,2),'venture_home_pricing_library.json','application/json');
 }
 function updatePresetStatus(){
   populatePresetPicker();
@@ -932,12 +959,16 @@ function updatePresetStatus(){
   const scope=selectedWorkType(); const presets=savedScopePresets();
   if(scope && presets[scope]){
     const n=(presets[scope].items||[]).length;
-    el.innerHTML='<b>Saved preset available:</b> '+escapeHtml(scope)+' • '+n+' line item'+(n===1?'':'s')+'.';
+    el.innerHTML='<b>Pricing Library:</b> '+escapeHtml(scope)+' • scope saved • '+n+' default material line item'+(n===1?'':'s')+'.';
   } else if(scope){
-    el.innerHTML='<b>No saved preset yet for:</b> '+escapeHtml(scope)+'. Build a selection and save it when ready.';
+    el.innerHTML='<b>Not yet in the Pricing Library:</b> '+escapeHtml(scope)+'. Save the scope and current BOM when ready.';
   } else {
-    el.textContent='Select a work type, build a BOM, then save it as that work type preset.';
+    el.textContent='Select a work type to review its scope and default materials.';
   }
+  const list=document.getElementById('pricingLibraryList');if(!list)return;
+  const entries=savedScopePresets();
+  list.innerHTML=pricingLibraryNames().map(name=>{const entry=entries[name]||{};const count=(entry.items||[]).length;return '<button type="button" class="pricingLibraryRow" data-library-name="'+escapeHtml(name)+'"><b>'+escapeHtml(name)+'</b><span>'+count+' material'+(count===1?'':'s')+'</span></button>';}).join('');
+  list.querySelectorAll('[data-library-name]').forEach(button=>button.addEventListener('click',()=>loadPricingLibraryEntry(button.dataset.libraryName)));
 }
 
 function currentProjectId(){return localStorage.getItem('vh_currentProjectId') || '';}

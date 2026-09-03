@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.3.8" />
+<link rel="stylesheet" href="styles.css?v=2.4.0" />
 </head>
 <body>
 <div class="app">
@@ -89,18 +89,20 @@
       <div class="actions"><button class="btn green" onclick="generateProject()">Generate Project</button><button class="btn secondary" onclick="clearSelected()">Clear BOM Only</button>
               <button class="btn danger" onclick="startNewProject()">Start New Project</button></div>
       <div class="presetBuilderBox">
-        <div class="savedHead"><b>Preset Builder</b><span class="small">Build a BOM, then save it to a work type.</span></div>
+        <div class="savedHead"><b>Pricing Library</b><span class="small">Separate from customer projects. Stores scopes and default materials by work type.</span></div>
         <div class="presetActions">
-          <select id="presetPicker" class="input presetPicker" onchange="if(this.value){applyPresetFromPicker();}">
-            <option value="">Select saved preset...</option>
+          <select id="presetPicker" class="input presetPicker" onchange="if(this.value){loadPricingLibraryEntry(this.value);}">
+            <option value="">Select pricing-library entry...</option>
           </select>
-          <button class="btn secondary" onclick="applySavedPreset()">Apply Saved Preset</button>
-          <button class="btn green" onclick="saveSelectionAsPreset()">Save Current Selection as Preset</button>
-          <button class="btn secondary" onclick="exportSavedPresets()">Export Presets</button>
-          <button class="btn danger" onclick="deleteSavedPreset()">Delete Preset</button>
+          <button class="btn secondary" onclick="applySavedPreset()">Apply Library Materials</button>
+          <button class="btn green" onclick="saveSelectionAsPreset()">Save Scope & Current BOM</button>
+          <button class="btn secondary" onclick="newPricingLibraryEntry()">New Work Type</button>
+          <button class="btn secondary" onclick="exportSavedPresets()">Export Pricing Library</button>
+          <button class="btn danger" onclick="deleteSavedPreset()">Delete Custom Entry</button>
         </div>
-        <label class="presetToggle"><input id="autoApplyPreset" type="checkbox" checked> Auto-fill saved preset when work type is selected</label>
-        <div id="presetStatus" class="note smallPresetNote">No preset selected yet.</div>
+        <label class="presetToggle"><input id="autoApplyPreset" type="checkbox" checked> Auto-fill Pricing Library materials when a work type is selected</label>
+        <div id="presetStatus" class="note smallPresetNote">Preparing the Pricing Library...</div>
+        <div id="pricingLibraryList" class="pricingLibraryList"></div>
       </div>
       <div class="savedProjects">
         <div class="savedHead"><b>Saved Projects</b><span id="storageStatus" class="small">Preparing durable local storage…</span></div>
@@ -305,8 +307,8 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.3.8" defer></script>
-<script src="equipment-library.js?v=2.3.8" defer></script>
-<script src="app.js?v=2.3.8" defer></script>
+<script src="pricing-core.js?v=2.4.0" defer></script>
+<script src="equipment-library.js?v=2.4.0" defer></script>
+<script src="app.js?v=2.4.0" defer></script>
 </body>
 </html>
