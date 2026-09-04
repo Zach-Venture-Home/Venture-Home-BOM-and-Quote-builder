@@ -74,6 +74,16 @@ const twentyFivePercentQuote=total([{item:'Panel',category:'Equipment',cost:1000
 assert.equal(twentyFivePercentQuote.beforeMarkup,1000);
 assert.equal(twentyFivePercentQuote.markupAmount,250);
 assert.equal(twentyFivePercentQuote.grand,1250);
+const utilityFeeQuote=total([
+  {item:'Standard Overhead Utility Fee',category:'Fees',cost:1000,qty:1},
+  {item:'Standard Work Required Utility Fee',category:'Fees',cost:2000,qty:1},
+  {item:'Permit Fee - $300',category:'Fees',cost:300,qty:1}
+]);
+assert.equal(utilityFeeQuote.adminFeeBase,3300);
+assert.equal(utilityFeeQuote.materialServicesBase,0);
+assert.equal(utilityFeeQuote.beforeMarkup,3300);
+assert.equal(utilityFeeQuote.markupAmount,412.5);
+assert.equal(utilityFeeQuote.grand,3712.5);
 const detailedRows=pricing.customerDetailedRows([
   {item:'Panel',category:'Equipment',cost:1000,qty:1},
   {item:'Labor',category:'Labor',cost:100,qty:2}
