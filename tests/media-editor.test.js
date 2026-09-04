@@ -56,13 +56,15 @@ for (const amount of [100,200,300,400,500,600]) assert.match(app,new RegExp('\\{
 assert.match(app,/\{item:"Standard Overhead Utility Fee",category:"Fees",cost:1000\.00\}/,'standard overhead utility fee must be available at $1,000');
 assert.match(app,/\{item:"Standard Work Required Utility Fee",category:"Fees",cost:2000\.00\}/,'standard work required utility fee must retain the $2,000 cost');
 assert.doesNotMatch(app,/\{item:"Disco\/Reco Fee",category:"Fees"/,'legacy Disco/Reco fee label must not remain in the material list');
-const singleItemCosts=[["1 inch pvc conduit support - Each","Conduit Fittings",0.65],["1 inch rigid conduit support - Each","Conduit Fittings",0.8],["2 1/2 inch pvc support - Each","Conduit Fittings",2.7],["2 1/2 inch rigid conduit clamp - Each","Conduit Fittings",3.33],["2 inch pvc conduit clamp - Each","Conduit Fittings",1.18],["2 inch rigid conduit clamp - Each","Conduit Fittings",2.33],["3 inch pvc conduit clamp - Each","Conduit Fittings",4.71],["3 inch rigid conduit clamp - Each","Conduit Fittings",5.18],["Tec Screw - Each","Fasteners",0.17],["Romex / MC Connector - Each","Fittings",0.38],["SEU Strap - Each","Fittings",2.28],["Wirenut Red - Each","Other Material",0.36],["15A Breaker - Each","Overcurrent Protection",6.98],["20A Breaker sleeve - Each","Overcurrent Protection",7.08],["Grounding Acorn - Each","Grounding",5.01],["Water pipe clamp - Each","Grounding",6.86]];
+const singleItemCosts=[["1 inch pvc conduit support - Each","Conduit Fittings",0.65],["1 inch rigid conduit support - Each","Conduit Fittings",0.8],["2 1/2 inch pvc support - Each","Conduit Fittings",2.7],["2 1/2 inch rigid conduit clamp - Each","Conduit Fittings",3.33],["2 inch pvc conduit clamp - Each","Conduit Fittings",1.18],["2 inch rigid conduit clamp - Each","Conduit Fittings",2.33],["3 inch pvc conduit clamp - Each","Conduit Fittings",4.71],["3 inch rigid conduit clamp - Each","Conduit Fittings",5.18],["Tec Screw - Each","Fasteners",0.17],["Romex / MC Connector - Each","Fittings",0.38],["SEU Strap - Each","Fittings",2.28],["SER support - Each","Fittings",1.51],["Wirenut Red - Each","Other Material",0.36],["15A Breaker - Each","Overcurrent Protection",6.98],["20A Breaker sleeve - Each","Overcurrent Protection",7.08],["Grounding Acorn - Each","Grounding",5.01],["Water pipe clamp - Each","Grounding",6.86]];
 for (const [item,category,cost] of singleItemCosts) {
   const escapedItem=item.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   assert.match(app,new RegExp('\\{item:"'+escapedItem+'",category:"'+category+'",cost:'+cost.toFixed(2).replace('.','\\.')+'\\}'),'missing or incorrect single-item cost for '+item);
 }
-assert.equal(singleItemCosts.length,16,'all qualifying non-wire box items must have single-item entries');
+assert.equal(singleItemCosts.length,17,'all qualifying non-wire box items must have single-item entries');
 assert.equal(singleItemCosts.some(([,category])=>category==='Wire'),false,'wire must be excluded from generated single-item entries');
+assert.match(app,/\{item:"SER support box \(25\)",category:"Fittings",cost:37\.75\}/,'SER support box must be available at $37.75');
+assert.equal(Math.round((37.75/25)*100)/100,1.51,'SER support individual cost must equal the rounded box cost divided by 25');
 assert.match(app,/function mergePresetRows\(rows\)/,'pricing-library application must have a shared duplicate-row merger');
 assert.match(app,/selected=mergePresetRows\(resolved\)/,'pricing-library application must use the shared row merger');
 assert.doesNotMatch(app,/selected=mergeDupes\(resolved\)/,'pricing-library application must not call a migration-scoped helper');
@@ -99,7 +101,7 @@ assert.match(app, /function downloadCustomerDetailedPDF\(\)/,'customer detailed 
 assert.match(app, /VenturePricing\.customerDetailedRows\(selected,currentMaterialMarkup\(\),currentLaborMultiplier\(\)\)/,'customer detailed quote must use customer-safe allocated line pricing');
 assert.match(app, /function downloadQuotePDF\(\)[\s\S]*?VenturePricing\.internalQuoteRows\(selected\)/,'internal quote PDF must fold the trench minimum into its base line items');
 assert.match(html, /Customer Detailed Quote PDF/,'documents tab must expose the customer detailed quote');
-assert.match(html, /equipment-library\.js\?v=2\.4\.4/,'equipment cutout library must load before the app');
+assert.match(html, /equipment-library\.js\?v=2\.4\.5/,'equipment cutout library must load before the app');
 assert.match(app, /function equipmentAssetSource\(/,'photo editor must support external equipment cutouts');
 for (const id of ['meter','tap_box','main_service_panel','ac_disconnect','enphase_combiner','tesla_solar_inverter','powerwall3','tesla_wall_connector','meter_main','subpanel','smart_panel','backup_gateway','ev_charger_pedestal','nema_14_50_receptacle','emt_1in_1ft','emt_1in_90','emt_1in_lb']) {
   assert.match(equipmentLibrary, new RegExp(`id:'${id}'`), `missing equipment cutout ${id}`);
@@ -114,10 +116,10 @@ assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review cont
 assert.match(html, /name="materialMarkupMain" value="0\.25"/,'main quote controls must include 25% markup');
 assert.match(html, /name="materialMarkupPricing" value="0\.25"/,'pricing review controls must include 25% markup');
 assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
-assert.match(app, /const APP_VERSION='v2.4.4'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.4\.4["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /pricing-core\.js\?v=2\.4\.4["']/,'pricing engine URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.4\.4["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /const APP_VERSION='v2.4.5'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.4\.5["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /pricing-core\.js\?v=2\.4\.5["']/,'pricing engine URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.4\.5["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');

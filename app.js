@@ -195,6 +195,8 @@ const materials = [
   {item:"2 inch SEU Connector",category:"Fittings",cost:10.00},
   {item:"SEU Strap box (25)",category:"Fittings",cost:57.11},
   {item:"SEU Strap - Each",category:"Fittings",cost:2.28},
+  {item:"SER support box (25)",category:"Fittings",cost:37.75},
+  {item:"SER support - Each",category:"Fittings",cost:1.51},
   {item:"SEU Wall Plate",category:"Fittings",cost:15.00},
   {item:"Labor Electrician MA",category:"Labor",cost:60.00},
   {item:"Labor Apprentice MA",category:"Labor",cost:40.00},
@@ -438,7 +440,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.4.4';
+const APP_VERSION='v2.4.5';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';

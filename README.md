@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.4.4
+# Venture Home Estimator Pro v2.4.5
 
 Standalone offline BOM and custom quote builder.
+
+## v2.4.5 changes
+- Adds SER support box (25) at $37.75 and SER support - Each at $1.51.
 
 ## v2.4.4 changes
 - Replaces the Pricing Library BOM browser confirmation with a Venture Home–branded in-app dialog.
