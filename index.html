@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.4.3" />
+<link rel="stylesheet" href="styles.css?v=2.4.4" />
 </head>
 <body>
 <div class="app">
@@ -271,10 +271,33 @@
       </div>
     </div>
   </div></div>
+<div id="appConfirmModal" class="modalOverlay appConfirmOverlay" role="dialog" aria-modal="true" aria-labelledby="appConfirmTitle" aria-describedby="appConfirmMessage" onclick="if(event.target===this)closeAppConfirmation(false)" onkeydown="handleAppConfirmationKey(event)">
+  <div class="modalCard appConfirmCard">
+    <div class="modalHead appConfirmHead">
+      <div class="appConfirmBrand"><span class="appConfirmMark">V</span><div><b>VENTURE HOME</b><small>Estimator Pro</small></div></div>
+      <span class="appConfirmSecurity">Pricing Library</span>
+    </div>
+    <div class="modalBody appConfirmBody">
+      <div class="appConfirmIcon" aria-hidden="true">⇄</div>
+      <div>
+        <p class="appConfirmEyebrow">Confirm BOM change</p>
+        <h2 id="appConfirmTitle">Replace current BOM?</h2>
+        <p id="appConfirmMessage" class="appConfirmMessage"></p>
+        <div id="appConfirmDetail" class="appConfirmDetail"></div>
+      </div>
+    </div>
+    <div class="appConfirmActions">
+      <button id="appConfirmCancel" type="button" class="btn secondary" onclick="closeAppConfirmation(false)">Keep Current BOM</button>
+      <button id="appConfirmAccept" type="button" class="btn green" onclick="closeAppConfirmation(true)">Replace BOM</button>
+    </div>
+  </div>
+</div>
+
 <div id="whatsNewModal" class="modalOverlay" onclick="if(event.target===this)hideWhatsNew()">
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
+      <h3>v2.4.4 — Branded BOM Confirmation</h3><ul><li>Replaced the browser confirmation used by Pricing Library BOM replacement with an accessible Venture Home–branded in-app dialog.</li></ul>
       <h3>v2.4.3 — Pricing Library Calculator Fix</h3><ul><li>Pricing Library selections and project work-type auto-fill now transfer saved BOM materials, labor, and fees into the calculator.</li></ul>
       <h3>v2.4.2 — Single-Item Material Costs</h3><ul><li>Added 16 per-piece material entries calculated from existing box costs and quantities.</li><li>Original box items remain available, and Wire items are excluded.</li></ul>
       <h3>v2.4.1 — Utility &amp; Permit Fees</h3><ul><li>Added selectable permit fees from $100 through $600.</li><li>Added the $1,000 Standard Overhead Utility Fee and renamed the $2,000 utility fee to Standard Work Required Utility Fee.</li></ul>
@@ -311,8 +334,8 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.4.3" defer></script>
-<script src="equipment-library.js?v=2.4.3" defer></script>
-<script src="app.js?v=2.4.3" defer></script>
+<script src="pricing-core.js?v=2.4.4" defer></script>
+<script src="equipment-library.js?v=2.4.4" defer></script>
+<script src="app.js?v=2.4.4" defer></script>
 </body>
 </html>

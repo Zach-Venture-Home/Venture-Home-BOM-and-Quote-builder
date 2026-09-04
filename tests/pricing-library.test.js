@@ -42,8 +42,10 @@ const context = vm.createContext({
   showNotice: message => notices.push(message),
   confirm: () => true,
   alert: message => { throw new Error(message); },
-  prompt: () => null
+  prompt: () => null,
+  showAppConfirmation: async () => context.confirmationResult
 });
+context.confirmationResult = true;
 vm.runInContext(app.slice(start, end), context);
 
 function assertCompleteCalculatorSelection(label) {
@@ -56,18 +58,27 @@ function assertCompleteCalculatorSelection(label) {
   ], label + ' must preserve current costs and quantities while merging duplicates');
 }
 
-vm.runInContext('applyPresetByScope("Service Upgrade", {silent:false,confirmReplace:false})', context);
-assertCompleteCalculatorSelection('manual library application');
+(async()=>{
+  await vm.runInContext('applyPresetByScope("Service Upgrade", {silent:false,confirmReplace:false})', context);
+  assertCompleteCalculatorSelection('manual library application');
 
-context.selected = [];
-vm.runInContext('maybeAutoApplyPresetForWorkType("Service Upgrade")', context);
-assertCompleteCalculatorSelection('work-type auto-fill');
+  context.selected = [];
+  await vm.runInContext('maybeAutoApplyPresetForWorkType("Service Upgrade")', context);
+  assertCompleteCalculatorSelection('work-type auto-fill');
 
-context.selected = [];
-vm.runInContext('loadPricingLibraryEntry("Service Upgrade")', context);
-assertCompleteCalculatorSelection('Pricing Library selection');
-assert.equal(elements.presetPicker.value, 'Service Upgrade');
-assert.equal(elements.workType.value, 'Service Upgrade');
-assert.ok(notices.some(message => /applied to the calculator/.test(message)), 'successful selection must notify the user');
+  context.selected = [];
+  await vm.runInContext('loadPricingLibraryEntry("Service Upgrade")', context);
+  assertCompleteCalculatorSelection('Pricing Library selection');
+  assert.equal(elements.presetPicker.value, 'Service Upgrade');
+  assert.equal(elements.workType.value, 'Service Upgrade');
+  assert.ok(notices.some(message => /applied to the calculator/.test(message)), 'successful selection must notify the user');
 
-console.log('pricing library application tests passed');
+  const existing=[{item:'Existing Item',category:'Equipment',cost:10,qty:1}];
+  context.selected=existing;
+  context.confirmationResult=false;
+  const canceled=await vm.runInContext('applyPresetByScope("Service Upgrade", {silent:false,confirmReplace:true})', context);
+  assert.equal(canceled,false,'canceling branded confirmation must stop replacement');
+  assert.equal(context.selected,existing,'canceling branded confirmation must preserve the current BOM');
+
+  console.log('pricing library application tests passed');
+})().catch(error=>{console.error(error);process.exitCode=1;});

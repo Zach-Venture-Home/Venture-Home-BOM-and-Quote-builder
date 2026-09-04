@@ -1,6 +1,10 @@
-# Venture Home Estimator Pro v2.4.3
+# Venture Home Estimator Pro v2.4.4
 
 Standalone offline BOM and custom quote builder.
+
+## v2.4.4 changes
+- Replaces the Pricing Library BOM browser confirmation with a Venture Home–branded in-app dialog.
+- Keeps current BOM data intact when the branded dialog is canceled.
 
 ## v2.4.3 changes
 - Fixes Pricing Library selection and work-type auto-fill so saved BOM materials, labor, and fees populate the calculator.
