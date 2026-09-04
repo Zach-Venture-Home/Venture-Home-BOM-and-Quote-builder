@@ -1,6 +1,10 @@
-# Venture Home Estimator Pro v2.4.1
+# Venture Home Estimator Pro v2.4.2
 
 Standalone offline BOM and custom quote builder.
+
+## v2.4.2 changes
+- Adds 16 per-piece material entries calculated from the current box cost divided by box quantity and rounded to the nearest cent.
+- Keeps the original box entries and excludes Wire items.
 
 ## v2.4.1 changes
 - Adds selectable permit-fee amounts from $100 through $600.
