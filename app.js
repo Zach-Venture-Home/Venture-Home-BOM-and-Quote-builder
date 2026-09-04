@@ -440,7 +440,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.4.5';
+const APP_VERSION='v2.4.6';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -490,23 +490,42 @@ function normalizeQuantity(value){
   return Number.isFinite(quantity) && quantity>0 ? Math.min(quantity,MAX_ITEM_QUANTITY) : 0;
 }
 let appConfirmationResolver=null;
-function showAppConfirmation({title='Please confirm',message='',detail='',confirmLabel='Confirm',cancelLabel='Cancel'}={}){
+let appConfirmationMode='confirm';
+let appConfirmationReturnFocus=null;
+function showAppDialog({mode='confirm',eyebrow='Venture Home',title='Please confirm',message='',detail='',confirmLabel='Confirm',cancelLabel='Cancel',inputLabel='Response',defaultValue=''}={}){
   const modal=document.getElementById('appConfirmModal');
-  if(!modal) return Promise.resolve(false);
-  if(appConfirmationResolver){const previous=appConfirmationResolver;appConfirmationResolver=null;previous(false);}
+  if(!modal) return Promise.resolve(mode==='prompt'?null:false);
+  if(appConfirmationResolver){const previous=appConfirmationResolver;appConfirmationResolver=null;previous(appConfirmationMode==='prompt'?null:false);}
+  appConfirmationMode=mode;
+  appConfirmationReturnFocus=document.activeElement;
+  const card=modal.querySelector('.appConfirmCard');if(card)card.dataset.dialogMode=mode;
+  const eyebrowBox=modal.querySelector('.appConfirmEyebrow');if(eyebrowBox)eyebrowBox.textContent=eyebrow;
   const titleBox=document.getElementById('appConfirmTitle');if(titleBox)titleBox.textContent=title;
-  const messageBox=document.getElementById('appConfirmMessage');if(messageBox)messageBox.textContent=message;
+  const messageBox=document.getElementById('appConfirmMessage');if(messageBox){messageBox.textContent=message;messageBox.hidden=!message;}
   const detailBox=document.getElementById('appConfirmDetail');if(detailBox){detailBox.textContent=detail;detailBox.hidden=!detail;}
+  const inputWrap=document.getElementById('appConfirmInputWrap');if(inputWrap)inputWrap.hidden=mode!=='prompt';
+  const inputLabelBox=document.getElementById('appConfirmInputLabel');if(inputLabelBox)inputLabelBox.textContent=inputLabel;
+  const input=document.getElementById('appConfirmInput');if(input)input.value=String(defaultValue??'');
   const accept=document.getElementById('appConfirmAccept');if(accept)accept.textContent=confirmLabel;
-  const cancel=document.getElementById('appConfirmCancel');if(cancel)cancel.textContent=cancelLabel;
+  const cancel=document.getElementById('appConfirmCancel');if(cancel){cancel.textContent=cancelLabel;cancel.hidden=mode==='alert';}
   modal.classList.add('active');
-  return new Promise(resolve=>{appConfirmationResolver=resolve;setTimeout(()=>accept?.focus(),0);});
+  return new Promise(resolve=>{appConfirmationResolver=resolve;setTimeout(()=>mode==='prompt'?input?.focus():accept?.focus(),0);});
 }
+function showAppConfirmation(options={}){return showAppDialog({...options,mode:'confirm'});}
+function showAppAlert(options={}){return showAppDialog({confirmLabel:'Got It',...options,mode:'alert'});}
+function showAppPrompt(options={}){return showAppDialog({confirmLabel:'Continue',cancelLabel:'Cancel',...options,mode:'prompt'});}
 function closeAppConfirmation(accepted=false){
   const modal=document.getElementById('appConfirmModal');if(modal)modal.classList.remove('active');
-  const resolve=appConfirmationResolver;appConfirmationResolver=null;if(resolve)resolve(Boolean(accepted));
+  const mode=appConfirmationMode;
+  const input=document.getElementById('appConfirmInput');
+  const result=mode==='prompt'?(accepted?String(input?.value??''):null):Boolean(accepted);
+  const resolve=appConfirmationResolver;appConfirmationResolver=null;if(resolve)resolve(result);
+  const returnFocus=appConfirmationReturnFocus;appConfirmationReturnFocus=null;setTimeout(()=>returnFocus?.focus?.(),0);
 }
-function handleAppConfirmationKey(event){if(event.key==='Escape'){event.preventDefault();closeAppConfirmation(false);}}
+function handleAppConfirmationKey(event){
+  if(event.key==='Escape'){event.preventDefault();closeAppConfirmation(false);return;}
+  if(event.key==='Enter' && appConfirmationMode==='prompt'){event.preventDefault();closeAppConfirmation(true);}
+}
 
 function showNotice(message, kind='info'){
   const box=document.getElementById('appNotice');
@@ -747,12 +766,15 @@ function addItem(idx){const qty=normalizeQuantity(document.getElementById('qty_'
 function updateQty(i,val){const qty=normalizeQuantity(val); if(!qty) showNotice('The item was removed because its quantity was not valid.','warning'); selected[i].qty=qty; selected=selected.filter(x=>x.qty>0); persist(); renderSelected();}
 function removeItem(i){selected.splice(i,1); persist(); renderSelected();}
 function clearSelected(){selected=[]; persist(); renderSelected();}
-function startNewProject(){
+async function startNewProject(){
   const hasData=selected.length || sitePhotos.length || savedDiagrams.length ||
     (document.getElementById('projectName')?.value || '').trim() ||
     (document.getElementById('projectAddress')?.value || '').trim() ||
     (document.getElementById('scopeOfWork')?.value || '').trim() || selectedWorkType();
-  if(hasData && !confirm('Start a new project? This will clear the current project information, BOM, photos, and diagrams. Saved projects will not be deleted.')) return;
+  if(hasData){
+    const confirmed=await showAppConfirmation({eyebrow:'Project setup',title:'Start a new project?',message:'This will clear the current project information, BOM, photos, and diagrams.',detail:'Saved projects will not be deleted.',confirmLabel:'Start New Project',cancelLabel:'Keep Current Project'});
+    if(!confirmed)return;
+  }
 
   selected=[];
   sitePhotos=[];
@@ -876,10 +898,16 @@ async function loadPricingLibraryEntry(name){
   }
   updatePresetStatus();
 }
-function newPricingLibraryEntry(){
-  const name=String(prompt('New Pricing Library work type name:')||'').trim();if(!name)return;
-  const scope=String(prompt('Enter the generalized scope of work for '+name+':')||'').trim();
-  const entries=savedScopePresets();if(entries[name]&&!confirm('Replace the existing Pricing Library entry for "'+name+'"?'))return;
+async function newPricingLibraryEntry(){
+  const nameResult=await showAppPrompt({eyebrow:'Pricing Library',title:'New work type',message:'Name the new Pricing Library work type.',inputLabel:'Work type name',confirmLabel:'Continue'});
+  const name=String(nameResult??'').trim();if(!name)return;
+  const scopeResult=await showAppPrompt({eyebrow:'Pricing Library',title:'Add the scope of work',message:'Enter the generalized scope of work for '+name+'.',inputLabel:'Scope of work',confirmLabel:'Create Work Type'});
+  const scope=String(scopeResult??'').trim();
+  const entries=savedScopePresets();
+  if(entries[name]){
+    const replace=await showAppConfirmation({eyebrow:'Pricing Library',title:'Replace existing entry?',message:'A Pricing Library entry named "'+name+'" already exists.',detail:'Its saved scope and BOM will be replaced.',confirmLabel:'Replace Entry',cancelLabel:'Keep Existing'});
+    if(!replace)return;
+  }
   entries[name]={scope:name,scopeText:scope,price:'',updatedAt:new Date().toISOString(),items:[]};
   setSavedScopePresets(entries);loadPricingLibraryEntry(name);showNotice('Pricing Library entry created. Add materials, then save the scope and current BOM.','success');
 }
@@ -905,11 +933,11 @@ function mergePresetRows(rows){
   });
   return [...merged.values()].filter(row=>(Number(row.qty)||0)>0);
 }
-function currentPresetScope(){
+async function currentPresetScope(){
   const current=selectedWorkType();
   if(current) return current;
-  const typed=prompt('Which existing work type should this preset be saved under?');
-  return (typed||'').trim();
+  const typed=await showAppPrompt({eyebrow:'Pricing Library',title:'Choose a work type',message:'Enter the work type this Pricing Library entry should use.',inputLabel:'Work type name'});
+  return String(typed??'').trim();
 }
 
 function autoApplyPresetEnabled(){return localStorage.getItem('vh_autoApplyPreset') !== 'false';}
@@ -924,7 +952,7 @@ async function applyPresetByScope(scope, opts={}){
   const resolved=[]; const missing=[];
   preset.items.forEach(line=>{const r=resolvePresetLine(line); if(r) resolved.push(r); else missing.push(line.item);});
   if(!resolved.length){
-    if(!opts.silent) alert('Preset could not be applied because none of its items matched the current material list.');
+    if(!opts.silent) await showAppAlert({eyebrow:'Pricing Library',title:'Unable to apply this BOM',message:'None of its saved items match the current material list.'});
     return false;
   }
   if(selected.length && opts.confirmReplace!==false){
@@ -939,7 +967,7 @@ async function applyPresetByScope(scope, opts={}){
   }
   selected=mergePresetRows(resolved);
   persist(); renderSelected(); updatePresetStatus();
-  if(missing.length && !opts.silent) alert('Preset applied, but '+missing.length+' item(s) no longer matched the material list:\n\n'+missing.join('\n'));
+  if(missing.length && !opts.silent) await showAppAlert({eyebrow:'Pricing Library',title:'BOM applied with unmatched items',message:missing.length+' saved item(s) no longer match the current material list.',detail:missing.join(' • ')});
   return true;
 }
 async function maybeAutoApplyPresetForWorkType(scope){
@@ -960,20 +988,20 @@ function populatePresetPicker(){
 async function applyPresetFromPicker(){
   const picker=document.getElementById('presetPicker');
   const scope=(picker?.value||'').trim();
-  if(!scope){alert('Choose a saved preset first.'); return;}
+  if(!scope){await showAppAlert({eyebrow:'Pricing Library',title:'Choose a library entry',message:'Select a saved Pricing Library entry first.'});return;}
   await applyPresetByScope(scope,{silent:false,confirmReplace:true});
 }
 
-function saveSelectionAsPreset(){
-  let scope=currentPresetScope();
-  if(!scope){alert('Select a work type first, then try again.'); return;}
-  const typed=prompt('Save this Pricing Library entry under which work type?', scope);
+async function saveSelectionAsPreset(){
+  let scope=await currentPresetScope();
+  if(!scope){await showAppAlert({eyebrow:'Pricing Library',title:'Work type required',message:'Select a work type first, then try again.'});return;}
+  const typed=await showAppPrompt({eyebrow:'Pricing Library',title:'Save current BOM',message:'Choose the work type for this Pricing Library entry.',inputLabel:'Work type name',defaultValue:scope,confirmLabel:'Continue'});
   if(typed===null) return;
   scope=String(typed||'').trim();
-  if(!scope){alert('Preset was not saved because no work type was entered.'); return;}
+  if(!scope){await showAppAlert({eyebrow:'Pricing Library',title:'Entry not saved',message:'A work type name is required.'});return;}
   const presets=savedScopePresets();
   const existing=presets[scope];
-  if(existing?.updatedAt && !confirm('Update the existing Pricing Library entry for "'+scope+'"?')) return;
+  if(existing?.updatedAt){const update=await showAppConfirmation({eyebrow:'Pricing Library',title:'Update existing entry?',message:'Replace the saved scope and BOM for "'+scope+'"?',confirmLabel:'Update Entry',cancelLabel:'Keep Existing'});if(!update)return;}
   presets[scope]={
     scope,
     scopeText:(document.getElementById('scopeOfWork')?.value||existing?.scopeText||workTypeRecord(scope)?.scope||'').trim(),
@@ -983,41 +1011,41 @@ function saveSelectionAsPreset(){
   };
   setSavedScopePresets(presets);
   populatePresetPicker();
-  alert('Pricing Library entry saved for '+scope+' with '+selected.length+' default material line item'+(selected.length===1?'':'s')+'.');
+  await showAppAlert({eyebrow:'Pricing Library',title:'Entry saved',message:scope+' now contains '+selected.length+' default material line item'+(selected.length===1?'':'s')+'.'});
 }
 async function applySavedPreset(){
-  let scope=currentPresetScope();
-  if(!scope){alert('Select a work type first.'); return;}
+  let scope=await currentPresetScope();
+  if(!scope){await showAppAlert({eyebrow:'Pricing Library',title:'Work type required',message:'Select a work type first.'});return;}
   const presets=savedScopePresets();
   if(!presets[scope]){
     const names=presetNames();
-    if(!names.length){alert('No saved presets yet. Build a BOM and click Save Current Selection as Preset first.'); return;}
-    const choice=prompt('No preset found for "'+scope+'". Enter one of these preset names:\n\n'+names.join('\n'), names[0]);
+    if(!names.length){await showAppAlert({eyebrow:'Pricing Library',title:'No saved entries',message:'Build a BOM and save the current scope and BOM first.'});return;}
+    const choice=await showAppPrompt({eyebrow:'Pricing Library',title:'Choose another entry',message:'No entry was found for "'+scope+'".',detail:'Available: '+names.join(' • '),inputLabel:'Pricing Library entry',defaultValue:names[0]});
     if(choice===null) return;
     scope=String(choice||'').trim();
   }
-  if(!findSavedPreset(scope)){alert('Preset not found.'); return;}
+  if(!findSavedPreset(scope)){await showAppAlert({eyebrow:'Pricing Library',title:'Entry not found',message:'The requested Pricing Library entry could not be found.'});return;}
   await applyPresetByScope(scope,{silent:false,confirmReplace:true});
 }
-function deleteSavedPreset(){
-  let scope=currentPresetScope();
+async function deleteSavedPreset(){
+  let scope=await currentPresetScope();
   const presets=savedScopePresets();
   if(!presets[scope]){
     const names=Object.keys(presets).sort();
-    if(!names.length){alert('No saved presets to delete.'); return;}
-    const choice=prompt('Enter preset to delete:\n\n'+names.join('\n'), names[0]);
+    if(!names.length){await showAppAlert({eyebrow:'Pricing Library',title:'Nothing to delete',message:'There are no saved custom entries to delete.'});return;}
+    const choice=await showAppPrompt({eyebrow:'Pricing Library',title:'Choose an entry to delete',detail:'Available: '+names.join(' • '),inputLabel:'Pricing Library entry',defaultValue:names[0],confirmLabel:'Continue'});
     if(choice===null) return;
     scope=String(choice||'').trim();
   }
-  if(!presets[scope]){alert('Pricing Library entry not found.'); return;}
-  if(WORK_TYPES.some(record=>record.item===scope)){alert('Built-in work types cannot be deleted. You can update their scope and default materials.');return;}
-  if(!confirm('Delete custom Pricing Library entry for "'+scope+'"?')) return;
-  delete presets[scope]; setSavedScopePresets(presets); populatePresetPicker(); alert('Preset deleted.');
+  if(!presets[scope]){await showAppAlert({eyebrow:'Pricing Library',title:'Entry not found',message:'The requested Pricing Library entry could not be found.'});return;}
+  if(WORK_TYPES.some(record=>record.item===scope)){await showAppAlert({eyebrow:'Pricing Library',title:'Built-in work type',message:'Built-in work types cannot be deleted. You can update their scope and default materials.'});return;}
+  const remove=await showAppConfirmation({eyebrow:'Pricing Library',title:'Delete custom entry?',message:'Delete "'+scope+'" from the Pricing Library?',detail:'This cannot be undone.',confirmLabel:'Delete Entry',cancelLabel:'Keep Entry'});if(!remove)return;
+  delete presets[scope];setSavedScopePresets(presets);populatePresetPicker();await showAppAlert({eyebrow:'Pricing Library',title:'Entry deleted',message:'The custom Pricing Library entry was deleted.'});
 }
-function exportSavedPresets(){
+async function exportSavedPresets(){
   const presets=savedScopePresets();
   const count=Object.keys(presets).length;
-  if(!count){alert('No saved presets to export yet.'); return;}
+  if(!count){await showAppAlert({eyebrow:'Pricing Library',title:'Nothing to export',message:'There are no saved Pricing Library entries yet.'});return;}
   const payload={app:'Venture Home Estimator Pro',version:APP_VERSION,exportedAt:new Date().toISOString(),presets};
   downloadBlob(JSON.stringify(payload,null,2),'venture_home_pricing_library.json','application/json');
 }
@@ -1088,7 +1116,7 @@ async function saveProjectAs(){
   setCurrentProjectId('');
   const data=currentProjectData();
   const proposed=(document.getElementById('projectName')?.value || data.projectName || 'Untitled Project')+' Copy';
-  const name=prompt('Save project as:', proposed);
+  const name=await showAppPrompt({eyebrow:'Saved Projects',title:'Save project as',message:'Enter a name for this project copy.',inputLabel:'Project name',defaultValue:proposed,confirmLabel:'Save Copy'});
   if(name===null){setCurrentProjectId(oldId);return;}
   data.projectName=String(name||'').trim() || 'Untitled Project';
   const pn=document.getElementById('projectName'); if(pn)pn.value=data.projectName;
@@ -1135,7 +1163,7 @@ async function duplicateProject(id){
   const projects=savedProjects(); projects.unshift(projectMeta(copy)); if(estimatorDb) await putProject(copy); setSavedProjects(projects.slice(0,100)); renderSavedProjects(); showNotice('Project duplicated.','success');
 }
 async function deleteProject(id){
-  if(!confirm('Delete this saved project?')) return;
+  const confirmed=await showAppConfirmation({eyebrow:'Saved Projects',title:'Delete saved project?',message:'This saved project will be permanently removed.',confirmLabel:'Delete Project',cancelLabel:'Keep Project'});if(!confirmed)return;
   if(estimatorDb) await deleteProjectRecord(id);
   setSavedProjects(savedProjects().filter(p=>p.id!==id));
   if(currentProjectId()===id) setCurrentProjectId('');
@@ -1416,7 +1444,7 @@ function startPhotoMarkup(evt){
   if(style.tool==='equipment') {
     const asset=PHOTO_EQUIPMENT_LIBRARY.find(a=>a.id===pendingEquipmentId);
     const img=asset ? equipmentImageCache[asset.id] : null;
-    if(!asset){alert('Choose an equipment item first.'); return;}
+    if(!asset){showAppAlert({eyebrow:'Photo Editor',title:'Choose equipment first',message:'Select an equipment item from the library before placing it on the photo.'});return;}
     const defaultW=Math.min(300, Math.max(120, canvasDefaultEquipmentWidth(asset.id)));
     const aspect=img && img.naturalHeight ? img.naturalHeight/img.naturalWidth : 1;
     pushPhotoHistory();
@@ -1724,7 +1752,7 @@ function drawFittedCanvasText(ctx,text,x,y,width,height,maxSize,options={}){
   ctx.restore();
 }
 
-function clearPhotoDrawing(){if(!drawStrokes.length)return; if(!confirm('Clear all markup from this photo?'))return; pushPhotoHistory(); drawStrokes=[]; activeStroke=null; selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
+async function clearPhotoDrawing(){if(!drawStrokes.length)return;const confirmed=await showAppConfirmation({eyebrow:'Photo Editor',title:'Clear all photo markup?',message:'Every markup item on this photo will be removed.',confirmLabel:'Clear Markup',cancelLabel:'Keep Markup'});if(!confirmed)return; pushPhotoHistory(); drawStrokes=[]; activeStroke=null; selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 function undoPhotoDrawing(){if(!photoUndoStack.length)return; photoRedoStack.push(photoSnapshot()); drawStrokes=photoUndoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 function redoPhotoDrawing(){if(!photoRedoStack.length)return; photoUndoStack.push(photoSnapshot()); drawStrokes=photoRedoStack.pop(); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 function deleteSelectedMarkup(){if(selectedStrokeIndex>=0){pushPhotoHistory(); drawStrokes.splice(selectedStrokeIndex,1); selectedStrokeIndex=-1; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}}
@@ -1761,7 +1789,7 @@ function rotateSelectedPhotoMarkup(delta){
 function applyPhotoSelectionStyle(){const st=drawStrokes[selectedStrokeIndex]; if(!st){showNotice('Select a markup item first.','warning');return;} pushPhotoHistory(); const style=currentPhotoStyle(); if(st.type==='equipment')st.opacity=style.opacity; else {st.color=style.color; st.size=st.type==='text'?Math.max(12,style.size*4):style.size;} if(st.type==='text'&&style.text)st.text=style.text; redrawPhotoCanvas(); syncPhotoSelectionInspector(); markPhotoChanged();}
 function editSelectedPhotoText(evt){const hit=hitTestMarkup(photoPoint(evt)); if(hit.index<0||drawStrokes[hit.index]?.type!=='text')return; selectedStrokeIndex=hit.index; const st=drawStrokes[hit.index], b=markupBounds(st); beginInlinePhotoText({x:b.x1,y:b.y1},{color:st.color,size:Math.max(3,(st.size||20)/4)},hit.index);}
 function saveMarkedPhoto(){
-  const canvas=document.getElementById('photoCanvas'); if(!canvas || !currentPhotoImage){alert('Upload a photo first.'); return;}
+  const canvas=document.getElementById('photoCanvas');if(!canvas||!currentPhotoImage){showAppAlert({eyebrow:'Photo Editor',title:'Upload a photo first',message:'Add a site photo before saving marked-up work.'});return;}
   const caption=(document.getElementById('photoSaveCaption')?.value || '').trim() || 'Proposed equipment location';
   const dataUrl=photoExportDataUrl();
   const record={id:photoEditingId||'photo_'+Date.now(), caption, dataUrl, originalData:currentPhotoOriginalData, strokes:photoSnapshot(), width:canvas.width, height:canvas.height};
@@ -1771,7 +1799,7 @@ function saveMarkedPhoto(){
 function updatePhotoCaption(id,val){const p=sitePhotos.find(x=>x.id===id); if(p){p.caption=val; persistSitePhotos();}}
 function editPhoto(id){const p=sitePhotos.find(x=>x.id===id); if(!p)return; const source=p.originalData||p.dataUrl; const img=new Image(); img.onload=()=>{currentPhotoImage=img; currentPhotoOriginalData=source; drawStrokes=cloneMedia(p.strokes||[]); photoEditingId=id; photoDirty=false; selectedStrokeIndex=-1; resetPhotoHistory(); const caption=document.getElementById('photoSaveCaption'); if(caption)caption.value=p.caption||''; redrawPhotoCanvas(); syncPhotoSelectionInspector(); fitPhotoZoom(); updatePhotoEditorStatus(); document.getElementById('photoCanvas')?.scrollIntoView({behavior:'smooth',block:'center'});}; img.src=source;}
 function duplicatePhoto(id){const p=sitePhotos.find(x=>x.id===id); if(!p)return; sitePhotos.push({...cloneMedia(p),id:'photo_'+Date.now(),caption:(p.caption||'Photo')+' Copy'}); persistSitePhotos(); renderPhotoList();}
-function deletePhoto(id){if(!confirm('Delete this saved photo?'))return; sitePhotos=sitePhotos.filter(p=>p.id!==id); if(photoEditingId===id){photoEditingId='';photoDirty=!!currentPhotoImage;} persistSitePhotos(); renderPhotoList(); updatePhotoEditorStatus();}
+async function deletePhoto(id){const confirmed=await showAppConfirmation({eyebrow:'Photo Editor',title:'Delete saved photo?',message:'This marked-up photo will be permanently removed.',confirmLabel:'Delete Photo',cancelLabel:'Keep Photo'});if(!confirmed)return; sitePhotos=sitePhotos.filter(p=>p.id!==id); if(photoEditingId===id){photoEditingId='';photoDirty=!!currentPhotoImage;} persistSitePhotos(); renderPhotoList(); updatePhotoEditorStatus();}
 function renderPhotoList(){
   const box=document.getElementById('photoList'); if(!box) return;
   if(!sitePhotos.length){box.innerHTML='<div class="empty">No marked-up photos saved yet.</div>'; updateSummaryDock(); return;}
@@ -1964,7 +1992,7 @@ function drawDiagramObject(ctx,o,selected=false){ctx.save(); ctx.strokeStyle=o.c
 function redrawDiagramCanvas(preview=null){const canvas=document.getElementById('diagramCanvas'); if(!canvas)return; const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#edf2f7'; ctx.lineWidth=1; for(let x=0;x<canvas.width;x+=DIAGRAM_GRID){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();} for(let y=0;y<canvas.height;y+=DIAGRAM_GRID){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();} ctx.fillStyle='#607080'; ctx.font='12px Arial'; ctx.fillText('Venture Home Electrical Diagram',18,22); diagramObjects.forEach((o,i)=>drawDiagramObject(ctx,o,i===diagramSelected)); if(preview) drawDiagramObject(ctx,preview,false);}
 function setDiagramZoom(z){diagramZoom=Math.max(.35,Math.min(2.5,Number(z)||1));const canvas=document.getElementById('diagramCanvas');if(canvas){canvas.style.width=Math.round(canvas.width*diagramZoom)+'px';canvas.style.height='auto';}const label=document.getElementById('diagramZoomLabel');if(label)label.textContent=Math.round(diagramZoom*100)+'%';}
 function fitDiagramZoom(){const canvas=document.getElementById('diagramCanvas'),wrap=canvas?.parentElement;if(canvas&&wrap){diagramZoom=Math.min(1,Math.max(.35,(wrap.clientWidth-24)/canvas.width));canvas.style.width=Math.round(canvas.width*diagramZoom)+'px';canvas.style.height='auto';}const label=document.getElementById('diagramZoomLabel');if(label)label.textContent='Fit';}
-function newDiagramCanvas(){ if((diagramObjects.length&&diagramDirty) && !confirm('Discard unsaved diagram changes?')) return; diagramObjects=[]; diagramSelected=-1; diagramActive=null; diagramEditingId='';diagramDirty=false;resetDiagramHistory();const title=document.getElementById('diagramSaveTitle');if(title)title.value='Proposed electrical layout';redrawDiagramCanvas();updateDiagramEditorStatus();}
+async function newDiagramCanvas(){if(diagramObjects.length&&diagramDirty){const confirmed=await showAppConfirmation({eyebrow:'Diagram Editor',title:'Discard unsaved changes?',message:'The current unsaved diagram changes will be cleared.',confirmLabel:'Discard Changes',cancelLabel:'Keep Editing'});if(!confirmed)return;} diagramObjects=[]; diagramSelected=-1; diagramActive=null; diagramEditingId='';diagramDirty=false;resetDiagramHistory();const title=document.getElementById('diagramSaveTitle');if(title)title.value='Proposed electrical layout';redrawDiagramCanvas();updateDiagramEditorStatus();}
 function undoDiagramObject(){if(!diagramUndoStack.length)return;diagramRedoStack.push(diagramSnapshot());diagramObjects=diagramUndoStack.pop();diagramSelected=-1;redrawDiagramCanvas();markDiagramChanged();}
 function redoDiagramObject(){if(!diagramRedoStack.length)return;diagramUndoStack.push(diagramSnapshot());diagramObjects=diagramRedoStack.pop();diagramSelected=-1;redrawDiagramCanvas();markDiagramChanged();}
 function deleteSelectedDiagramObject(){if(diagramSelected>=0){pushDiagramHistory();diagramObjects.splice(diagramSelected,1);diagramSelected=-1;redrawDiagramCanvas();markDiagramChanged();}}
@@ -1975,7 +2003,7 @@ function applyDiagramSelectionStyle(){const o=diagramObjects[diagramSelected];if
 function saveDiagramImage(){const canvas=document.getElementById('diagramCanvas'); if(!canvas)return;if(!diagramObjects.length){showNotice('Add at least one item before saving the diagram.','warning');return;}const current=savedDiagrams.find(d=>d.id===diagramEditingId);const title=(document.getElementById('diagramSaveTitle')?.value||current?.title||'Proposed electrical layout').trim()||'Proposed electrical layout';const record={id:diagramEditingId||'diagram_'+Date.now(),title,dataUrl:diagramExportDataUrl(),width:canvas.width,height:canvas.height,objects:diagramSnapshot()};const existing=savedDiagrams.findIndex(d=>d.id===record.id);if(existing>=0)savedDiagrams[existing]=record;else savedDiagrams.push(record);diagramEditingId=record.id;diagramDirty=false;persistDiagrams();renderDiagramList();updateSummaryDock();updateDiagramEditorStatus('Saved · '+title);showNotice(existing>=0?'Diagram updated.':'Diagram saved.','success');}
 function loadDiagram(id){const d=savedDiagrams.find(x=>x.id===id); if(!d)return; diagramObjects=cloneMedia(d.objects||[]); diagramSelected=-1;diagramEditingId=id;diagramDirty=false;resetDiagramHistory();const title=document.getElementById('diagramSaveTitle');if(title)title.value=d.title||'Proposed electrical layout';redrawDiagramCanvas();fitDiagramZoom();updateDiagramEditorStatus();document.getElementById('diagramCanvas')?.scrollIntoView({behavior:'smooth',block:'center'});}
 function duplicateDiagram(id){const d=savedDiagrams.find(x=>x.id===id);if(!d)return;savedDiagrams.push({...cloneMedia(d),id:'diagram_'+Date.now(),title:(d.title||'Diagram')+' Copy'});persistDiagrams();renderDiagramList();updateSummaryDock();}
-function deleteDiagram(id){if(!confirm('Delete this saved diagram?'))return;savedDiagrams=savedDiagrams.filter(d=>d.id!==id);if(diagramEditingId===id){diagramEditingId='';diagramDirty=!!diagramObjects.length;}persistDiagrams();renderDiagramList();updateSummaryDock();updateDiagramEditorStatus();}
+async function deleteDiagram(id){const confirmed=await showAppConfirmation({eyebrow:'Diagram Editor',title:'Delete saved diagram?',message:'This saved diagram will be permanently removed.',confirmLabel:'Delete Diagram',cancelLabel:'Keep Diagram'});if(!confirmed)return;savedDiagrams=savedDiagrams.filter(d=>d.id!==id);if(diagramEditingId===id){diagramEditingId='';diagramDirty=!!diagramObjects.length;}persistDiagrams();renderDiagramList();updateSummaryDock();updateDiagramEditorStatus();}
 function renderDiagramList(){const box=document.getElementById('diagramList'); if(!box)return; if(!savedDiagrams.length){box.innerHTML='<div class="empty">No saved diagrams yet.</div>'; updateSummaryDock(); return;} box.innerHTML=savedDiagrams.map(d=>`<div class="diagramCard"><img src="${d.dataUrl}" alt="Saved diagram"><input class="photoCaption" value="${escapeHtml(d.title||'')}" onchange="updateDiagramTitle('${escapeHtml(d.id)}',this.value)"><div class="diagramCardActions"><button class="btn mini" onclick="loadDiagram('${escapeHtml(d.id)}')">Edit</button><button class="btn secondary mini" onclick="duplicateDiagram('${escapeHtml(d.id)}')">Duplicate</button><button class="btn danger mini" onclick="deleteDiagram('${escapeHtml(d.id)}')">Delete</button></div></div>`).join(''); updateSummaryDock();}
 function updateDiagramTitle(id,val){const d=savedDiagrams.find(x=>x.id===id); if(d){d.title=val; persistDiagrams();}}
 function initMediaEditorShortcuts(){
@@ -2136,7 +2164,7 @@ async function importFullBackupFile(input){
   try{
     const payload=JSON.parse(await file.text());
     if(payload?.app!=='Venture Home Estimator Pro' || !Array.isArray(payload.projects) || !payload.current) throw new Error('invalid backup');
-    if(!confirm(`Replace this browser's estimator data with ${payload.projects.length} project(s) from this backup?`)){input.value=''; return;}
+    const confirmed=await showAppConfirmation({eyebrow:'Backup & Restore',title:'Restore this backup?',message:"Replace this browser's estimator data with "+payload.projects.length+' project(s) from the selected backup?',detail:'Current browser data will be replaced.',confirmLabel:'Restore Backup',cancelLabel:'Keep Current Data'});if(!confirmed){input.value='';return;}
     if(estimatorDb){
       await dbRequest('projects','readwrite',store=>store.clear());
       for(const project of payload.projects){if(project && project.id) await putProject(project);}

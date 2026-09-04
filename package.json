@@ -1,9 +1,9 @@
 {
   "name": "venture-home-estimator-pro",
   "private": true,
-  "version": "2.4.5",
+  "version": "2.4.6",
   "scripts": {
-    "test": "node tests/pricing-core.test.js && node tests/pricing-library.test.js && node tests/media-editor.test.js && node tests/photo-editor-geometry.test.js && node tests/equipment-library.test.js && node tests/pdf-trench-minimum.test.js",
-    "check": "node --check pricing-core.js && node --check equipment-library.js && node --check app.js && node tests/pricing-core.test.js && node tests/pricing-library.test.js && node tests/media-editor.test.js && node tests/photo-editor-geometry.test.js && node tests/equipment-library.test.js && node tests/pdf-trench-minimum.test.js"
+    "test": "node tests/pricing-core.test.js && node tests/app-dialog.test.js && node tests/pricing-library.test.js && node tests/media-editor.test.js && node tests/photo-editor-geometry.test.js && node tests/equipment-library.test.js && node tests/pdf-trench-minimum.test.js",
+    "check": "node --check pricing-core.js && node --check equipment-library.js && node --check app.js && node tests/pricing-core.test.js && node tests/app-dialog.test.js && node tests/pricing-library.test.js && node tests/media-editor.test.js && node tests/photo-editor-geometry.test.js && node tests/equipment-library.test.js && node tests/pdf-trench-minimum.test.js"
   }
 }

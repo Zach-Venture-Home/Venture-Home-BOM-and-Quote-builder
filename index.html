@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Venture Home Estimator Pro</title>
-<link rel="stylesheet" href="styles.css?v=2.4.5" />
+<link rel="stylesheet" href="styles.css?v=2.4.6" />
 </head>
 <body>
 <div class="app">
@@ -284,6 +284,7 @@
         <h2 id="appConfirmTitle">Replace current BOM?</h2>
         <p id="appConfirmMessage" class="appConfirmMessage"></p>
         <div id="appConfirmDetail" class="appConfirmDetail"></div>
+        <label id="appConfirmInputWrap" class="appConfirmInputWrap" hidden><span id="appConfirmInputLabel">Response</span><input id="appConfirmInput" class="input" type="text" autocomplete="off"></label>
       </div>
     </div>
     <div class="appConfirmActions">
@@ -297,6 +298,7 @@
   <div class="modalCard">
     <div class="modalHead"><h2>Venture Home Estimator Pro <span id="modalAppVersion"></span></h2><button class="modalClose" onclick="hideWhatsNew()">Close</button></div>
     <div class="modalBody">
+      <h3>v2.4.6 — Unified Branded Dialogs</h3><ul><li>Replaced all remaining browser alerts, confirmations, and text prompts with the Venture Home in-app dialog system.</li></ul>
       <h3>v2.4.5 — SER Support Pricing</h3><ul><li>Added SER support as a 25-count box for $37.75 and as an individual item for $1.51.</li></ul>
       <h3>v2.4.4 — Branded BOM Confirmation</h3><ul><li>Replaced the browser confirmation used by Pricing Library BOM replacement with an accessible Venture Home–branded in-app dialog.</li></ul>
       <h3>v2.4.3 — Pricing Library Calculator Fix</h3><ul><li>Pricing Library selections and project work-type auto-fill now transfer saved BOM materials, labor, and fees into the calculator.</li></ul>
@@ -335,8 +337,8 @@
   </div>
 </div>
 
-<script src="pricing-core.js?v=2.4.5" defer></script>
-<script src="equipment-library.js?v=2.4.5" defer></script>
-<script src="app.js?v=2.4.5" defer></script>
+<script src="pricing-core.js?v=2.4.6" defer></script>
+<script src="equipment-library.js?v=2.4.6" defer></script>
+<script src="app.js?v=2.4.6" defer></script>
 </body>
 </html>
