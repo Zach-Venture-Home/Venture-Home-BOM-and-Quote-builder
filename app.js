@@ -438,7 +438,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.4.3';
+const APP_VERSION='v2.4.4';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -487,6 +487,25 @@ function normalizeQuantity(value){
   const quantity=Number(value);
   return Number.isFinite(quantity) && quantity>0 ? Math.min(quantity,MAX_ITEM_QUANTITY) : 0;
 }
+let appConfirmationResolver=null;
+function showAppConfirmation({title='Please confirm',message='',detail='',confirmLabel='Confirm',cancelLabel='Cancel'}={}){
+  const modal=document.getElementById('appConfirmModal');
+  if(!modal) return Promise.resolve(false);
+  if(appConfirmationResolver){const previous=appConfirmationResolver;appConfirmationResolver=null;previous(false);}
+  const titleBox=document.getElementById('appConfirmTitle');if(titleBox)titleBox.textContent=title;
+  const messageBox=document.getElementById('appConfirmMessage');if(messageBox)messageBox.textContent=message;
+  const detailBox=document.getElementById('appConfirmDetail');if(detailBox){detailBox.textContent=detail;detailBox.hidden=!detail;}
+  const accept=document.getElementById('appConfirmAccept');if(accept)accept.textContent=confirmLabel;
+  const cancel=document.getElementById('appConfirmCancel');if(cancel)cancel.textContent=cancelLabel;
+  modal.classList.add('active');
+  return new Promise(resolve=>{appConfirmationResolver=resolve;setTimeout(()=>accept?.focus(),0);});
+}
+function closeAppConfirmation(accepted=false){
+  const modal=document.getElementById('appConfirmModal');if(modal)modal.classList.remove('active');
+  const resolve=appConfirmationResolver;appConfirmationResolver=null;if(resolve)resolve(Boolean(accepted));
+}
+function handleAppConfirmationKey(event){if(event.key==='Escape'){event.preventDefault();closeAppConfirmation(false);}}
+
 function showNotice(message, kind='info'){
   const box=document.getElementById('appNotice');
   if(!box) return;
@@ -844,13 +863,13 @@ function setSavedScopePresets(presets){localStorage.setItem(PRESET_STORAGE_KEY, 
 function presetCleanItem(row){return {item:String(row.item||''), category:String(row.category||''), qty:Number(row.qty)||1};}
 function normalizePresetScopeName(name){return String(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function pricingLibraryNames(){return [...new Set([...WORK_TYPES.map(record=>record.item),...Object.keys(savedScopePresets())])].sort((a,b)=>a.localeCompare(b));}
-function loadPricingLibraryEntry(name){
+async function loadPricingLibraryEntry(name){
   const picker=document.getElementById('presetPicker');if(picker)picker.value=name;
   const workType=document.getElementById('workType');if(workType)workType.value=name;
   applyWorkType(name);
   const preset=findSavedPreset(name)?.preset;
   if(Array.isArray(preset?.items) && preset.items.length){
-    const applied=applyPresetByScope(name,{silent:false,confirmReplace:true});
+    const applied=await applyPresetByScope(name,{silent:false,confirmReplace:true});
     if(applied) showNotice('Pricing Library BOM, labor, and fees applied to the calculator.','success');
   }
   updatePresetStatus();
@@ -893,7 +912,7 @@ function currentPresetScope(){
 
 function autoApplyPresetEnabled(){return localStorage.getItem('vh_autoApplyPreset') !== 'false';}
 function presetNames(){return pricingLibraryNames();}
-function applyPresetByScope(scope, opts={}){
+async function applyPresetByScope(scope, opts={}){
   scope=String(scope||'').trim();
   if(!scope) return false;
   const found=findSavedPreset(scope);
@@ -907,19 +926,26 @@ function applyPresetByScope(scope, opts={}){
     return false;
   }
   if(selected.length && opts.confirmReplace!==false){
-    if(!confirm('This project already contains materials. Replace the current selection with the saved preset for "'+displayScope+'"?')) return false;
+    const confirmed=await showAppConfirmation({
+      title:'Replace current BOM?',
+      message:'This project already contains materials. Applying this Pricing Library entry will replace every item currently in the calculator.',
+      detail:'Pricing Library entry: '+displayScope+' • Project information, photos, and diagrams will stay unchanged.',
+      confirmLabel:'Replace BOM',
+      cancelLabel:'Keep Current BOM'
+    });
+    if(!confirmed) return false;
   }
   selected=mergePresetRows(resolved);
   persist(); renderSelected(); updatePresetStatus();
   if(missing.length && !opts.silent) alert('Preset applied, but '+missing.length+' item(s) no longer matched the material list:\n\n'+missing.join('\n'));
   return true;
 }
-function maybeAutoApplyPresetForWorkType(scope){
+async function maybeAutoApplyPresetForWorkType(scope){
   if(!autoApplyPresetEnabled()) return;
   scope=String(scope||'').trim();
   if(!scope || scope==='__other__') return;
   if(!findSavedPreset(scope)?.preset?.items?.length) return;
-  applyPresetByScope(scope,{silent:true,confirmReplace:true});
+  await applyPresetByScope(scope,{silent:true,confirmReplace:true});
 }
 function populatePresetPicker(){
   const picker=document.getElementById('presetPicker');
@@ -929,11 +955,11 @@ function populatePresetPicker(){
   presetNames().forEach(name=>{const o=document.createElement('option'); o.value=name; o.textContent=name; picker.appendChild(o);});
   if(current && savedScopePresets()[current]) picker.value=current;
 }
-function applyPresetFromPicker(){
+async function applyPresetFromPicker(){
   const picker=document.getElementById('presetPicker');
   const scope=(picker?.value||'').trim();
   if(!scope){alert('Choose a saved preset first.'); return;}
-  applyPresetByScope(scope,{silent:false,confirmReplace:true});
+  await applyPresetByScope(scope,{silent:false,confirmReplace:true});
 }
 
 function saveSelectionAsPreset(){
@@ -957,7 +983,7 @@ function saveSelectionAsPreset(){
   populatePresetPicker();
   alert('Pricing Library entry saved for '+scope+' with '+selected.length+' default material line item'+(selected.length===1?'':'s')+'.');
 }
-function applySavedPreset(){
+async function applySavedPreset(){
   let scope=currentPresetScope();
   if(!scope){alert('Select a work type first.'); return;}
   const presets=savedScopePresets();
@@ -969,7 +995,7 @@ function applySavedPreset(){
     scope=String(choice||'').trim();
   }
   if(!findSavedPreset(scope)){alert('Preset not found.'); return;}
-  applyPresetByScope(scope,{silent:false,confirmReplace:true});
+  await applyPresetByScope(scope,{silent:false,confirmReplace:true});
 }
 function deleteSavedPreset(){
   let scope=currentPresetScope();
