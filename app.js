@@ -438,7 +438,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.4.2';
+const APP_VERSION='v2.4.3';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -847,7 +847,13 @@ function pricingLibraryNames(){return [...new Set([...WORK_TYPES.map(record=>rec
 function loadPricingLibraryEntry(name){
   const picker=document.getElementById('presetPicker');if(picker)picker.value=name;
   const workType=document.getElementById('workType');if(workType)workType.value=name;
-  applyWorkType(name);updatePresetStatus();
+  applyWorkType(name);
+  const preset=findSavedPreset(name)?.preset;
+  if(Array.isArray(preset?.items) && preset.items.length){
+    const applied=applyPresetByScope(name,{silent:false,confirmReplace:true});
+    if(applied) showNotice('Pricing Library BOM, labor, and fees applied to the calculator.','success');
+  }
+  updatePresetStatus();
 }
 function newPricingLibraryEntry(){
   const name=String(prompt('New Pricing Library work type name:')||'').trim();if(!name)return;
@@ -867,6 +873,16 @@ function resolvePresetLine(line){
   const match=materials.find(m=>m.item===line.item && m.category===line.category) || materials.find(m=>m.item===line.item);
   if(!match) return null;
   return {...match, qty:Number(line.qty)||1};
+}
+function mergePresetRows(rows){
+  const merged=new Map();
+  (Array.isArray(rows)?rows:[]).forEach(row=>{
+    if(!row) return;
+    const key=String(row.item||'').trim().toLowerCase()+'|'+String(row.category||'').trim().toLowerCase()+'|'+Number(row.cost||0);
+    if(merged.has(key)) merged.get(key).qty=(Number(merged.get(key).qty)||0)+(Number(row.qty)||0);
+    else merged.set(key,{...row,qty:Number(row.qty)||0});
+  });
+  return [...merged.values()].filter(row=>(Number(row.qty)||0)>0);
 }
 function currentPresetScope(){
   const current=selectedWorkType();
@@ -893,7 +909,7 @@ function applyPresetByScope(scope, opts={}){
   if(selected.length && opts.confirmReplace!==false){
     if(!confirm('This project already contains materials. Replace the current selection with the saved preset for "'+displayScope+'"?')) return false;
   }
-  selected=mergeDupes(resolved);
+  selected=mergePresetRows(resolved);
   persist(); renderSelected(); updatePresetStatus();
   if(missing.length && !opts.silent) alert('Preset applied, but '+missing.length+' item(s) no longer matched the material list:\n\n'+missing.join('\n'));
   return true;

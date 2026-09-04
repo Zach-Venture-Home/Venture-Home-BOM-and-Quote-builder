@@ -1,6 +1,9 @@
-# Venture Home Estimator Pro v2.4.2
+# Venture Home Estimator Pro v2.4.3
 
 Standalone offline BOM and custom quote builder.
+
+## v2.4.3 changes
+- Fixes Pricing Library selection and work-type auto-fill so saved BOM materials, labor, and fees populate the calculator.
 
 ## v2.4.2 changes
 - Adds 16 per-piece material entries calculated from the current box cost divided by box quantity and rounded to the nearest cent.
