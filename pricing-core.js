@@ -9,7 +9,7 @@
   const category=row=>String(row?.category||'').trim().toLowerCase();
   const name=row=>String(row?.item||'').trim().toLowerCase();
   const isLabor=row=>category(row)==='labor';
-  const isFee=row=>category(row)==='fees'||['permit fee','disco/reco fee','truck roll x1'].includes(name(row));
+  const isFee=row=>category(row)==='fees'||name(row).startsWith('permit fee - $')||['permit fee','disco/reco fee','standard overhead utility fee','standard work required utility fee','truck roll x1'].includes(name(row));
   const isRepair=row=>['repairs','drywall repair'].includes(category(row));
   const isTrenchMinimum=row=>category(row)==='trench'&&name(row)==='minimum trench pricing';
   const isMeasuredTrench=row=>category(row)==='trench'&&!isTrenchMinimum(row);

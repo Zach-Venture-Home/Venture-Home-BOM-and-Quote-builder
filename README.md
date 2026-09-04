@@ -1,6 +1,15 @@
-# Venture Home Estimator Pro v2.3.8
+# Venture Home Estimator Pro v2.4.1
 
 Standalone offline BOM and custom quote builder.
+
+## v2.4.1 changes
+- Adds selectable permit-fee amounts from $100 through $600.
+- Adds Standard Overhead Utility Fee at $1,000.
+- Renames Disco/Reco Fee to Standard Work Required Utility Fee at the existing $2,000 cost.
+
+## v2.4.0 changes
+- Adds a separate Pricing Library seeded with the existing work types and scopes.
+- Allows saved library materials to automatically populate customer projects by work type.
 
 ## v2.3.8 changes
 - Adds a 25% end-markup option to the main quote controls and Pricing Review.

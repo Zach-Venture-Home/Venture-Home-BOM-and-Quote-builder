@@ -187,8 +187,14 @@ const materials = [
   {item:"SEU Wall Plate",category:"Fittings",cost:15.00},
   {item:"Labor Electrician MA",category:"Labor",cost:60.00},
   {item:"Labor Apprentice MA",category:"Labor",cost:40.00},
-  {item:"Permit Fee",category:"Fees",cost:600.00},
-  {item:"Disco/Reco Fee",category:"Fees",cost:2000.00},
+  {item:"Permit Fee - $100",category:"Fees",cost:100.00},
+  {item:"Permit Fee - $200",category:"Fees",cost:200.00},
+  {item:"Permit Fee - $300",category:"Fees",cost:300.00},
+  {item:"Permit Fee - $400",category:"Fees",cost:400.00},
+  {item:"Permit Fee - $500",category:"Fees",cost:500.00},
+  {item:"Permit Fee - $600",category:"Fees",cost:600.00},
+  {item:"Standard Overhead Utility Fee",category:"Fees",cost:1000.00},
+  {item:"Standard Work Required Utility Fee",category:"Fees",cost:2000.00},
   {item:"Wirenuts Red (100)",category:"Other Material",cost:36.31},
   {item:"Electrical Panel Label Kit",category:"Other Material",cost:15.00},
   {item:"15 A 2-Pole Breaker",category:"Overcurrent Protection",cost:28.00},
@@ -416,7 +422,7 @@ function normalizeSavedDataForV1(){
 function showWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.add('active');}
 function hideWhatsNew(){const m=document.getElementById('whatsNewModal'); if(m)m.classList.remove('active');}
 
-const APP_VERSION='v2.4.0';
+const APP_VERSION='v2.4.1';
 const MAX_ITEM_QUANTITY=100000;
 const FAVORITES_KEY='vh_materialFavorites';
 const RECENT_ITEMS_KEY='vh_recentMaterials';
@@ -452,8 +458,10 @@ function setMaterialMarkup(value,useLaborMultiplier=false){
 function isFee(row){
   const name=String(row.item).trim().toLowerCase();
   return String(row.category).trim().toLowerCase()==='fees' ||
-         name==='permit fee' ||
+         name==='permit fee' || name.startsWith('permit fee - $') ||
          name==='disco/reco fee' ||
+         name==='standard overhead utility fee' ||
+         name==='standard work required utility fee' ||
          name==='truck roll x1';
 }
 function sellUnit(row){ if(isLabor(row)) return row.cost * currentLaborMultiplier(); return row.cost; }
@@ -2319,7 +2327,7 @@ function buildProfessionalPdf(doc){
     if(doc.type==='bom'){
       rect(margin,y-58,pageW-margin*2,58,[1.000,0.980,0.910]); border(margin,y-58,pageW-margin*2,58,[0.930,0.790,0.390]);
       textAt('BOM Notes', margin+14, y-20, 10, 'F2', text);
-      const noteLines=wrapToWidth('This bill of materials intentionally excludes labor, permit fees, disconnect/reconnect fees, and all cost information.',pageW-margin*2-28,8.5,'F1'); noteLines.forEach((ln,i)=>textAt(ln,margin+14,y-40-i*11,8.5,'F1',text));
+      const noteLines=wrapToWidth('This bill of materials intentionally excludes labor, permit fees, utility fees, and all cost information.',pageW-margin*2-28,8.5,'F1'); noteLines.forEach((ln,i)=>textAt(ln,margin+14,y-40-i*11,8.5,'F1',text));
       y-=78;
     } else if(doc.type==='customer-detail') {
       const boxH=doc.includeAcceptance===false?104:190;
