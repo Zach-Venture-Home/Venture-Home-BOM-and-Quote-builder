@@ -5,7 +5,7 @@ const vm = require('vm');
 
 const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const start = app.indexOf('const PRESET_STORAGE_KEY');
-const end = app.indexOf('\nfunction saveSelectionAsPreset', start);
+const end = app.indexOf('\nasync function saveSelectionAsPreset', start);
 assert.ok(start >= 0 && end > start, 'pricing-library application functions must be available');
 
 const library = {

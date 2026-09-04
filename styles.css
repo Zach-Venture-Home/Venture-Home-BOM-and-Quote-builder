@@ -166,3 +166,9 @@ body.photoWorkspaceExpanded{overflow:hidden}.photoWorkspaceExpanded .photoEditor
 .appConfirmActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 24px 22px;background:#f7faf8;border-top:1px solid var(--line)}
 .appConfirmActions .btn{min-height:45px}.appConfirmActions .btn.green{box-shadow:0 8px 20px rgba(0,183,127,.18)}
 @media(max-width:560px){.appConfirmHead{padding:15px 17px}.appConfirmSecurity{display:none}.appConfirmBody{grid-template-columns:1fr;padding:22px 18px 16px}.appConfirmActions{grid-template-columns:1fr;padding:14px 18px 18px}#appConfirmAccept{order:-1}}
+
+
+/* v2.4.6 unified alert, confirmation, and prompt states */
+.appConfirmInputWrap{display:block;margin-top:15px;color:var(--navy);font-size:12px;font-weight:850}.appConfirmInputWrap[hidden]{display:none}.appConfirmInputWrap .input{margin-top:7px;background:#fff;border-color:#bfd8cc;box-shadow:0 0 0 3px rgba(115,255,198,.10)}
+.appConfirmInputWrap .input:focus{outline:0;border-color:#38c895;box-shadow:0 0 0 3px rgba(115,255,198,.24)}
+.appConfirmCard[data-dialog-mode="alert"] #appConfirmCancel{display:none}.appConfirmCard[data-dialog-mode="alert"] .appConfirmActions{grid-template-columns:1fr}.appConfirmCard[data-dialog-mode="alert"] #appConfirmAccept{justify-self:end;min-width:150px}

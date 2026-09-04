@@ -70,6 +70,10 @@ assert.match(app,/selected=mergePresetRows\(resolved\)/,'pricing-library applica
 assert.doesNotMatch(app,/selected=mergeDupes\(resolved\)/,'pricing-library application must not call a migration-scoped helper');
 assert.match(app,/async function loadPricingLibraryEntry\(name\)\{[\s\S]*?await applyPresetByScope\(name,\{silent:false,confirmReplace:true\}\)/,'selecting a populated Pricing Library entry must apply its BOM to the calculator');
 assert.match(html,/id="appConfirmModal"[\s\S]*?VENTURE HOME[\s\S]*?id="appConfirmAccept"/,'Pricing Library replacement must use the branded in-app confirmation dialog');
+assert.match(html,/id="appConfirmInputWrap"[\s\S]*?id="appConfirmInput"/,'branded dialog must include an in-app text-entry mode');
+assert.match(app,/function showAppAlert\(options=\{\}\)/,'branded dialog must support alerts');
+assert.match(app,/function showAppPrompt\(options=\{\}\)/,'branded dialog must support text prompts');
+assert.doesNotMatch(app,/(^|[^A-Za-z])(alert|confirm|prompt)\s*\(/m,'native browser dialogs must not remain in application code');
 assert.match(app,/await showAppConfirmation\(\{[\s\S]*?confirmLabel:'Replace BOM'[\s\S]*?cancelLabel:'Keep Current BOM'/,'BOM replacement must await the branded confirmation result');
 assert.doesNotMatch(app,/confirm\('This project already contains materials\./,'native browser confirmation must not be used for Pricing Library BOM replacement');
 assert.match(app, /\{item:"3 1\/2 inch galvanized rigid weatherhead",category:"Conduit Fittings",cost:114\.02\}/,'3 1/2 inch galvanized rigid weatherhead must be available at $114.02');
@@ -101,7 +105,7 @@ assert.match(app, /function downloadCustomerDetailedPDF\(\)/,'customer detailed 
 assert.match(app, /VenturePricing\.customerDetailedRows\(selected,currentMaterialMarkup\(\),currentLaborMultiplier\(\)\)/,'customer detailed quote must use customer-safe allocated line pricing');
 assert.match(app, /function downloadQuotePDF\(\)[\s\S]*?VenturePricing\.internalQuoteRows\(selected\)/,'internal quote PDF must fold the trench minimum into its base line items');
 assert.match(html, /Customer Detailed Quote PDF/,'documents tab must expose the customer detailed quote');
-assert.match(html, /equipment-library\.js\?v=2\.4\.5/,'equipment cutout library must load before the app');
+assert.match(html, /equipment-library\.js\?v=2\.4\.6/,'equipment cutout library must load before the app');
 assert.match(app, /function equipmentAssetSource\(/,'photo editor must support external equipment cutouts');
 for (const id of ['meter','tap_box','main_service_panel','ac_disconnect','enphase_combiner','tesla_solar_inverter','powerwall3','tesla_wall_connector','meter_main','subpanel','smart_panel','backup_gateway','ev_charger_pedestal','nema_14_50_receptacle','emt_1in_1ft','emt_1in_90','emt_1in_lb']) {
   assert.match(equipmentLibrary, new RegExp(`id:'${id}'`), `missing equipment cutout ${id}`);
@@ -116,10 +120,10 @@ assert.match(html, /name="materialMarkupPricing" value="0"/,'pricing review cont
 assert.match(html, /name="materialMarkupMain" value="0\.25"/,'main quote controls must include 25% markup');
 assert.match(html, /name="materialMarkupPricing" value="0\.25"/,'pricing review controls must include 25% markup');
 assert.match(html, /data-zero-labor="true"> 0% \+ Labor 1\.3×/,'both markup control groups must expose the labor-only zero-markup mode');
-assert.match(app, /const APP_VERSION='v2.4.5'/,'app release version must be current');
-assert.match(html, /styles\.css\?v=2\.4\.5["']/,'stylesheet URL must be cache-busted for the current release');
-assert.match(html, /pricing-core\.js\?v=2\.4\.5["']/,'pricing engine URL must be cache-busted for the current release');
-assert.match(html, /app\.js\?v=2\.4\.5["']/,'app script URL must be cache-busted for the current release');
+assert.match(app, /const APP_VERSION='v2.4.6'/,'app release version must be current');
+assert.match(html, /styles\.css\?v=2\.4\.6["']/,'stylesheet URL must be cache-busted for the current release');
+assert.match(html, /pricing-core\.js\?v=2\.4\.6["']/,'pricing engine URL must be cache-busted for the current release');
+assert.match(html, /app\.js\?v=2\.4\.6["']/,'app script URL must be cache-busted for the current release');
 
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
 assert.equal(new Set(ids).size, ids.length, 'duplicate HTML ids found');
